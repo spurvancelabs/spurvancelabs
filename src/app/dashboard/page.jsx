@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import LogoutButton from './LogoutButton';
+import NotificationBell from '@/components/NotificationBell';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,9 +23,10 @@ export default async function DashboardPage() {
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <LogoutButton />
-            </div>
+<div className="flex items-center space-x-4">
+               <NotificationBell />
+               <LogoutButton />
+             </div>
           </div>
         </div>
       </nav>
