@@ -2,7 +2,9 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
+import { rateLimiter } from '@/lib/rate-limit'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
@@ -15,12 +17,26 @@ const resetPasswordSchema = z.object({
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 
+               request.headers.get('cf-connecting-ip') || 
+               'unknown'
+    
+    if (rateLimiter.isBlocked(ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const { token, password } = resetPasswordSchema.parse(body)
 
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+
     const user = await prisma.user.findFirst({
       where: {
-        resetToken: token,
+        resetTokenHash: tokenHash,
         resetTokenExpiry: {
           gt: new Date()
         }
@@ -28,27 +44,46 @@ export async function POST(request) {
     })
 
     if (!user) {
+      rateLimiter.increment(ip)
       return NextResponse.json(
         { error: 'Invalid or expired reset token' },
         { status: 400 }
       )
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    rateLimiter.reset(ip)
+
+    const hashedPassword = await bcrypt.hash(password, 12)
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
         resetToken: null,
+        resetTokenHash: null,
         resetTokenExpiry: null,
       }
     })
 
-    return NextResponse.json(
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'PASSWORD_RESET',
+        ip,
+        userAgent: request.headers.get('user-agent')
+      }
+    })
+
+    const response = NextResponse.json(
       { message: 'Password reset successful' },
       { status: 200 }
     )
+    
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'DENY')
+    response.headers.set('X-XSS-Protection', '1; mode=block')
+    
+    return response
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

@@ -2,17 +2,28 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import crypto from 'crypto'
-import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
+import { rateLimiter } from '@/lib/rate-limit'
+import { sendEmail } from '@/lib/email'
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
 })
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 
+               request.headers.get('cf-connecting-ip') || 
+               'unknown'
+    
+    if (rateLimiter.isBlocked(ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const { email } = forgotPasswordSchema.parse(body)
 
@@ -28,24 +39,31 @@ export async function POST(request) {
     }
 
     const token = crypto.randomBytes(32).toString('hex')
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
     const expiry = new Date(Date.now() + 60 * 60 * 1000)
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
         resetToken: token,
+        resetTokenHash: tokenHash,
         resetTokenExpiry: expiry,
       }
     })
 
-    const resetUrl = `${request.nextUrl.origin}/reset-password?token=${token}`
+    rateLimiter.reset(ip)
 
-    await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: email,
-      subject: 'Reset your password',
-      html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
-    })
+    const resetUrl = `${request.nextUrl.origin}/reset-password?token=${encodeURIComponent(token)}`
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Reset your password',
+        html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+      })
+    } catch (emailError) {
+      console.error('Email send error:', emailError)
+    }
 
     return NextResponse.json(
       { message: 'If an account exists with that email, you will receive reset instructions.' },

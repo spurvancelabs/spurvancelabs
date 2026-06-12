@@ -2,10 +2,12 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 import { z, ZodError } from 'zod'
 import { prisma } from '@/lib/prisma'
-import { getJwtSecret } from '@/lib/auth'
+import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
+import { rateLimiter } from '@/lib/rate-limit'
+import { sendEmail } from '@/lib/email'
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -19,6 +21,18 @@ const signupSchema = z.object({
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 
+               request.headers.get('cf-connecting-ip') || 
+               'unknown'
+    
+    if (rateLimiter.isBlocked(ip)) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const { email, password, name } = signupSchema.parse(body)
 
@@ -33,35 +47,95 @@ export async function POST(request) {
       )
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    const emailVerifyToken = crypto.randomBytes(32).toString('hex')
 
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         name,
+        emailVerifyToken,
       }
     })
 
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      getJwtSecret(),
-      { expiresIn: '7d' }
-    )
+    rateLimiter.reset(ip)
+
+    const verifyUrl = `${request.nextUrl.origin}/verify-email?token=${encodeURIComponent(emailVerifyToken)}`
+
+    let emailSent = true
+    try {
+      const emailResult = await sendEmail({
+        to: email,
+        subject: 'Verify your email',
+        html: `<p>Please verify your email by clicking <a href="${verifyUrl}">here</a>.</p>`,
+      })
+      if (!emailResult.success) {
+        emailSent = false
+        console.error('Email send failed:', emailResult.error)
+      }
+    } catch (emailError) {
+      emailSent = false
+      console.error('Email send error:', emailError)
+    }
+
+    const accessToken = generateAccessToken({ 
+      userId: user.id, 
+      email: user.email 
+    })
+
+    const refreshToken = generateRefreshToken({ 
+      userId: user.id, 
+      email: user.email 
+    })
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken }
+    })
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'SIGNUP',
+        ip,
+        userAgent: request.headers.get('user-agent')
+      }
+    })
 
     const cookieStore = await cookies()
-    cookieStore.set("token", token, {
+    cookieStore.set("token", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: "lax",
+      sameSite: "strict",
+      maxAge: 15 * 60,
+      path: "/",
+    })
+
+    cookieStore.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     })
 
-    return NextResponse.json(
-      { message: 'Signup successful', user: { id: user.id, email: user.email, name: user.name } },
+    const response = NextResponse.json(
+      { 
+        message: emailSent 
+          ? 'Signup successful. Please check your email to verify your account.' 
+          : 'Signup successful. Verification email may not have been sent (check console).',
+        user: { id: user.id, email: user.email, name: user.name } 
+      },
       { status: 201 }
     )
+    
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'DENY')
+    response.headers.set('X-XSS-Protection', '1; mode=block')
+    
+    return response
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

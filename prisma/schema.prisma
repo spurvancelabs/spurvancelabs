@@ -16,7 +16,25 @@ model User {
   name             String
   email            String    @unique
   password         String
+  emailVerified    Boolean   @default(false)
+  emailVerifyToken String?
   resetToken       String?
+  resetTokenHash   String?
   resetTokenExpiry DateTime?
+  refreshToken     String?
+  failedAttempts   Int       @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
   createdAt        DateTime  @default(now())
+  AuditLog         AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
