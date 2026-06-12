@@ -3,9 +3,13 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { verifyToken, getJwtSecret } from '@/lib/auth'
+import { notificationService } from '@/lib/notification-service'
 
 export async function POST(request) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 'unknown'
+
     const cookieStore = await cookies()
     const token = cookieStore.get("token")?.value
     
@@ -22,11 +26,12 @@ export async function POST(request) {
             data: {
               userId: decoded.userId,
               action: 'LOGOUT',
-              ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                  request.headers.get('x-real-ip') || 'unknown',
+              ip,
               userAgent: request.headers.get('user-agent')
             }
           })
+
+          notificationService.notifyUserAction(decoded.userId, 'LOGOUT', { ip }).catch(console.error)
         }
       } catch {}
     }

@@ -1,6 +1,7 @@
 // src/app/api/auth/verify-email/route.js
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { notificationService } from '@/lib/notification-service'
 
 export async function GET(request) {
   try {
@@ -39,6 +40,8 @@ export async function GET(request) {
         userAgent: request.headers.get('user-agent')
       }
     })
+
+    notificationService.notifyUserAction(user.id, 'EMAIL_VERIFIED').catch(console.error)
 
     return NextResponse.redirect(new URL('/login?message=email_verified', request.url))
   } catch (error) {

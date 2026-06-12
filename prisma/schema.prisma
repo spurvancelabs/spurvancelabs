@@ -27,6 +27,7 @@ model User {
   lastLoginAt      DateTime?
   createdAt        DateTime  @default(now())
   AuditLog         AuditLog[]
+  Notification     Notification[]
 }
 
 model AuditLog {
@@ -37,4 +38,34 @@ model AuditLog {
   userAgent String?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId       String
+  title      String
+  message    String
+  read       Boolean  @default(false)
+  priority   NotificationPriority @default(MEDIUM)
+  type       NotificationType @default(INFO)
+  createdAt  DateTime @default(now())
+  readAt     DateTime?
+  user       User     @relation(fields: [userId], references: [id])
+  metadata   Json?
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
 }

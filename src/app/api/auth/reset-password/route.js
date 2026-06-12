@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { rateLimiter } from '@/lib/rate-limit'
+import { notificationService } from '@/lib/notification-service'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
@@ -73,6 +74,8 @@ export async function POST(request) {
         userAgent: request.headers.get('user-agent')
       }
     })
+
+    notificationService.notifyUserAction(user.id, 'PASSWORD_RESET', { ip }).catch(console.error)
 
     const response = NextResponse.json(
       { message: 'Password reset successful' },

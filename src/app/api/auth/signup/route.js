@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
 import { sendEmail } from '@/lib/email'
+import { notificationService } from '@/lib/notification-service'
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -103,6 +104,13 @@ export async function POST(request) {
         userAgent: request.headers.get('user-agent')
       }
     })
+
+    notificationService.create(user.id, {
+      title: 'Welcome!',
+      message: 'Your account has been created successfully.',
+      priority: 'HIGH',
+      type: 'SUCCESS'
+    }).catch(console.error)
 
     const cookieStore = await cookies()
     cookieStore.set("token", accessToken, {

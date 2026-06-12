@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { getJwtSecret, generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
+import { notificationService } from '@/lib/notification-service'
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -100,6 +101,8 @@ export async function POST(request) {
         userAgent: request.headers.get('user-agent')
       }
     })
+
+    notificationService.notifyUserAction(user.id, 'LOGIN', { ip }).catch(console.error)
 
     const cookieStore = await cookies()
     cookieStore.set("token", accessToken, {
