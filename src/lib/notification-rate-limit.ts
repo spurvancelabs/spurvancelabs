@@ -1,13 +1,14 @@
 import { RateLimiter } from './rate-limit'
 
 class NotificationRateLimiter extends RateLimiter {
+  private maxNotifications = 10
+  private windowMs = 60 * 1000
+
   constructor() {
     super()
-    this.maxNotifications = 10
-    this.windowMs = 60 * 1000
   }
 
-  getRemaining(userId) {
+  getRemaining(userId: string) {
     const record = this.attempts.get(userId)
     if (!record) return { count: 0, remaining: this.maxNotifications }
     return {
@@ -16,7 +17,7 @@ class NotificationRateLimiter extends RateLimiter {
     }
   }
 
-  increment(userId) {
+  increment(userId: string) {
     const now = Date.now()
     const record = this.attempts.get(userId)
 
@@ -27,7 +28,7 @@ class NotificationRateLimiter extends RateLimiter {
     }
   }
 
-  isRateLimited(userId) {
+  isRateLimited(userId: string) {
     const record = this.attempts.get(userId)
     return record && record.count >= this.maxNotifications
   }

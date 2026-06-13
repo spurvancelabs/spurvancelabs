@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
-let transporter = null
-let resendClient = null
+let transporter: any = null
+let resendClient: any = null
 
 async function createTransporter() {
   if (!transporter && process.env.SMTP_HOST) {
@@ -19,8 +19,13 @@ async function createTransporter() {
   return transporter
 }
 
-export async function sendEmail({ to, subject, html }) {
-  // Try SMTP first (only if actually configured with a real host)
+interface SendEmailOptions {
+  to: string
+  subject: string
+  html: string
+}
+
+export async function sendEmail({ to, subject, html }: SendEmailOptions) {
   if (process.env.SMTP_HOST && process.env.SMTP_HOST.length > 0) {
     try {
       const transport = await createTransporter()
@@ -33,11 +38,10 @@ export async function sendEmail({ to, subject, html }) {
       return { success: true, messageId: result.messageId }
     } catch (error) {
       console.error('SMTP send error:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: (error as Error).message }
     }
   }
 
-  // Fallback to Resend
   if (process.env.RESEND_API_KEY && !resendClient) {
     resendClient = new Resend(process.env.RESEND_API_KEY)
   }
@@ -57,11 +61,10 @@ export async function sendEmail({ to, subject, html }) {
       return { success: true }
     } catch (error) {
       console.error('Resend send error:', error)
-      return { success: false, error: error.message }
+      return { success: false, error: (error as Error).message }
     }
   }
 
-  // No email service - log to console for development
   console.log('=== EMAIL DEBUG (no email service configured) ===')
   console.log('To:', to)
   console.log('Subject:', subject)

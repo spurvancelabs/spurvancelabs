@@ -3,13 +3,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { BellIcon } from '@heroicons/react/24/outline'
 
+interface Notification {
+  id: string
+  title: string
+  message: string
+  read: boolean
+  priority: string
+  type: string
+  createdAt: Date
+}
+
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState([])
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
-  const eventSourceRef = useRef(null)
-  const dropdownRef = useRef(null)
+  const eventSourceRef = useRef<EventSource | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,20 +43,20 @@ export default function NotificationBell() {
     eventSourceRef.current = eventSource
 
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data)
+      const data: unknown = JSON.parse(event.data)
 
-      if (data.type === 'CONNECTED') return
+      if (data && typeof data === 'object' && (data as any).type === 'CONNECTED') return
 
-      if (data.type === 'READ' || data.type === 'DELETE') {
-        setNotifications(prev => prev.filter(n => !data.ids?.includes(n.id) || !data.id))
+      if (data && typeof data === 'object' && ['READ', 'DELETE'].includes((data as any).type)) {
+        setNotifications(prev => prev.filter(n => !(data as any).ids?.includes(n.id) || !(data as any).id))
       }
 
-      if (data.type === 'READ_ALL') {
+      if (data && typeof data === 'object' && (data as any).type === 'READ_ALL') {
         setNotifications(prev => prev.map(n => ({ ...n, read: true, readAt: new Date() })))
       }
 
-      if (data.id && !['READ', 'DELETE', 'READ_ALL'].includes(data.type)) {
-        setNotifications(prev => [data, ...prev])
+      if (data && typeof data === 'object' && (data as any).id && !['READ', 'DELETE', 'READ_ALL'].includes((data as any).type)) {
+        setNotifications(prev => [data as Notification, ...prev])
         setUnreadCount(prev => prev + 1)
       }
     }
@@ -63,8 +73,8 @@ export default function NotificationBell() {
   }, [])
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
@@ -73,7 +83,7 @@ export default function NotificationBell() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const markAsRead = async (id) => {
+  const markAsRead = async (id: string) => {
     const res = await fetch('/api/notifications', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -101,7 +111,7 @@ export default function NotificationBell() {
     }
   }
 
-  const deleteNotification = async (id) => {
+  const deleteNotification = async (id: string) => {
     const res = await fetch('/api/notifications', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -115,7 +125,7 @@ export default function NotificationBell() {
     }
   }
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'HIGH': return 'border-red-500 bg-red-50'
       case 'MEDIUM': return 'border-yellow-500 bg-yellow-50'
@@ -123,7 +133,7 @@ export default function NotificationBell() {
     }
   }
 
-  const getTypeIcon = (type) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
       case 'SUCCESS': return '✓'
       case 'WARNING': return '⚠'

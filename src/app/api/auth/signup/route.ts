@@ -1,13 +1,11 @@
-// src/app/api/auth/signup/route.js
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { z, ZodError } from 'zod'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-import { z, ZodError } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
-import { sendEmail } from '@/lib/email'
 import { notificationService } from '@/lib/notification-service'
 
 const signupSchema = z.object({
@@ -20,12 +18,14 @@ const signupSchema = z.object({
   name: z.string().min(1),
 })
 
-export async function POST(request) {
+type SignupBody = z.infer<typeof signupSchema>
+
+export async function POST(request: Request) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                request.headers.get('x-real-ip') || 
                request.headers.get('cf-connecting-ip') || 
-               'unknown'
+               'unknown') as string
     
     if (rateLimiter.isBlocked(ip)) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(request) {
       )
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as SignupBody
     const { email, password, name } = signupSchema.parse(body)
 
     const existingUser = await prisma.user.findUnique({
@@ -63,10 +63,11 @@ export async function POST(request) {
 
     rateLimiter.reset(ip)
 
-    const verifyUrl = `${request.nextUrl.origin}/verify-email?token=${encodeURIComponent(emailVerifyToken)}`
+    const verifyUrl = `${request.headers.get('referer')?.split('/').slice(0, 3).join('/') || new URL(request.url).origin}/verify-email?token=${encodeURIComponent(emailVerifyToken)}`
 
     let emailSent = true
     try {
+      const { sendEmail } = await import('@/lib/email')
       const emailResult = await sendEmail({
         to: email,
         subject: 'Verify your email',
@@ -145,7 +146,7 @@ export async function POST(request) {
     
     return response
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
         { status: 400 }

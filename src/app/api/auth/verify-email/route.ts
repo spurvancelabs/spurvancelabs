@@ -1,11 +1,10 @@
-// src/app/api/auth/verify-email/route.js
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { notificationService } from '@/lib/notification-service'
 
-export async function GET(request) {
+export async function GET(request: Request) {
   try {
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = new URL(request.url).searchParams
     const token = searchParams.get('token')
 
     if (!token) {

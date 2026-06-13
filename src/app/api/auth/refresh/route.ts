@@ -1,10 +1,9 @@
-// src/app/api/auth/refresh/route.js
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { verifyToken, generateAccessToken } from '@/lib/auth'
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
     const refreshToken = cookieStore.get("refreshToken")?.value
@@ -20,6 +19,13 @@ export async function POST(request) {
     try {
       decoded = verifyToken(refreshToken)
     } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid refresh token' },
+        { status: 401 }
+      )
+    }
+
+    if (!decoded) {
       return NextResponse.json(
         { error: 'Invalid refresh token' },
         { status: 401 }

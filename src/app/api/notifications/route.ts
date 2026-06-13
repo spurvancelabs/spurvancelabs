@@ -14,7 +14,9 @@ const createNotificationSchema = z.object({
   userId: z.string().optional()
 })
 
-export async function GET(request) {
+type CreateNotificationBody = z.infer<typeof createNotificationSchema>
+
+export async function GET(request: Request) {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('token')?.value
@@ -42,7 +44,7 @@ export async function GET(request) {
   }
 }
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('token')?.value
@@ -62,7 +64,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as CreateNotificationBody
     const { title, message, priority, type } = createNotificationSchema.parse(body)
 
     notificationRateLimiter.increment(userId)
@@ -84,7 +86,7 @@ export async function POST(request) {
   }
 }
 
-export async function PATCH(request) {
+export async function PATCH(request: Request) {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('token')?.value
@@ -98,7 +100,7 @@ export async function PATCH(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as { readAll?: boolean; ids?: string[] }
 
     if (body.readAll) {
       await notificationService.markAllAsRead(decoded.userId)
@@ -117,7 +119,7 @@ export async function PATCH(request) {
   }
 }
 
-export async function DELETE(request) {
+export async function DELETE(request: Request) {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('token')?.value
@@ -131,7 +133,7 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as { id?: string }
 
     if (body.id) {
       await notificationService.delete(decoded.userId, body.id)
