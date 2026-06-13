@@ -1,4 +1,3 @@
-// src/app/api/auth/forgot-password/route.js
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import crypto from 'crypto'
@@ -10,12 +9,14 @@ const forgotPasswordSchema = z.object({
   email: z.string().email(),
 })
 
-export async function POST(request) {
+type ForgotPasswordBody = z.infer<typeof forgotPasswordSchema>
+
+export async function POST(request: Request) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                request.headers.get('x-real-ip') || 
                request.headers.get('cf-connecting-ip') || 
-               'unknown'
+               'unknown') as string
     
     if (rateLimiter.isBlocked(ip)) {
       return NextResponse.json(
@@ -24,7 +25,7 @@ export async function POST(request) {
       )
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as ForgotPasswordBody
     const { email } = forgotPasswordSchema.parse(body)
 
     const user = await prisma.user.findUnique({
@@ -53,7 +54,8 @@ export async function POST(request) {
 
     rateLimiter.reset(ip)
 
-    const resetUrl = `${request.nextUrl.origin}/reset-password?token=${encodeURIComponent(token)}`
+    const url = new URL(request.url)
+    const resetUrl = `${url.origin}/reset-password?token=${encodeURIComponent(token)}`
 
     try {
       await sendEmail({
@@ -70,7 +72,7 @@ export async function POST(request) {
       { status: 200 }
     )
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
         { status: 400 }

@@ -1,4 +1,3 @@
-// src/app/api/auth/login/route.js
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
@@ -13,12 +12,14 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-export async function POST(request) {
+type LoginBody = z.infer<typeof loginSchema>
+
+export async function POST(request: Request) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                request.headers.get('x-real-ip') || 
                request.headers.get('cf-connecting-ip') || 
-               'unknown'
+               'unknown') as string
     
     if (rateLimiter.isBlocked(ip)) {
       return NextResponse.json(
@@ -27,7 +28,7 @@ export async function POST(request) {
       )
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as LoginBody
     const { email, password } = loginSchema.parse(body)
 
     const user = await prisma.user.findUnique({
@@ -54,7 +55,7 @@ export async function POST(request) {
       rateLimiter.increment(ip)
       
       const failedAttempts = (user.failedAttempts || 0) + 1
-      const updateData = { failedAttempts }
+      const updateData = { failedAttempts } as { failedAttempts: number; lockedUntil?: Date }
       
       if (failedAttempts >= 5) {
         updateData.lockedUntil = new Date(Date.now() + 30 * 60 * 1000)

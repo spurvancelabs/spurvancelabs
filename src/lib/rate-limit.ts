@@ -1,10 +1,8 @@
 export class RateLimiter {
-  constructor() {
-    this.attempts = new Map();
-    this.blocked = new Map();
-  }
+  protected attempts: Map<string, { count: number; firstAttempt: number }> = new Map();
+  protected blocked: Map<string, number> = new Map();
 
-  isBlocked(ip) {
+  isBlocked(ip: string) {
     const blockTime = this.blocked.get(ip);
     if (blockTime && Date.now() < blockTime) {
       return true;
@@ -13,7 +11,7 @@ export class RateLimiter {
     return false;
   }
 
-  getRemaining(ip) {
+  getRemaining(ip: string) {
     const record = this.attempts.get(ip);
     if (!record) return { count: 0, remaining: 5 };
     return {
@@ -22,7 +20,7 @@ export class RateLimiter {
     };
   }
 
-  increment(ip) {
+  increment(ip: string) {
     const now = Date.now();
     const record = this.attempts.get(ip);
 
@@ -37,7 +35,7 @@ export class RateLimiter {
     }
   }
 
-  reset(ip) {
+  reset(ip: string) {
     this.attempts.delete(ip);
     this.blocked.delete(ip);
   }

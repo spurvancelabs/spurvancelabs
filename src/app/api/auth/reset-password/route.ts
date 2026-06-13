@@ -1,4 +1,3 @@
-// src/app/api/auth/reset-password/route.js
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import bcrypt from 'bcryptjs'
@@ -16,12 +15,14 @@ const resetPasswordSchema = z.object({
     .regex(/[^A-Za-z0-9]/, "Password must contain at least one symbol"),
 })
 
-export async function POST(request) {
+type ResetPasswordBody = z.infer<typeof resetPasswordSchema>
+
+export async function POST(request: Request) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                request.headers.get('x-real-ip') || 
                request.headers.get('cf-connecting-ip') || 
-               'unknown'
+               'unknown') as string
     
     if (rateLimiter.isBlocked(ip)) {
       return NextResponse.json(
@@ -30,7 +31,7 @@ export async function POST(request) {
       )
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as ResetPasswordBody
     const { token, password } = resetPasswordSchema.parse(body)
 
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
@@ -88,7 +89,7 @@ export async function POST(request) {
     
     return response
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
         { status: 400 }

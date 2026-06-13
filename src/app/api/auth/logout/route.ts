@@ -1,14 +1,13 @@
-// src/app/api/auth/logout/route.js
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
-import { verifyToken, getJwtSecret } from '@/lib/auth'
+import { verifyToken } from '@/lib/auth'
 import { notificationService } from '@/lib/notification-service'
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-               request.headers.get('x-real-ip') || 'unknown'
+    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               request.headers.get('x-real-ip') || 'unknown') as string
 
     const cookieStore = await cookies()
     const token = cookieStore.get("token")?.value

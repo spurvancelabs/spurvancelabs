@@ -3,7 +3,7 @@ import { verifyToken } from '@/lib/auth'
 import { notificationService } from '@/lib/notification-service'
 import { notificationRateLimiter } from '@/lib/notification-rate-limit'
 
-export async function GET(request) {
+export async function GET(request: Request) {
   const cookieStore = await cookies()
   const token = cookieStore.get('token')?.value
 
@@ -27,7 +27,7 @@ export async function GET(request) {
       const userId = decoded.userId
       const encoder = new TextEncoder()
 
-      const send = (data) => {
+      const send = (data: unknown) => {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
       }
 

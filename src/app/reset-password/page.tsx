@@ -13,9 +13,9 @@ function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
@@ -34,9 +34,9 @@ function ResetPasswordForm() {
         setTimeout(() => router.push('/login'), 3000);
       } else {
         if (data.error === 'Validation failed' && data.issues) {
-          const mapped = {};
+          const mapped: Record<string, string> = {};
           for (const [field, messages] of Object.entries(data.issues)) {
-            mapped[field] = messages?.[0] || String(messages);
+            mapped[field] = (messages as string[] | undefined)?.[0] || String(messages);
           }
           setErrors(mapped);
         } else {
@@ -85,7 +85,7 @@ function ResetPasswordForm() {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (errors.password) setErrors({ ...errors, password: undefined });
+                  if (errors.password) setErrors({ ...errors, password: '' });
                 }}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                 required
@@ -144,5 +144,5 @@ export default function ResetPasswordPage() {
     <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center"><p>Loading...</p></div>}>
       <ResetPasswordForm />
     </Suspense>
-  )
+  );
 }

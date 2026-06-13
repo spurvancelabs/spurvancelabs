@@ -2,10 +2,27 @@
 
 import { useCallback, useRef } from 'react'
 
-export function useNotifications() {
-  const listenersRef = useRef(new Set())
+export interface NotificationCreateData {
+  title: string
+  message: string
+  priority?: string
+  type?: string
+}
 
-  const createNotification = useCallback(async (data) => {
+export interface NotificationFilters {
+  limit?: number
+  unreadOnly?: boolean
+}
+
+export interface NotificationResult {
+  notifications: unknown[]
+  unreadCount: number
+}
+
+export function useNotifications() {
+  const listenersRef = useRef(new Set<(data: unknown) => void>())
+
+  const createNotification = useCallback(async (data: NotificationCreateData) => {
     const res = await fetch('/api/notifications', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -20,18 +37,20 @@ export function useNotifications() {
     return result.notification
   }, [])
 
-  const fetchNotifications = useCallback(async (options = {}) => {
-    const searchParams = new URLSearchParams(options).toString()
-    const res = await fetch(`/api/notifications?${searchParams}`)
+  const fetchNotifications = useCallback(async (options: NotificationFilters = {}) => {
+    const searchParams = new URLSearchParams()
+    if (options.limit !== undefined) searchParams.set('limit', String(options.limit))
+    if (options.unreadOnly !== undefined) searchParams.set('unreadOnly', String(options.unreadOnly))
+    const res = await fetch(`/api/notifications?${searchParams.toString()}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch notifications')
     }
 
-    return await res.json()
+    return await res.json() as NotificationResult
   }, [])
 
-  const markAsRead = useCallback(async (ids) => {
+  const markAsRead = useCallback(async (ids: string[]) => {
     const res = await fetch('/api/notifications', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -55,7 +74,7 @@ export function useNotifications() {
     }
   }, [])
 
-  const deleteNotification = useCallback(async (id) => {
+  const deleteNotification = useCallback(async (id: string) => {
     const res = await fetch('/api/notifications', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
