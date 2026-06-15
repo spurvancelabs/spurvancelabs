@@ -22,7 +22,7 @@ const [isTransitioning, setIsTransitioning] = useState(false);
     setActiveTab(pathname === '/login' ? 'login' : 'signup')
   }, [pathname])
 
-const handleTabChange = (tab) => {
+const handleTabChange = (tab: 'login' | 'signup') => {
   if (tab === activeTab || isTransitioning) return;
 
   setActiveTab(tab);
@@ -34,16 +34,16 @@ const handleTabChange = (tab) => {
 };
 
   // Mouse/Touch drag handlers
-  const handleDragStart = (e) => {
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true)
-    const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX
+    const clientX = e.type === 'mousedown' ? (e as React.MouseEvent).clientX : (e as React.TouchEvent).touches[0].clientX
     setStartX(clientX)
     setDragOffset(0)
   }
 
-  const handleDragMove = (e) => {
+  const handleDragMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging) return
-    const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX
+    const clientX = e.type === 'mousemove' ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
     let diff = clientX - startX
     
     // Limit the drag distance
@@ -100,7 +100,7 @@ const handleTabChange = (tab) => {
     }
   }
 
-  const getTextTransform = (buttonType) => {
+  const getTextTransform = (buttonType: 'login' | 'signup') => {
     if (!isDragging || dragOffset === 0) return 'none'
     
     if (buttonType === 'signup' && activeTab === 'signup' && dragOffset > 0) {
@@ -122,10 +122,11 @@ const handleTabChange = (tab) => {
             alt="Spurvancelab" 
             width={40}
             height={40}
-            className="h-8 w-8 object-contain md:h-10 md:w-10"
+            className="h-8 w-8 object-contain md:h-12 md:w-12"
             priority
           />
         </Link>
+        <span className='text-[18px] font-semibold md:text-2xl'>Spurvancelab</span>
       </div>
       
       <div 

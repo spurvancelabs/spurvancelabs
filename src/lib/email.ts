@@ -26,22 +26,6 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail({ to, subject, html }: SendEmailOptions) {
-  if (process.env.SMTP_HOST && process.env.SMTP_HOST.length > 0) {
-    try {
-      const transport = await createTransporter()
-      const result = await transport.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
-        to,
-        subject,
-        html,
-      })
-      return { success: true, messageId: result.messageId }
-    } catch (error) {
-      console.error('SMTP send error:', error)
-      return { success: false, error: (error as Error).message }
-    }
-  }
-
   if (process.env.RESEND_API_KEY && !resendClient) {
     resendClient = new Resend(process.env.RESEND_API_KEY)
   }
@@ -61,6 +45,22 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
       return { success: true }
     } catch (error) {
       console.error('Resend send error:', error)
+      return { success: false, error: (error as Error).message }
+    }
+  }
+
+  if (process.env.SMTP_HOST && process.env.SMTP_HOST.length > 0) {
+    try {
+      const transport = await createTransporter()
+      const result = await transport.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to,
+        subject,
+        html,
+      })
+      return { success: true, messageId: result.messageId }
+    } catch (error) {
+      console.error('SMTP send error:', error)
       return { success: false, error: (error as Error).message }
     }
   }

@@ -1,9 +1,10 @@
 'use client';
 
+import React from 'react';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import "../../global.css"
-
+import GradientImage from '@/components/GradientImage';
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -52,32 +53,36 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
-          <div className="px-6 py-8 sm:p-10 text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Invalid Link</h1>
-            <p className="text-gray-600">No reset token found. Please request a new password reset.</p>
-            <a href="/forgot-password" className="inline-block mt-4 text-blue-600 hover:text-blue-500">Request new link</a>
+      <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
+        <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-8 md:gap-5 md:px-8">
+            <div className="text-center max-w-[280px] md:max-w-[300px]">
+              <h1 className="text-2xl font-bold md:text-3xl">Invalid Link</h1>
+              <p className="mt-2 text-xs text-gray-300 md:text-sm">No reset token found. Please request a new password reset.</p>
+              <a href="/forgot-password" className="inline-block mt-4 text-blue-600 hover:text-blue-500 underline">Request new link</a>
+            </div>
+          </div>
+          <div className="flex w-full items-center justify-center px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">
+            <span>© 2026 Spurvancelab</span>
           </div>
         </div>
+        <GradientImage />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
-        <div className="px-6 py-8 sm:p-10">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h1>
-            <p className="text-gray-600">Enter your new password below.</p>
+    <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
+      <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-8 md:gap-5 md:px-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold md:text-3xl">Reset Password</h1>
+            <p className="mt-2 text-xs text-gray-300 md:text-sm">Enter your new password below.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                New Password
-              </label>
+          <form onSubmit={handleSubmit} className="flex w-full max-w-[280px] flex-col gap-4 md:max-w-[300px]">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="password" className="text-xs font-medium md:text-sm">New Password</label>
               <input
                 id="password"
                 type="password"
@@ -87,23 +92,21 @@ function ResetPasswordForm() {
                   setPassword(e.target.value);
                   if (errors.password) setErrors({ ...errors, password: '' });
                 }}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                className="h-10 w-full rounded-lg border-none bg-[#181818] pl-4 pr-4 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 md:h-11 md:text-sm"
                 required
               />
               {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm New Password
-              </label>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="confirmPassword" className="text-xs font-medium md:text-sm">Confirm New Password</label>
               <input
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                className="h-10 w-full rounded-lg border-none bg-[#181818] pl-4 pr-4 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 md:h-11 md:text-sm"
                 required
               />
               {confirmPassword && password !== confirmPassword && (
@@ -114,34 +117,36 @@ function ResetPasswordForm() {
             <button
               type="submit"
               disabled={loading || password !== confirmPassword}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
 
           {message && (
-            <div className={`mt-6 p-3 rounded-lg text-center text-sm ${message.includes('Something went wrong') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+            <div className={`mt-4 w-full max-w-[280px] rounded-lg p-3 text-center text-xs md:max-w-[300px] md:text-sm ${message.includes('Something went wrong') ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>
               {message}
             </div>
           )}
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              <a href="/login" className="font-medium text-blue-600 hover:text-blue-500 transition duration-200">
-                Back to login
-              </a>
-            </p>
-          </div>
+          <p className="text-center text-xs text-gray-300 md:text-sm">
+            <a href="/login" className="font-semibold text-white underline hover:text-gray-300">Back to login</a>
+          </p>
+        </div>
+
+        <div className="flex w-full items-center justify-center px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">
+          <span>© 2026 Spurvancelab</span>
         </div>
       </div>
+
+      <GradientImage />
     </div>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center"><p>Loading...</p></div>}>
+    <Suspense fallback={<div className="flex min-h-screen w-full flex-col md:flex-row bg-black items-center justify-center"><p className="text-white">Loading...</p></div>}>
       <ResetPasswordForm />
     </Suspense>
   );

@@ -18,8 +18,9 @@ model User {
   password         String
   emailVerified    Boolean   @default(false)
   emailVerifyToken String?
+  resetOTP         String?
+  resetOTPExpiry   DateTime?
   resetToken       String?
-  resetTokenHash   String?
   resetTokenExpiry DateTime?
   refreshToken     String?
   failedAttempts   Int       @default(0)

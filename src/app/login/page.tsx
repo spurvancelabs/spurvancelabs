@@ -7,6 +7,7 @@ import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import "../../global.css";
 import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
 import LanguageSelector from "@/components/languageSelector";
+import GradientImage from '@/components/GradientImage';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col md:flex-row">
+    <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
       {/* Left Section - Black */}
       <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
         {/* Header */}
@@ -146,10 +147,9 @@ export default function LoginPage() {
       </div>
 
       {/* Right Section - White with Gradients (FIXED) */}
-     <div className="relative hidden md:block md:w-1/2 bg-white overflow-hidden md:min-h-screen">
-        <div className="fixed bottom-[200px]  h-[700px] w-[700px] rounded-full bg-[#1F1FE0] opacity-100 blur-[70px]" />
-        <div className="fixed bottom-[350px]  h-[700px] w-[700px] rounded-full bg-black opacity-100 blur-[40px]" />
-      </div>
+
+        <GradientImage />
+
     </div>
   );
 }

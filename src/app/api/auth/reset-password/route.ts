@@ -34,11 +34,9 @@ export async function POST(request: Request) {
     const body = (await request.json()) as ResetPasswordBody
     const { token, password } = resetPasswordSchema.parse(body)
 
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
-
     const user = await prisma.user.findFirst({
       where: {
-        resetTokenHash: tokenHash,
+        resetToken: token,
         resetTokenExpiry: {
           gt: new Date()
         }
@@ -62,7 +60,6 @@ export async function POST(request: Request) {
       data: {
         password: hashedPassword,
         resetToken: null,
-        resetTokenHash: null,
         resetTokenExpiry: null,
       }
     })
