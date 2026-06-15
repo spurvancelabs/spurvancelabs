@@ -7,6 +7,7 @@ import { UserIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outl
 import "../../global.css";
 import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
 import LanguageSelector from "@/components/languageSelector";
+import GradientImage from "@/components/GradientImage";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col md:flex-row">
+    <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
       {/* Left Section - Black */}
       <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
         {/* Header */}
@@ -173,12 +174,6 @@ export default function SignupPage() {
             </div>
           )}
 
-          <p className="text-center text-xs text-gray-300 md:text-sm">
-            Already have an account?{' '}
-            <a href="/login" className="font-semibold text-white underline hover:text-gray-300">
-              Sign in
-            </a>
-          </p>
         </div>
 
         <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">
@@ -188,10 +183,10 @@ export default function SignupPage() {
       </div>
 
       {/* Right Section - White with Gradients (IDENTICAL to login page) */}
-      <div className="relative hidden md:block md:w-1/2 bg-white overflow-hidden md:min-h-screen">
-        <div className="fixed bottom-[200px]  h-[700px] w-[700px] rounded-full bg-[#1F1FE0] opacity-100 blur-[70px]" />
-        <div className="fixed bottom-[350px]  h-[700px] w-[700px] rounded-full bg-black opacity-100 blur-[40px]" />
-      </div>
+        
+        <GradientImage />
+
+      
     </div>
   );
 }

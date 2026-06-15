@@ -11,6 +11,10 @@ const forgotPasswordSchema = z.object({
 
 type ForgotPasswordBody = z.infer<typeof forgotPasswordSchema>
 
+function generateOTP(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
 export async function POST(request: Request) {
   try {
     const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
@@ -39,36 +43,43 @@ export async function POST(request: Request) {
       )
     }
 
-    const token = crypto.randomBytes(32).toString('hex')
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
-    const expiry = new Date(Date.now() + 60 * 60 * 1000)
+    const otp = generateOTP()
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex')
+    const expiry = new Date(Date.now() + 10 * 60 * 1000)
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        resetToken: token,
-        resetTokenHash: tokenHash,
-        resetTokenExpiry: expiry,
+        resetOTP: otpHash,
+        resetOTPExpiry: expiry,
       }
     })
 
     rateLimiter.reset(ip)
 
-    const url = new URL(request.url)
-    const resetUrl = `${url.origin}/reset-password?token=${encodeURIComponent(token)}`
+    console.log('=== OTP DEBUG ===')
+    console.log('To:', email)
+    console.log('OTP:', otp)
+    console.log('=================')
 
     try {
-      await sendEmail({
+      const result = await sendEmail({
         to: email,
-        subject: 'Reset your password',
-        html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+        subject: 'Your password reset OTP',
+        html: `<p>Your password reset OTP is: <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
       })
+      if (!result.success) {
+        console.error('Email send failed:', result.error)
+      }
     } catch (emailError) {
       console.error('Email send error:', emailError)
     }
 
     return NextResponse.json(
-      { message: 'If an account exists with that email, you will receive reset instructions.' },
+      { 
+        message: 'If an account exists with that email, you will receive reset instructions.',
+        ...(process.env.NODE_ENV === 'development' ? { otp } : {})
+      },
       { status: 200 }
     )
   } catch (error) {
