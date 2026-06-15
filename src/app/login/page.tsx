@@ -3,9 +3,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/solid';
+import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import "../../global.css";
 import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
+import LanguageSelector from "@/components/languageSelector";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export default function LoginPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium md:text-sm">Email Address</label>
               <div className="relative">
-                <EnvelopeIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 md:h-5 md:w-5" />
+                <EnvelopeIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]" />
                 <input
                   type="email"
                   placeholder="johndoe@gmail.com"
@@ -90,7 +91,7 @@ export default function LoginPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium md:text-sm">Password</label>
               <div className="relative">
-                <LockClosedIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 md:h-5 md:w-5" />
+                <LockClosedIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]" />
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -103,8 +104,13 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between text-xs text-gray-300 md:text-sm">
-              <label className="flex items-center gap-1.5">
-                <input type="checkbox" className="h-3.5 w-3.5 rounded border-gray-600 bg-[#181818] text-blue-600 focus:ring-blue-500 md:h-4 md:w-4" />
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <div className="relative flex items-center">
+                  <input type="checkbox" className="peer h-3.5 w-3.5 cursor-pointer appearance-none rounded border-2 border-gray-300 bg-[#181818] checked:bg-blue-600 checked:border-blue-600 focus:ring-2 focus:ring-blue-500 md:h-4 md:w-4" />
+                  <svg className="pointer-events-none absolute left-0.5 top-0.5 h-2.5 w-2.5 text-white opacity-0 peer-checked:opacity-100 md:left-0.5 md:top-0.5 md:h-3 md:w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
                 Keep me logged in
               </label>
               <a href="/forgot-password" className="text-white underline hover:text-gray-300">Forget Password?</a>
@@ -133,10 +139,9 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Footer */}
-        <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] text-gray-500 md:px-8 md:text-xs">
+        <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">
           <span>© 2026 Spurvancelab</span>
-          <span>ENG</span>
+          <LanguageSelector />
         </div>
       </div>
 

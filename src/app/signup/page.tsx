@@ -3,9 +3,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/solid';
+import { UserIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import "../../global.css";
 import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
+import LanguageSelector from "@/components/languageSelector";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -93,7 +94,7 @@ export default function SignupPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium md:text-sm">Full Name</label>
               <div className="relative">
-                <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 md:h-5 md:w-5" />
+                <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)] " />
                 <input
                   type="text"
                   placeholder="John Doe"
@@ -114,7 +115,7 @@ export default function SignupPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium md:text-sm">Email Address</label>
               <div className="relative">
-                <EnvelopeIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 md:h-5 md:w-5" />
+                <EnvelopeIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]" />
                 <input
                   type="email"
                   placeholder="johndoe@gmail.com"
@@ -135,7 +136,7 @@ export default function SignupPage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium md:text-sm">Password</label>
               <div className="relative">
-                <LockClosedIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 md:h-5 md:w-5" />
+                <LockClosedIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-300 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]" />
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -180,10 +181,9 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Footer */}
-        <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] text-gray-500 md:px-8 md:text-xs">
+        <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">
           <span>© 2026 Spurvancelab</span>
-          <span>ENG</span>
+          <LanguageSelector />
         </div>
       </div>
 
