@@ -1,20 +1,73 @@
-
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import BlogCard from '@/components/blog/BlogCard';
-import BlogIcon from '@/components/blog/BlogIcon';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema, type Options as RehypeSanitizeOptions } from 'rehype-sanitize';
+import remarkGfm from 'remark-gfm';
+
 import BlogShell from '@/components/blog/BlogShell';
-import AnimatedParagraph from '@/components/blog/AnimatedParagraph';
-import AnimatedSlideBlock from '@/components/blog/AnimatedSlideBlock';
-import { formatDate, getBlogPostBySlug, getBlogPosts, getRelatedPosts } from '@/lib/blog';
+import {
+  formatDate,
+  getBlogPostBySlug,
+  getBlogPosts,
+  getRelatedPosts,
+  type BlogPost,
+} from '@/lib/blog';
 import '@/global.css';
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateStaticParams() {
+const markdownWrapperClassName = [
+  'space-y-6 text-base leading-8 text-gray-300',
+  '[&_h1]:mt-10 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:tracking-tight [&_h1]:text-white',
+  '[&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-white',
+  '[&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-white',
+  '[&_p]:my-4',
+  '[&_a]:text-blue-400 [&_a]:underline [&_a]:decoration-blue-400/60 [&_a]:underline-offset-4 [&_a]:hover:text-blue-300',
+  '[&_img]:my-8 [&_img]:w-full [&_img]:rounded-3xl [&_img]:border [&_img]:border-white/17 [&_img]:object-cover',
+  '[&_ul]:my-4 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6',
+  '[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6',
+  '[&_li]:pl-2',
+  '[&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-blue-500 [&_blockquote]:pl-4 [&_blockquote]:text-gray-300',
+  '[&_pre]:my-6 [&_pre]:overflow-x-auto [&_pre]:rounded-2xl [&_pre]:bg-white/10 [&_pre]:p-4 [&_pre]:text-sm [&_pre]:text-gray-100',
+  '[&_code]:rounded [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-blue-200',
+  '[&_table]:my-6 [&_table]:w-full [&_table]:border-collapse [&_table]:text-sm',
+  '[&_th]:border [&_th]:border-white/10 [&_th]:bg-white/5 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-white',
+  '[&_td]:border [&_td]:border-white/10 [&_td]:px-3 [&_td]:py-2',
+].join(' ');
+
+const sanitizeOptions: RehypeSanitizeOptions = {
+  ...defaultSchema,
+  tagNames: [
+    ...(defaultSchema.tagNames ?? []),
+    'div',
+    'span',
+    'figure',
+    'figcaption',
+    'picture',
+    'source',
+    'details',
+    'summary',
+    'kbd',
+    'mark',
+  ],
+  attributes: {
+    ...defaultSchema.attributes,
+    '*': [...(defaultSchema.attributes?.['*'] ?? []), 'className'],
+    a: [...(defaultSchema.attributes?.a ?? []), 'className', 'target', 'rel'],
+    img: [...(defaultSchema.attributes?.img ?? []), 'className', 'loading', 'decoding'],
+  },
+  protocols: {
+    ...defaultSchema.protocols,
+    href: ['http', 'https', 'mailto', 'tel'],
+    src: ['http', 'https'],
+  },
+};
+
+export function generateStaticParams() {
   return getBlogPosts().map((post) => ({
     slug: post.slug,
   }));
@@ -26,12 +79,12 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: 'Blog post not found | Spurvancelab',
+      title: 'Blog Post Not Found | Spurvancelab',
     };
   }
 
   return {
-    title: `${post.title} | Spurvancelab Blog`,
+    title: `${post.title} | Spurvancelab`,
     description: post.excerpt,
   };
 }
@@ -45,147 +98,155 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   const relatedPosts = getRelatedPosts(post);
-  const allPosts = getBlogPosts();
-  const postIndex = allPosts.findIndex((item) => item.id === post.id);
-  const previousPost = allPosts[postIndex + 1];
-  const nextPost = allPosts[postIndex - 1];
 
   return (
     <BlogShell>
-      <article className="bg-black">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_280px] lg:px-8 lg:py-16">
-          <div className="lg:pr-10">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-300 transition hover:text-blue-200">
-              <span aria-hidden="true">←</span>
-              Back to blog
-            </Link>
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <Link
+          href="/blog"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-white"
+        >
+          ← Back to blog
+        </Link>
 
-            <div className="mt-8 overflow-hidden rounded-[2rem] shadow-[0_28px_100px_rgba(37,99,235,0.24)]" style={{ background: post.gradient }}>
-              <div className="relative flex min-h-[340px] items-end p-8 sm:p-10">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                <div className="relative rounded-3xl border border-white/20 bg-black/60 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md">
-                  <BlogIcon name={post.category} className="mr-2 inline h-4 w-4 text-blue-300" />
-                  {post.categoryName}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-blue-300">
-                <span className="inline-flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-blue-300" />
-                  {post.categoryName}
-                </span>
-                <span className="text-white/20">·</span>
-                <span className="text-gray-400">{formatDate(post.date)}</span>
-                <span className="text-white/20">·</span>
-                <span className="text-gray-400">{post.readTime}</span>
-              </div>
-
-              <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
-                {post.title}
-              </h1>
-
-              <p className="mt-6 text-xl leading-8 text-gray-300">
-                {post.excerpt}
-              </p>
-
-              <div className="mt-8 flex items-center gap-4 border-y border-white/10 py-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-base font-bold text-white shadow-lg shadow-blue-500/30">
-                  {post.author.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">{post.author}</p>
-                  <p className="text-xs text-gray-400">Published {formatDate(post.date)}</p>
-                </div>
-              </div>
-
-              <div className="mt-10 max-w-none">
-                {post.content.map((paragraph, idx) => (
-                  <AnimatedParagraph key={idx} index={idx}>
-                    {paragraph}
-                  </AnimatedParagraph>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <aside className="h-fit space-y-6 rounded-3xl border border-white/10 bg-[#0b0b0b] p-6 shadow-[0_20px_70px_rgba(37,99,235,0.12)] lg:sticky lg:top-24">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-400">Share</p>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <span className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-gray-300">
-                  <BlogIcon name="link" className="h-4 w-4 text-blue-300" />
-                  Copy
-                </span>
-                <span className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-gray-300">
-                  <BlogIcon name="bookmark" className="h-4 w-4 text-blue-300" />
-                  Save
-                </span>
-                <span className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-gray-300">
-                  <BlogIcon name="mail" className="h-4 w-4 text-blue-300" />
-                  Mail
-                </span>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-400">Article info</p>
-              <dl className="mt-4 space-y-3 text-sm">
-                <div className="flex justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-gray-400"><BlogIcon name="tag" className="h-4 w-4 text-blue-300" />Category</dt>
-                  <dd className="font-semibold text-white">{post.categoryName}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-gray-400"><BlogIcon name="clock" className="h-4 w-4 text-blue-300" />Read time</dt>
-                  <dd className="font-semibold text-white">{post.readTime}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-gray-400"><BlogIcon name="book" className="h-4 w-4 text-blue-300" />Date</dt>
-                  <dd className="font-semibold text-white">{formatDate(post.date)}</dd>
-                </div>
-              </dl>
-            </div>
-          </aside>
+        <div className="mb-5">
+          <h1 className="text-center text-5xl font-bold text-white">{post.title}</h1>
         </div>
-      </article>
 
-      {(previousPost || nextPost || relatedPosts.length > 0) && (
-        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-          <div className="rounded-[2rem] border border-white/10 bg-[#0b0b0b] p-6 shadow-[0_20px_70px_rgba(37,99,235,0.12)] sm:p-8">
-             <h2 className="text-2xl font-bold text-white">Keep reading</h2>
-            <div className="mt-6 grid gap-4">
-              {previousPost && (
-                <AnimatedSlideBlock
-                  href={`/blog/${previousPost.slug}`}
-                  label="← Previous"
-                  title={previousPost.title}
-                  direction="left"
-                />
-              )}
-              {nextPost && (
-                <AnimatedSlideBlock
-                  href={`/blog/${nextPost.slug}`}
-                  label="Next →"
-                  title={nextPost.title}
-                  direction="right"
-                />
-              )}
-            </div>
+        <div className="mb-6 overflow-hidden rounded-3xl border border-white/17">
+          <img
+            className="w-full object-cover transition-transform duration-300"
+            src={post.coverImage || "https://images.unsplash.com/photo-1771740700854-dcb3162873a6?w=900&auto=format&fit=crop&q=70&ixlib=rb-4.1.0"}
+            alt={post.title}
+          />
+        </div>
 
-            {relatedPosts.length > 0 && (
-              <div className="mt-10">
-                <h3 className="text-xl font-bold text-white">More from this topic</h3>
-                <div className="mt-5 grid gap-6 md:grid-cols-3">
-                   {relatedPosts.map((relatedPost, i) => (
-                     <BlogCard key={relatedPost.id} post={relatedPost} index={i} />
-                   ))}
-                </div>
-              </div>
-            )}
+        <div className="mb-8 flex flex-wrap items-center gap-4">
+          <div className="h-12 w-12 overflow-hidden rounded-full bg-gray-700">
+            <img
+              className="h-full w-full object-cover"
+              src={post.authorImage || "https://plus.unsplash.com/premium_photo-1689607809841-cbbc3595f3fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0"}
+              alt={post.author}
+            />
           </div>
-        </section>
-      )}
+          <div>
+            <span className="font-semibold text-white">{post.author}</span>
+            <span className="ml-3 text-sm text-gray-400">
+              {formatDate(post.date)} • {post.readTime}
+            </span>
+          </div>
+        </div>
+
+        <BlogContentRenderer content={post.content} />
+
+        <div className="mb-16">
+          <h2 className="mb-6 text-2xl font-bold">Related Posts</h2>
+          {relatedPosts.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {relatedPosts.map((relatedPost) => (
+                <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`} className="group block">
+                  <div className="mb-3 overflow-hidden rounded-xl border border-white/17">
+                    <img
+                      className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      src={relatedPost.coverImage || "https://images.unsplash.com/photo-1771740700854-dcb3162873a6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0"}
+                      alt={relatedPost.title}
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold leading-tight transition-colors group-hover:text-blue-400">
+                    {relatedPost.title}
+                  </h3>
+                  <span className="text-sm text-gray-400">{relatedPost.readTime}</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No related posts yet.</p>
+          )}
+        </div>
+
+        <div>
+          <div className="mb-8 flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Comments</h2>
+          </div>
+
+          <div className="mb-8 flex gap-4">
+            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-gray-700">
+              <img
+                className="h-full w-full object-cover"
+                src="https://plus.unsplash.com/premium_photo-1689607809841-cbbc3595f3fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0"
+                alt="User"
+              />
+            </div>
+            <div className="flex-1">
+              <input
+                type="text"
+                className="w-full border-b border-gray-700 bg-transparent py-2 text-white placeholder-gray-500 outline-none transition-colors focus:border-gray-500"
+                placeholder="Add a comment..."
+              />
+              <div className="mt-2 flex justify-end gap-2">
+                <button className="rounded-full px-4 py-1.5 text-sm font-medium text-gray-400 transition-colors hover:text-white">
+                  Cancel
+                </button>
+                <button className="rounded-full bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700">
+                  Comment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </BlogShell>
   );
+}
+
+function BlogContentRenderer({ content }: { content: BlogPost['content'] }) {
+  const contentString = Array.isArray(content) ? content.join('\n\n') : content;
+
+  if (!contentString.trim()) {
+    return <p className="text-gray-400">No content available.</p>;
+  }
+
+  return (
+    <div className="mb-16 rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-8">
+      {renderBlogContent(contentString)}
+    </div>
+  );
+}
+
+function renderBlogContent(content: string) {
+  return (
+    <div className={markdownWrapperClassName}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeOptions]]}
+        urlTransform={sanitizeUrl}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+function sanitizeUrl(url: string) {
+  return isSafeUrl(url) ? url : '#';
+}
+
+function isSafeUrl(url: string) {
+  const trimmedUrl = url.trim();
+
+  if (!trimmedUrl) {
+    return false;
+  }
+
+  if (trimmedUrl.startsWith('#') || trimmedUrl.startsWith('/') || trimmedUrl.startsWith('./') || trimmedUrl.startsWith('../')) {
+    return true;
+  }
+
+  try {
+    const parsedUrl = new URL(trimmedUrl.startsWith('//') ? `https:${trimmedUrl}` : trimmedUrl);
+
+    return ['http:', 'https:', 'mailto:', 'tel:'].includes(parsedUrl.protocol);
+  } catch {
+    return false;
+  }
 }
