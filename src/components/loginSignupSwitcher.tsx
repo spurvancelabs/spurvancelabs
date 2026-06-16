@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -13,25 +13,18 @@ const LoginSignupSwitcher = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
   const [startX, setStartX] = useState(0)
-const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const handleTabChange = (tab: 'login' | 'signup') => {
+    if (tab === activeTab || isTransitioning) return;
 
+    setActiveTab(tab);
+    setIsTransitioning(true);
 
-  
-  useEffect(() => {
-    setActiveTab(pathname === '/login' ? 'login' : 'signup')
-  }, [pathname])
-
-const handleTabChange = (tab: 'login' | 'signup') => {
-  if (tab === activeTab || isTransitioning) return;
-
-  setActiveTab(tab);
-  setIsTransitioning(true);
-
-  setTimeout(() => {
-    router.push(tab === "login" ? "/login" : "/signup");
-  }, 350);
-};
+    setTimeout(() => {
+      router.push(tab === "login" ? "/login" : "/signup");
+    }, 350);
+  };
 
   // Mouse/Touch drag handlers
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
@@ -41,7 +34,7 @@ const handleTabChange = (tab: 'login' | 'signup') => {
     setDragOffset(0)
   }
 
-  const handleDragMove = (e: MouseEvent | TouchEvent) => {
+  const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return
     const clientX = e.type === 'mousemove' ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX
     let diff = clientX - startX
@@ -50,9 +43,9 @@ const handleTabChange = (tab: 'login' | 'signup') => {
     const maxDrag = 60
     diff = Math.max(-maxDrag, Math.min(maxDrag, diff))
     setDragOffset(diff)
-  }
+  }, [isDragging, startX])
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     if (!isDragging) return
     
     setIsDragging(false)
@@ -67,9 +60,8 @@ const handleTabChange = (tab: 'login' | 'signup') => {
     }
     
     setDragOffset(0)
-  }
+  }, [isDragging, dragOffset, activeTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Clean up event listeners
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleDragMove)
@@ -84,7 +76,7 @@ const handleTabChange = (tab: 'login' | 'signup') => {
         window.removeEventListener('touchend', handleDragEnd)
       }
     }
-  }, [isDragging, dragOffset])
+  }, [isDragging, handleDragMove, handleDragEnd])
 
   // Calculate transform values based on drag direction
   const getSliderTransform = () => {

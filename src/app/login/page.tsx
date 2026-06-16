@@ -9,6 +9,7 @@ import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
 import LanguageSelector from "@/components/languageSelector";
 import GradientImage from '@/components/GradientImage';
 
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -132,12 +133,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          <p className="text-center text-xs text-gray-300 md:text-sm">
-            Don't have an account?{' '}
-            <a href="/signup" className="font-semibold text-white underline hover:text-gray-300">
-              Sign up
-            </a>
-          </p>
         </div>
 
         <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">
