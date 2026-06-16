@@ -45,127 +45,214 @@ const categories: BlogCategory[] = [
   },
 ];
 
-const blogPosts: BlogPost[] = [
+// In your blog data file (lib/blog.ts or similar)
+
+export const blogPosts: BlogPost[] = [
   {
-    id: 'post-auth-nextjs',
-    slug: 'nextjs-auth-mistakes-we-made',
-    title: 'The 3 Auth Mistakes That Cost Us 2 Weeks',
-    excerpt: 'We shipped a Next.js auth flow that looked perfect on paper. Then real users started hitting walls. Here\'s what we wish we\'d known before.',
-    date: '2026-03-14',
-    category: 'authentication',
-    categoryName: 'Authentication',
-    author: 'Marcus Webb',
-    readTime: '8 min read',
-    gradient: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
-    content: [
-      'We launched our auth flow in a single sprint. Everything passed code review. The PR got approved. Then production traffic showed us how wrong we were.',
-      'Mistake one was treating "remember me" as a checkbox instead of a contract. We stored sessions differently on mobile than desktop. Users on iOS kept getting logged out mid-task. Took four days to realize our token refresh had a race condition.',
-      'Mistake two was hiding the sign-up form behind a "Get started" button. Analytics showed 60% of visitors never saw it. We moved it above the fold and conversions tripled. The old design looked cleaner. It also converted worse.',
-      'Mistake three was not testing with real passwords. Our dev database used "password123" for every account. Production users had actual password managers, special characters, and 32-character passphrases. Our validation regex was too strict and rejected about 8% of signups.',
-      'The fix was shorter than the bug. A one-line regex change, a session config update, and moving a button up the page. But finding those three things took two weeks of support tickets and frustrated users.',
-      'If you\'re building auth right now: test with real passwords, test on real devices, and measure where users actually click, not where you think they click.',
-    ],
-  },
-  {
-    id: 'post-session-management',
-    slug: 'session-management-what-actually-matters',
-    title: 'Session Management: The Parts Nobody Talks About',
-    excerpt: 'Most session guides cover the basics and stop. Here are the edge cases that actually break production.',
-    date: '2026-02-28',
-    category: 'security',
-    categoryName: 'Security',
-    author: 'Priya Nair',
-    readTime: '10 min read',
-    gradient: 'linear-gradient(135deg, #134e4a 0%, #0d9488 100%)',
-    content: [
-      'I\'ve reviewed a lot of session implementations. Most of them handle the happy path. The unhappy path is where things get interesting.',
-      'Refresh token rotation sounds simple on paper. Rotate on use, revoke the old one, done. But what happens when the network drops halfway through? Or the user has three tabs open and they all try to refresh at once?',
-      'We had a bug where concurrent refreshes would invalidate all but one tab. Users would refresh one tab and suddenly get logged out of the other two. Not a security disaster, but definitely an annoyance.',
-      'The solution was a short-lived access token with a generous refresh window. Instead of rotating on every use, we rotate on a 5-minute sliding window. It\'s simpler and handles the concurrent case gracefully.',
-      'Logout is trickier than it looks. Clearing cookies client-side is not enough. The server needs to blacklist the refresh token. But that blacklist needs to be checked on every authenticated request, which adds latency.',
-      'We compromised: blacklist for 10 minutes, then trust that the token is effectively dead after its expiry. It\'s not perfect, but it\'s good enough for most products.',
-      'The real takeaway: security is a series of trade-offs. Know which ones you\'re making and why.',
-    ],
-  },
-  {
-    id: 'post-ui-forms',
-    slug: 'forms-that-dont-suck',
-    title: 'I Spent 3 Days on a Single Form Field',
-    excerpt: 'The password strength meter took longer than the entire login flow. Here\'s why that was worth it.',
-    date: '2026-01-19',
-    category: 'engineering',
-    categoryName: 'Engineering',
-    author: 'James Okonkwo',
-    readTime: '6 min read',
-    gradient: 'linear-gradient(135deg, #581c87 0%, #a21caf 100%)',
-    content: [
-      'Our login form was done in a day. The password field took three. Not because it was complex, but because we kept arguing about what "strong" means.',
-      'The first version showed a generic "password must be at least 8 characters" message. Users hated it. They\'d type a 12-character password with numbers and symbols, see the error, and assume our system was broken.',
-      'We switched to a live strength meter. Green, yellow, red. Simple. But we spent hours deciding what the thresholds should be. Length only? Mixed case? Special characters? Dictionary words?',
-      'Turns out, NIST agrees with most users: length matters more than character chaos. A 12-character password with common words is harder to crack than an 8-character one with every symbol you can find.',
-      'We went with a 12-character minimum and a zxcvbn score above 2. No forced special characters. Users stopped complaining. Password reset requests dropped by 40%.',
-      'The lesson: trust users to make good choices. Guide them, don\'t fight them.',
-    ],
-  },
-  {
-    id: 'post-privacy-first',
-    slug: 'privacy-isnt-a-feature',
-    title: 'Privacy Is Not a Feature',
-    excerpt: 'Adding a privacy toggle is not the same as building a product that respects people. The distinction matters more than ever.',
-    date: '2025-12-05',
-    category: 'product',
-    categoryName: 'Product',
-    author: 'Elena Vasquez',
-    readTime: '5 min read',
-    gradient: 'linear-gradient(135deg, #9a3412 0%, #ea580c 100%)',
-    content: [
-      'Every product review now includes a "privacy score." Every feature launch mentions "privacy-first." But most of this is marketing.',
-      'Real privacy is not a toggle. It\'s the default. It\'s not asking users to opt in to data protection. It\'s not collecting the data in the first place.',
-      'I worked on a product that collected location data "to improve recommendations." The feature was optional. But the opt-out was buried in settings most users never reached.',
-      'We fixed it by making location collection opt-in from the start. The app still worked. Recommendations were slightly less accurate. Users trusted us more.',
-      'The privacy paradox: users say they want privacy, but they also want personalization. The companies that win will be the ones that make privacy the default, not the exception.',
-      'If you\'re building a product in 2026, ask yourself: what data am I collecting that I don\'t actually need? Start there.',
-    ],
-  },
-  {
-    id: 'post-static-pages',
-    slug: 'why-we-still-use-static-pages',
-    title: 'Why Our Team Still Prefers Static Pages for Launches',
-    excerpt: 'In a world of headless CMSs and dynamic everything, sometimes a good old HTML file is the right call.',
-    date: '2026-04-02',
-    category: 'engineering',
-    categoryName: 'Engineering',
-    author: 'James Okonkwo',
-    readTime: '4 min read',
-    gradient: 'linear-gradient(135deg, #155e75 0%, #0891b2 100%)',
-    content: [
-      'Our marketing site is still mostly static HTML. No CMS. No build step for content changes. Just files we can drag to S3.',
-      'People think static is a limitation. We think it\'s a feature. No database to hack. No admin panel to secure. No dependency updates that break the production build at 5 PM on Friday.',
-      'When we need dynamic content, we add a small API layer. But the page structure, the copy, the design — that stays static. It\'s faster, more reliable, and easier to debug.',
-      'The CMS vendors will tell you that every marketing team needs a content editor. Our marketing team prefers Google Docs and a deployment script. Different teams have different needs.',
-      'Static doesn\'t mean boring. Our pages still have animations, interactions, and personalization where it counts. We just don\'t let a CMS dictate the architecture.',
-    ],
-  },
-  {
-    id: 'post-password-recovery',
-    slug: 'password-reset-flows-that-work',
-    title: 'Password Reset: The Flow Everyone Hates But Nobody Fixes',
-    excerpt: 'The password reset flow is the most neglected part of most auth systems. It doesn\'t have to be that way.',
-    date: '2026-01-07',
-    category: 'authentication',
-    categoryName: 'Authentication',
-    author: 'Marcus Webb',
-    readTime: '7 min read',
-    gradient: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-    content: [
-      'Password reset is the last thing anyone wants to build. It\'s also the flow that generates the most support tickets after launch.',
-      'The most common mistake: making the reset email the only recovery path. Not everyone has access to their email. Not everyone checks it regularly. Some people use aliases they forgot about.',
-      'We added a backup recovery code option. Users can generate a set of codes during signup and store them somewhere safe. If email fails, they still have access.',
-      'The reset token itself should be short-lived. Ours expires in 15 minutes. If the user doesn\'t use it, they can request a new one. No "token already used" errors because we don\'t try to be clever about reuse.',
-      'The password reset form should accept the new password and confirm it inline. No separate confirmation step. Just two fields that match and a submit button.',
-      'After reset, log the user in automatically. Don\'t make them type the new password again. They just set it. Send them to a safe page. Let them explore.',
-    ],
-  },
+    id: '1',
+    slug: '10-elegant-color-palettes-for-your-website',
+    title: '10 Elegant Color Palettes for Your Website',
+    excerpt: 'Discover 10 carefully curated color palettes that will transform your web design and create lasting impressions.',
+    author: 'Muzammil Riaz',
+    authorImage: 'https://plus.unsplash.com/premium_photo-1689607809841-cbbc3595f3fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0',
+    date: '2025-11-20',
+    readTime: '9 min read',
+    coverImage: 'https://images.unsplash.com/photo-1771740700854-dcb3162873a6?w=900&auto=format&fit=crop&q=70&ixlib=rb-4.1.0',
+    content: `Color is one of the most powerful tools in a designer's arsenal. The right color palette can transform a website from ordinary to extraordinary, creating emotional connections with users and reinforcing brand identity. In this article, we'll explore 10 elegant color palettes that will elevate your web design projects and leave a lasting impression on your visitors.
+
+## Why Color Palettes Matter
+
+Before diving into our curated palettes, it's important to understand why color selection is crucial for web design. Colors influence perception, evoke emotions, and guide user behavior. Studies have shown that people make subconscious judgments about a website within 90 seconds of viewing it, and up to 90% of that assessment is based on color alone.
+
+![Color palette inspiration](https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+A well-chosen color scheme creates harmony, establishes visual hierarchy, and makes content more readable. It also contributes to brand recognition – think of Coca-Cola's red, Facebook's blue, or Starbucks' green. These brands have built their entire identity around specific colors that resonate with their target audience.
+
+## 1. Serene Ocean
+
+This palette draws inspiration from the deep blue sea and sandy beaches. It combines calming navy blues with warm sandy beiges and crisp whites.
+
+![Ocean color palette](https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+The contrast between dark and light creates a sophisticated, trustworthy feel that works exceptionally well for financial institutions, travel websites, and wellness brands. Use the deep blue for headers and primary elements, the beige for backgrounds, and white for text to ensure readability.
+
+**Hex Codes:**
+- Navy Blue: #1a2a3a
+- Sandy Beige: #f5e6d3
+- Crisp White: #ffffff
+- Ocean Teal: #2c6e7a
+
+## 2. Botanical Garden
+
+Nature-inspired palettes are timeless and universally appealing. This combination features rich forest greens, earthy browns, and delicate floral pinks.
+
+![Botanical garden colors](https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+It brings a fresh, organic feel to any website and works particularly well for eco-friendly brands, organic products, and lifestyle blogs. The green conveys growth and sustainability, while the pink adds a touch of warmth and approachability.
+
+**Hex Codes:**
+- Forest Green: #2d4a3e
+- Earthy Brown: #8b7355
+- Floral Pink: #e8a8b8
+- Sage Green: #9cb4a0
+
+## 3. Golden Hour
+
+Inspired by the warm glow of sunset, this palette features rich golds, burnt oranges, and deep purples.
+
+![Golden hour colors](https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+It creates a sense of luxury, creativity, and warmth. This color combination is ideal for creative agencies, photography portfolios, and brands that want to convey sophistication and artistic flair. The warm tones are inviting and memorable, making visitors feel comfortable and engaged.
+
+**Hex Codes:**
+- Rich Gold: #c9a84c
+- Burnt Orange: #d4652a
+- Deep Purple: #4a2c6a
+- Warm Peach: #f4c9a0
+
+## 4. Minimalist Monochrome
+
+Sometimes, less is more. A monochrome palette using various shades of gray, white, and black creates a clean, modern aesthetic that lets content take center stage.
+
+![Monochrome design](https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+This timeless approach works for any industry and is particularly popular in tech, architecture, and high-end fashion. The key is to use different shades to create depth and visual interest without relying on color alone.
+
+**Hex Codes:**
+- Pure Black: #000000
+- Dark Gray: #333333
+- Medium Gray: #888888
+- Light Gray: #dddddd
+- Pure White: #ffffff
+
+## 5. Mediterranean Vibes
+
+This cheerful palette features terracotta, olive green, and creamy whites, reminiscent of Italian and Greek coastal towns.
+
+![Mediterranean colors](https://images.unsplash.com/photo-1556197616-71c12a93c8e6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+It brings warmth, character, and a sense of timeless beauty to any design. Perfect for restaurants, hospitality brands, and lifestyle websites, this palette creates an inviting atmosphere that feels both sophisticated and approachable.
+
+**Hex Codes:**
+- Terracotta: #c86733
+- Olive Green: #7a8c5e
+- Creamy White: #fdf6ec
+- Deep Blue: #2c5f7a
+
+## 6. Jewel Tones
+
+For brands that want to exude luxury and sophistication, jewel tones offer rich, saturated colors that command attention.
+
+![Jewel tones](https://images.unsplash.com/photo-1518834107812-67b0b7c58434?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+This palette combines emerald green, sapphire blue, ruby red, and amethyst purple. These colors work beautifully for high-end fashion, luxury goods, and premium services.
+
+**Hex Codes:**
+- Emerald: #2d6a4f
+- Sapphire: #1a3a6a
+- Ruby: #8b1a2a
+- Amethyst: #6a2a7a
+
+## 7. Pastel Dreams
+
+Soft, muted pastels create a gentle, calming atmosphere that's perfect for wellness brands, children's products, and lifestyle blogs.
+
+![Pastel colors](https://images.unsplash.com/photo-1488275373886-228f8f0de4f2?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+This palette features baby pink, mint green, lavender, and powder blue. The subtle tones are easy on the eyes and create a sense of tranquility and approachability.
+
+**Hex Codes:**
+- Baby Pink: #f4c2c2
+- Mint Green: #b8d4c8
+- Lavender: #d8c8e8
+- Powder Blue: #b8d4e8
+
+## 8. Retro Revival
+
+Drawing inspiration from the 70s, this palette combines mustard yellow, avocado green, burnt orange, and chocolate brown.
+
+![Retro colors](https://images.unsplash.com/photo-1558997519-3e13b46dfa3b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+It brings nostalgia and personality to brands in the creative industries, including music, fashion, and entertainment.
+
+**Hex Codes:**
+- Mustard Yellow: #d4a837
+- Avocado Green: #6a7a4a
+- Burnt Orange: #c86733
+- Chocolate Brown: #5a3a2a
+
+## 9. Neon Nights
+
+For brands that want to make a bold statement, neon colors create energy, excitement, and memorability.
+
+![Neon colors](https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+This palette features electric blue, hot pink, lime green, and bright purple. Use these colors sparingly as accents against dark backgrounds for maximum impact.
+
+**Hex Codes:**
+- Electric Blue: #00d4ff
+- Hot Pink: #ff2a6a
+- Lime Green: #39ff14
+- Bright Purple: #b026ff
+
+## 10. Earth Tones
+
+Natural, grounded colors create a sense of stability, authenticity, and connection to nature.
+
+![Earth tones](https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+This palette features warm browns, soft greens, and muted oranges. It works particularly well for outdoor brands, organic products, and sustainable businesses.
+
+**Hex Codes:**
+- Warm Brown: #8b7355
+- Soft Green: #7a8c5e
+- Muted Orange: #c9a87a
+- Clay: #c86733
+
+## Implementing Your Color Palette
+
+Once you've selected your palette, implementing it effectively is crucial. Follow the 60-30-10 rule: use your primary color for 60% of the design, secondary for 30%, and accent for the remaining 10%.
+
+![Color implementation](https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0)
+
+Ensure sufficient contrast between text and background colors for accessibility. Test your palette across different devices and screen sizes to ensure consistency.
+
+## Tools for Creating Color Palettes
+
+Here are some excellent tools to help you create and test color palettes:
+
+| Tool | Description | Best For |
+|------|-------------|----------|
+| **Coolors** | Fast color palette generator | Quick inspiration |
+| **Adobe Color** | Advanced color wheel and trends | Professional design |
+| **Paletton** | Color scheme designer | Color theory study |
+| **Color Hunt** | Curated color palettes | Pre-made collections |
+| **Muzli Colors** | AI-powered suggestions | Modern designs |
+
+## Tips for Using Color Effectively
+
+1. **Consider accessibility**: Ensure sufficient contrast for readability
+2. **Test on multiple devices**: Colors appear differently on various screens
+3. **Use color psychology**: Choose colors that evoke the right emotions
+4. **Limit your palette**: 3-5 colors is usually enough
+5. **Maintain consistency**: Use the same colors across all brand touchpoints
+
+## Conclusion
+
+Choosing the right color palette is an investment in your brand's future. The 10 palettes we've explored offer a range of options suitable for various industries and design styles.
+
+Remember, the best palette is one that aligns with your brand values, resonates with your target audience, and creates a memorable user experience. Don't be afraid to experiment and iterate – sometimes the most beautiful color combinations come from unexpected places.
+
+Start experimenting with these palettes in your next project and watch how they transform your designs. Whether you're building a new website or refreshing an existing one, these elegant color combinations will help you create something truly special that stands out in today's digital landscape.
+
+## Further Reading
+
+- [The Psychology of Color in Web Design](#)
+- [How to Choose the Perfect Color Scheme](#)
+- [Color Accessibility Guidelines](#)
+- [Trending Color Palettes for 2026](#)
+- [Using Color to Improve User Experience](#)`
+  }
 ];
 
 export function getBlogPosts() {
