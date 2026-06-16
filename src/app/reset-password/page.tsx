@@ -54,6 +54,7 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
+      <GradientImage />
         <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
           <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-8 md:gap-5 md:px-8">
             <div className="text-center max-w-[280px] md:max-w-[300px]">
@@ -139,7 +140,6 @@ function ResetPasswordForm() {
         </div>
       </div>
 
-      <GradientImage />
     </div>
   );
 }

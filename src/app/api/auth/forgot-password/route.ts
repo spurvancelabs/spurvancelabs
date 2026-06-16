@@ -70,9 +70,17 @@ export async function POST(request: Request) {
       })
       if (!result.success) {
         console.error('Email send failed:', result.error)
+        return NextResponse.json(
+          { error: 'Failed to send email. Please try again later.' },
+          { status: 500 }
+        )
       }
     } catch (emailError) {
       console.error('Email send error:', emailError)
+      return NextResponse.json(
+        { error: 'Failed to send email. Please try again later.' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(
