@@ -50,6 +50,21 @@ export async function POST(request: Request) {
       )
     }
 
+
+    if (user.provider === 'google') {
+  return NextResponse.json(
+    { error: 'This account uses Google Sign-In' },
+    { status: 400 }
+  )
+}
+
+if (!user.password) {
+  return NextResponse.json(
+    { error: 'Password login unavailable for this account' },
+    { status: 400 }
+  )
+}
+
     const isValid = await bcrypt.compare(password, user.password)
     if (!isValid) {
       rateLimiter.increment(ip)

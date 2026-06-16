@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "./src/lib/auth";
+import { verifyToken } from "@/lib/auth";
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
@@ -9,7 +9,7 @@ export function middleware(req: NextRequest) {
     req.nextUrl.pathname.startsWith("/dashboard") ||
     req.nextUrl.pathname.startsWith("/profile");
 
-  if (isProtected && !token) {
+    if (isProtected && !token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -17,20 +17,14 @@ export function middleware(req: NextRequest) {
     const decoded = verifyToken(token);
 
     if (!decoded) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      const res = NextResponse.redirect(new URL("/login", req.url));
+
+      res.cookies.delete("token");
+      res.cookies.delete("refreshToken");
+
+      return res;
     }
   }
 
-  const response = NextResponse.next();
-  
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  return response;
+  return NextResponse.next();
 }
-
-export const config = {
-  matcher: ["/dashboard", "/dashboard/:path*", "/profile", "/profile/:path*"],
-};

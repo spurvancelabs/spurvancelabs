@@ -13,20 +13,31 @@ datasource db {
 
 model User {
   id               String    @id @default(cuid())
-  name             String
+  name             String?
   email            String    @unique
-  password         String
+
+  password         String?   // nullable
+
+  provider         String    @default("credentials")
+  providerId       String?
+
+  image            String?
+
   emailVerified    Boolean   @default(false)
+
   emailVerifyToken String?
   resetOTP         String?
   resetOTPExpiry   DateTime?
   resetToken       String?
   resetTokenExpiry DateTime?
   refreshToken     String?
+
   failedAttempts   Int       @default(0)
   lockedUntil      DateTime?
   lastLoginAt      DateTime?
+
   createdAt        DateTime  @default(now())
+
   AuditLog         AuditLog[]
   Notification     Notification[]
 }
