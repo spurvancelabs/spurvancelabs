@@ -1,4 +1,3 @@
-import { NotificationProvider } from '@/context/NotificationContext'
 import React from 'react'
 import NotificationBell from '../NotificationBell'
 import ProfileDropdown from '../dasboard/ProfileDropdown'
@@ -27,9 +26,7 @@ function Header() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <NotificationProvider>
-              <NotificationBell />
-            </NotificationProvider>
+              <NotificationBell  />
             <ProfileDropdown />
           </div>
         </div>

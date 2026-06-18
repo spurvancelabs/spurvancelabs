@@ -8,46 +8,39 @@ import "../../global.css";
 import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
 import LanguageSelector from "@/components/languageSelector";
 import GradientImage from '@/components/GradientImage';
-
+import toast from 'react-hot-toast';
+import { useMutation } from '@tanstack/react-query';
+import { loginUser } from '@/lib/api/auth';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
+const mutation = useMutation({
+  mutationFn: loginUser,
 
+  onSuccess: () => {
+    toast.success('Logged in successfully');
+    router.push('/dashboard');
+  },
+
+  onError: (error: any) => {
+    toast.error(error.error || error.message || 'Failed to login');
+  },
+});
   const handleGoogleLogin = () => {
   window.location.href = '/api/auth/google'
 }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setMessage(data.error);
-        return;
-      }
-
-      router.push('/dashboard');
-    } catch (error) {
-      setMessage('Something went wrong');
-    } finally {
-      setLoading(false);
-    }
-  };
+  mutation.mutate({
+    email,
+    password,
+  });
+};
 
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
@@ -125,19 +118,12 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={mutation.isPending}
               className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {mutation.isPending ? 'Logging in...' : 'Login'}
             </button>
           </form>
-
-          {message && (
-            <div className="mt-4 w-full max-w-[280px] rounded-lg bg-red-500/10 p-3 text-center text-xs text-red-400 md:max-w-[300px] md:text-sm">
-              {message}
-            </div>
-          )}
-
         </div>
 
         <div className="flex w-full items-center justify-between px-6 py-4 text-[10px] font-semibold text-gray-400 md:px-8 md:text-xs">

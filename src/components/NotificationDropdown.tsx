@@ -12,9 +12,11 @@ import {
   ChatBubbleLeftIcon,
   HeartIcon,
   UserPlusIcon,
-  MegaphoneIcon
+  MegaphoneIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { BellIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 interface NotificationDropdownProps {
   onClose: () => void;
@@ -29,6 +31,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
     deleteNotification,
     fetchNotifications
   } = useNotifications();
+
+  // Get only the 5 most recent notifications for the dropdown
+  const recentNotifications = notifications.slice(0, 5);
+  const hasMoreNotifications = notifications.length > 5;
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -48,21 +54,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
         return <MegaphoneIcon className="w-5 h-5 text-gray-400" />;
       default:
         return <InformationCircleIcon className="w-5 h-5 text-blue-400" />;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return 'border-l-2 border-red-500';
-      case 'high':
-        return 'border-l-2 border-orange-500';
-      case 'medium':
-        return 'border-l-2 border-blue-500';
-      case 'low':
-        return 'border-l-2 border-gray-600';
-      default:
-        return '';
     }
   };
 
@@ -123,15 +114,23 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
 
   return (
     <div className="bg-black rounded-lg overflow-hidden">
-      <div className="max-h-96 overflow-y-auto divide-y divide-white/5">
-        {notifications.map((notification) => (
+      {/* Scrollable container with smooth scrolling and custom scrollbar */}
+      <div 
+        className="max-h-96 overflow-y-auto scroll-smooth p-2 space-y-2
+          scrollbar-thin scrollbar-track-black scrollbar-thumb-white/20 
+          hover:scrollbar-thumb-white/40"
+      >
+        {recentNotifications.map((notification) => (
           <div
             key={notification.id}
             onClick={() => handleNotificationClick(notification)}
             className={`
               flex items-start gap-3 p-4 cursor-pointer transition-colors
-              ${!notification.read ? 'bg-white/5' : 'hover:bg-white/5'}
-              ${getPriorityColor(notification.priority)}
+              border rounded-lg
+              ${!notification.read 
+                ? 'bg-white/5 border-white/20' 
+                : 'border-white/10 hover:bg-white/5'
+              }
             `}
           >
             <div className="flex-shrink-0 mt-1">
@@ -179,6 +178,22 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
             </div>
           </div>
         ))}
+      </div>
+      
+      {/* View All Button */}
+      <div className="border-t border-white/5 p-2">
+        <Link
+          href="/notifications"
+          onClick={onClose}
+          className="flex items-center justify-between w-full px-4 py-3 text-sm text-blue-400 hover:bg-white/5 rounded-lg transition-colors group"
+        >
+          <span>
+            {hasMoreNotifications 
+              ? `View all ${notifications.length} notifications` 
+              : 'View all notifications'}
+          </span>
+          <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
       </div>
     </div>
   );
