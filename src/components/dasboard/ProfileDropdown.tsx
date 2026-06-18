@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftStartOnRectangleIcon, Cog6ToothIcon, UserIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 export default function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +31,7 @@ useEffect(() => {
         email: data.email,
       })
     } catch (error) {
-      console.error(error)
+      toast.error("Failed to load user data");
     }
   }
 
@@ -52,10 +54,10 @@ useEffect(() => {
       await fetch('/api/auth/logout', {
         method: 'POST',
       });
-      
+      toast.success("Logged out successfully");
       router.push('/login');
     } catch (error) {
-      console.error('Logout failed:', error);
+      toast.error("Logout failed. Please try again");
       setIsLoggingOut(false);
     }
   };
@@ -63,12 +65,8 @@ useEffect(() => {
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Profile Image - Click to toggle dropdown */}
-      <img
-        src={
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      user.name || 'User'
-    )}`
-  } // Add your default profile image URL
+      <Image
+        src= "" // Add your default profile image URL
         alt="Profile"
         className={`w-8 h-8 rounded-full border border-white/20 cursor-pointer hover:border-blue-400 transition-colors`}
         onClick={() => setIsOpen(!isOpen)}
@@ -79,7 +77,7 @@ useEffect(() => {
         <div className="absolute right-0 mt-2 w-48 backdrop-blur-2xl bg-black/90 border border-white/10 rounded-xl shadow-2xl shadow-black/70 py-1 z-50">
           <div className="px-4 py-3 border-b border-white/10">
             <p className="text-sm font-medium text-white"> {user.name || 'Loading...'}</p>
-            <p className="text-xs text-gray-400">{user.email || 'Loading...'}</p>
+            <p className="text-[10px] text-gray-400">{user.email || 'Loading...'}</p>
           </div>
           
           <Link

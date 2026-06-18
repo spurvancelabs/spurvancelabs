@@ -4,37 +4,37 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import "../../global.css";
 import LanguageSelector from '@/components/languageSelector';
+import toast from 'react-hot-toast';
+import { useMutation } from '@tanstack/react-query';
+import { forgotPassword } from '@/lib/api/auth';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+  const mutation = useMutation({
+  mutationFn: forgotPassword,
 
-      const data = await res.json();
-      if (res.ok) {
-        router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
-      } else {
-        setError(data.error || 'Something went wrong');
-      }
-    } catch (err) {
-      setError('Something went wrong');
-    } finally {
-      setLoading(false);
-    }
-  };
+  onSuccess: () => {
+    toast.success('OTP sent to your email');
+
+    router.push(
+      `/verify-otp?email=${encodeURIComponent(email)}`
+    );
+  },
+
+  onError: (error: any) => {
+    toast.error(error.message || 'Something went wrong');
+  },
+});
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  mutation.mutate({
+    email,
+  });
+};
 
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
@@ -68,18 +68,12 @@ export default function ForgotPasswordPage() {
 
              <button
                type="submit"
-               disabled={loading}
+               disabled={mutation.isPending}
                className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
              >
-               {loading ? 'Sending...' : 'Send OTP'}
+               {mutation.isPending ? 'Sending...' : 'Send OTP'}
              </button>
            </form>
-
-           {error && (
-             <div className="mt-4 w-full max-w-[280px] rounded-lg bg-red-500/10 p-3 text-center text-xs text-red-400 md:max-w-[300px] md:text-sm">
-               {error}
-             </div>
-           )}
 
            <p className="text-center text-xs text-gray-300 md:text-sm">
              Remember your password?{' '}

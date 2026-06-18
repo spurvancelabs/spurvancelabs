@@ -11,16 +11,16 @@ export default async function DashboardPage() {
   const token = cookieStore.get('token')?.value;
 
   // Uncomment these when you want to enable auth
-  // if (!token) {
-  //   redirect('/login');
-  // }
+  if (!token) {
+    redirect('/login');
+  }
 
-  // const decoded = verifyToken(token);
-  // const userId = decoded?.userId ?? null;
+  const decoded = verifyToken(token);
+  const userId = decoded?.userId ?? null;
 
-  // if (!userId) {
-  //   redirect('/login');
-  // }
+  if (!userId) {
+    redirect('/login');
+  }
 
   return (
     <div className="min-h-screen bg-black">

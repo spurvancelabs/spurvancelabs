@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { z, ZodError } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
+import { supabase } from '@/lib/supabase'
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -18,14 +17,15 @@ type SignupBody = z.infer<typeof signupSchema>
 
 export async function POST(request: Request) {
   try {
-    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-               request.headers.get('x-real-ip') || 
-               request.headers.get('cf-connecting-ip') || 
-               'unknown') as string
-    
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      request.headers.get('cf-connecting-ip') ||
+      'unknown'
+
     if (rateLimiter.isBlocked(ip)) {
       return NextResponse.json(
-        { error: 'Too many signup attempts. Please try again later.' },
+        { success: false, message: 'Too many signup attempts. Please try again later.' },
         { status: 429 }
       )
     }
@@ -35,97 +35,74 @@ export async function POST(request: Request) {
 
     console.log('Creating user:', { email, name })
 
-    // Create user in Supabase Auth
-    const { data: createData, error: createError } = await supabaseAdmin().auth.admin.createUser({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: true,
-      user_metadata: {
-        name,
-        role: 'USER',
-      }
+      options: {
+        data: {
+          name,
+          role: 'USER',
+        },
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      },
     })
 
-    if (createError) {
-      console.error('Supabase auth error:', createError)
-      
-      // Check for existing user
-      if (createError.message?.toLowerCase().includes('already')) {
+    // ❌ handle error ONCE only
+    if (error) {
+      console.error('Supabase auth error:', error)
+
+      if (error.message?.toLowerCase().includes('already')) {
         return NextResponse.json(
-          { error: 'Email is already registered' },
+          { success: false, message: 'Email is already registered' },
           { status: 400 }
         )
       }
-      
+
       return NextResponse.json(
-        { error: 'Failed to create account. Please try again.' },
+        { success: false, message: error.message || 'Failed to create account' },
+        { status: 400 }
+      )
+    }
+
+    if (!data?.user) {
+      return NextResponse.json(
+        { success: false, message: 'Failed to create user' },
         { status: 500 }
       )
     }
 
-    if (!createData?.user) {
-      return NextResponse.json(
-        { error: 'Failed to create user' },
-        { status: 500 }
-      )
-    }
-
-    const user = createData.user
-    console.log('User created successfully:', user.id)
-
-    // Generate tokens
-    const accessToken = generateAccessToken({
-      userId: user.id,
-      email: user.email!,
-    })
-
-    const refreshToken = generateRefreshToken({
-      userId: user.id,
-      email: user.email!,
-    })
-
-    // Set cookies
-    const cookieStore = await cookies()
-    cookieStore.set("token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "strict",
-      maxAge: 15 * 60,
-      path: "/",
-    })
-
-    cookieStore.set("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-    })
-
-    // Return success
+    // ✅ SUCCESS RESPONSE
     return NextResponse.json(
-      { 
-        message: 'Signup successful!',
-        user: { 
-          id: user.id, 
-          email: user.email, 
-          name: name 
-        } 
+      {
+        success: true,
+        message: 'Verification email sent! Please check your inbox.',
+        user: {
+          id: data.user.id,
+          email: data.user.email,
+        },
       },
-      { status: 201 }
+      { status: 200 }
     )
 
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
+        {
+          success: false,
+          message: 'Validation failed',
+          issues: error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
-    
+
     console.error('Signup error:', error)
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        success: false,
+        message: 'Internal server error',
+      },
       { status: 500 }
     )
   }

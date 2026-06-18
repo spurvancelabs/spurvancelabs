@@ -117,8 +117,8 @@ const LoginSignupSwitcher = () => {
             className="h-8 w-8 object-contain md:h-12 md:w-12"
             priority
           />
-        <span className='text-[18px] font-semibold md:text-2xl'>Spurvancelab</span>
         </Link>
+        <span className='text-[18px] font-semibold md:text-2xl'>Spurvancelab</span>
       </div>
       
       <div 

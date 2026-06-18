@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import "../../global.css";
 import GradientImage from '@/components/GradientImage';
+import toast from 'react-hot-toast';
+import { useMutation } from '@tanstack/react-query';
+import { verifyOTP, forgotPassword } from '@/lib/api/auth';
 
 const RESEND_COOLDOWN = 60;
 
@@ -12,17 +15,75 @@ function VerifyOTPForm() {
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
 
-  const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [rateLimited, setRateLimited] = useState(false);
+
+
+  
+  const verifyMutation = useMutation({
+  mutationFn: verifyOTP,
+
+  onSuccess: (data) => {
+    toast.success('OTP verified successfully');
+
+    router.push(
+      `/reset-password?token=${encodeURIComponent(data.resetToken)}`
+    );
+  },
+
+  onError: (error: any) => {
+    toast.error(error.error || 'Invalid OTP');
+
+    if (error.status === 429) {
+      setRateLimited(true);
+    }
+
+    setOtp(['', '', '', '', '', '']);
+    inputRefs.current[0]?.focus();
+  },
+});
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const resetTimer = useCallback(() => {
     setCooldown(RESEND_COOLDOWN);
   }, []);
+
+  // MOVE handleVerify HERE - before the useEffect that uses it
+ const handleVerify = (otpCode: string) => {
+  setError('');
+
+  verifyMutation.mutate({
+    email,
+    otp: otpCode,
+  });
+};
+const resendMutation = useMutation({
+  mutationFn: forgotPassword,
+
+  onSuccess: () => {
+    toast.success('OTP resent successfully');
+    resetTimer();
+  },
+
+  onError: (error: any) => {
+    if (error.status === 429) {
+      setRateLimited(true);
+      return;
+    }
+
+    toast.error(error.error || 'Failed to resend OTP');
+  },
+});
+  // Now this useEffect can access handleVerify
+useEffect(() => {
+  const otpString = otp.join('');
+
+  if (otpString.length === 6 && !verifyMutation.isPending) {
+    handleVerify(otpString);
+  }
+}, [otp]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -38,62 +99,58 @@ function VerifyOTPForm() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleChange = (index: number, value: string) => {
+    // Only allow numbers
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(0, 1);
+    setOtp(newOtp);
+
+    // Move to next input if value is entered
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Move to previous input on backspace
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        router.push(`/reset-password?token=${encodeURIComponent(data.resetToken)}`);
-      } else {
-        setError(data.error || 'Invalid OTP');
-        if (res.status === 429) {
-          setRateLimited(true);
-        }
+    const pastedData = e.clipboardData.getData('text/plain').trim();
+    const digits = pastedData.replace(/\D/g, '').slice(0, 6);
+    
+    if (digits.length > 0) {
+      const newOtp = [...otp];
+      for (let i = 0; i < digits.length && i < 6; i++) {
+        newOtp[i] = digits[i];
       }
-    } catch (err) {
-      setError('Something went wrong');
-    } finally {
-      setLoading(false);
+      setOtp(newOtp);
+      
+      // Focus the next empty input or last filled
+      const nextIndex = Math.min(digits.length, 5);
+      inputRefs.current[nextIndex]?.focus();
     }
   };
 
-  const handleResend = async () => {
-    if (cooldown > 0 || resendLoading) return;
-    setResendLoading(true);
-    setResendSuccess('');
-    setError('');
+const handleResend = () => {
+  if (
+    cooldown > 0 ||
+    resendMutation.isPending
+  )
+    return;
 
-    try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+  setError('');
 
-      const data = await res.json();
-      if (res.ok) {
-        setResendSuccess('OTP resent successfully');
-        resetTimer();
-      } else if (res.status === 429) {
-        setRateLimited(true);
-      } else {
-        setError(data.error || 'Failed to resend OTP');
-      }
-    } catch (err) {
-      setError('Something went wrong');
-    } finally {
-      setResendLoading(false);
-    }
-  };
+  resendMutation.mutate({
+    email,
+  });
+};
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -112,29 +169,32 @@ function VerifyOTPForm() {
             <p className="mt-2 text-xs text-gray-300 md:text-sm">Enter the OTP sent to <strong>{email}</strong>.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex w-full max-w-[280px] flex-col gap-4 md:max-w-[300px]">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="otp" className="text-xs font-medium md:text-sm">OTP Code</label>
+          {/* OTP Input Boxes */}
+          <div className="flex gap-2 md:gap-3">
+            {otp.map((digit, index) => (
               <input
-                id="otp"
+                key={index}
+                ref={(el) => { inputRefs.current[index] = el; }}
                 type="text"
-                placeholder="Enter 6-digit OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="h-10 w-full rounded-lg border-none bg-[#181818] pl-4 pr-4 text-xs text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 md:h-11 md:text-sm"
-                required
-                maxLength={6}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={index === 0 ? handlePaste : undefined}
+                className={`h-12 w-10 rounded-lg border-2 bg-[#181818] text-center text-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-blue-500 md:h-14 md:w-12 md:text-xl ${
+                  verifyMutation.isPending ? 'opacity-50' : ''
+                } ${error ? 'border-red-500' : 'border-gray-700'}`}
+                disabled={verifyMutation.isPending}
+                autoFocus={index === 0}
               />
-            </div>
+            ))}
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading || otp.length !== 6}
-              className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
-            >
-              {loading ? 'Verifying...' : 'Verify OTP'}
-            </button>
-          </form>
+          {verifyMutation.isPending && (
+            <div className="mt-2 text-xs text-gray-400">Verifying...</div>
+          )}
 
           {error && (
             <div className="mt-4 w-full max-w-[280px] rounded-lg bg-red-500/10 p-3 text-center text-xs text-red-400 md:max-w-[300px] md:text-sm">
@@ -145,12 +205,8 @@ function VerifyOTPForm() {
             </div>
           )}
 
-          {resendSuccess && !error && (
-            <div className="mt-4 w-full max-w-[280px] rounded-lg bg-green-500/10 p-3 text-center text-xs text-green-400 md:max-w-[300px] md:text-sm">
-              {resendSuccess}
-            </div>
-          )}
-
+      
+       
           <div className="text-center">
             {cooldown > 0 ? (
               <p className="text-xs text-gray-300 md:text-sm">
@@ -159,10 +215,10 @@ function VerifyOTPForm() {
             ) : (
               <button
                 onClick={handleResend}
-                disabled={resendLoading}
+                disabled={resendMutation.isPending}
                 className="text-xs font-semibold text-white underline hover:text-gray-300 disabled:opacity-50 md:text-sm"
               >
-                {resendLoading ? 'Resending...' : 'Resend OTP'}
+                {resendMutation.isPending ? 'Resending...' : 'Resend OTP'}
               </button>
             )}
           </div>

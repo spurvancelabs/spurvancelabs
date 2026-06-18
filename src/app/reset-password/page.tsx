@@ -5,6 +5,11 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import "../../global.css"
 import GradientImage from '@/components/GradientImage';
+import { useMutation } from '@tanstack/react-query';
+import { resetPassword } from '@/lib/api/auth';
+import toast from 'react-hot-toast';
+
+
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -12,44 +17,47 @@ function ResetPasswordForm() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    setErrors({});
 
-    try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
-      });
+const mutation = useMutation({
+  mutationFn: resetPassword,
 
-      const data = await res.json();
-      if (res.ok) {
-        setMessage(data.message);
-        setTimeout(() => router.push('/login'), 3000);
-      } else {
-        if (data.error === 'Validation failed' && data.issues) {
-          const mapped: Record<string, string> = {};
-          for (const [field, messages] of Object.entries(data.issues)) {
-            mapped[field] = (messages as string[] | undefined)?.[0] || String(messages);
-          }
-          setErrors(mapped);
-        } else {
-          setMessage(data.error);
-        }
+  onSuccess: (data) => {
+    toast.success(data.message || 'Password reset successfully');
+
+    setTimeout(() => {
+      router.push('/login');
+    }, 2000);
+  },
+
+  onError: (error: any) => {
+    if (error.error === 'Validation failed' && error.issues) {
+      const mapped: Record<string, string> = {};
+
+      for (const [field, messages] of Object.entries(error.issues)) {
+        mapped[field] =
+          (messages as string[])?.[0] || String(messages);
       }
-    } catch (err) {
-      setMessage('Something went wrong');
-    } finally {
-      setLoading(false);
+
+      setErrors(mapped);
+      return;
     }
-  };
+
+    toast.error(error.error || 'Something went wrong');
+  },
+});
+
+  const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  setErrors({});
+
+  mutation.mutate({
+    token,
+    password,
+  });
+};
 
   if (!token) {
     return (
@@ -117,19 +125,15 @@ function ResetPasswordForm() {
 
             <button
               type="submit"
-              disabled={loading || password !== confirmPassword}
+              disabled={mutation.isPending || password !== confirmPassword}
               className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
             >
-              {loading ? 'Resetting...' : 'Reset Password'}
+              {mutation.isPending ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
 
-          {message && (
-            <div className={`mt-4 w-full max-w-[280px] rounded-lg p-3 text-center text-xs md:max-w-[300px] md:text-sm ${message.includes('Something went wrong') ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>
-              {message}
-            </div>
-          )}
-
+         
+         
           <p className="text-center text-xs text-gray-300 md:text-sm">
             <a href="/login" className="font-semibold text-white underline hover:text-gray-300">Back to login</a>
           </p>
