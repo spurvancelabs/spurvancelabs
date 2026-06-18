@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { notificationService } from '@/lib/notification-service'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { NotificationTrigger } from '@/lib/notification/trigger'
 
 export async function GET(request: Request) {
   try {
@@ -11,36 +11,46 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/login?error=invalid_token', request.url))
     }
 
-    const user = await prisma.user.findFirst({
-      where: {
-        emailVerifyToken: token,
-        emailVerified: false
-      }
+    const { data } = await supabaseAdmin().auth.admin.listUsers({ page: 1, perPage: 1000 })
+
+    const user = data?.users?.find((u) => {
+      const meta = (u as any).user_metadata || {}
+      return meta.emailVerifyToken === token && !(u as any).email_confirmed_at
     })
 
     if (!user) {
       return NextResponse.redirect(new URL('/login?error=invalid_or_verified', request.url))
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        emailVerified: true,
-        emailVerifyToken: null
+    await supabaseAdmin().auth.admin.updateUserById(user.id, {
+      email_confirm: true,
+      user_metadata: {
+        ...user.user_metadata,
+        emailVerifyToken: null,
       }
     })
 
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
+    await supabaseAdmin()
+      .from('audit_logs')
+      .insert({
+        user_id: user.id,
         action: 'EMAIL_VERIFIED',
         ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
             request.headers.get('x-real-ip') || 'unknown',
-        userAgent: request.headers.get('user-agent')
-      }
-    })
+        user_agent: request.headers.get('user-agent'),
+      })
 
-    notificationService.notifyUserAction(user.id, 'EMAIL_VERIFIED').catch(console.error)
+    // Create email verified notification
+    try {
+      await NotificationTrigger.triggerNotification({
+        user_id: user.id,
+        type: 'success',
+        title: 'Email Verified',
+        message: 'Your email has been successfully verified!',
+      });
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+    }
 
     return NextResponse.redirect(new URL('/login?message=email_verified', request.url))
   } catch (error) {

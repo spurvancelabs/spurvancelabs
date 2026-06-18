@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { prisma } from '@/lib/prisma'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { verifyToken } from '@/lib/auth'
-import { notificationService } from '@/lib/notification-service'
+import { NotificationTrigger } from '@/lib/notification/trigger'
 
 export async function POST(request: Request) {
   try {
@@ -16,21 +16,32 @@ export async function POST(request: Request) {
       try {
         const decoded = verifyToken(token)
         if (decoded?.userId) {
-          await prisma.user.update({
-            where: { id: decoded.userId },
-            data: { refreshToken: null }
-          })
-          
-          await prisma.auditLog.create({
-            data: {
-              userId: decoded.userId,
-              action: 'LOGOUT',
-              ip,
-              userAgent: request.headers.get('user-agent')
+          await supabaseAdmin().auth.admin.updateUserById(decoded.userId, {
+            user_metadata: {
+              refreshToken: null,
             }
           })
+          
+          await supabaseAdmin()
+            .from('audit_logs')
+            .insert({
+              user_id: decoded.userId,
+              action: 'LOGOUT',
+              ip,
+              user_agent: request.headers.get('user-agent'),
+            })
 
-          notificationService.notifyUserAction(decoded.userId, 'LOGOUT', { ip }).catch(console.error)
+          // Create logout notification (best effort)
+          try {
+            await NotificationTrigger.triggerNotification({
+              user_id: decoded.userId,
+              type: 'info',
+              title: 'Logged Out',
+              message: 'You have been logged out successfully.',
+            });
+          } catch (notificationError) {
+            console.error('Failed to create notification:', notificationError);
+          }
         }
       } catch {}
     }

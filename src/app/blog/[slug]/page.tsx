@@ -15,6 +15,7 @@ import {
   type BlogPost,
 } from '@/lib/blog';
 import '@/global.css';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -106,7 +107,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           href="/blog"
           className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-white"
         >
-          ← Back to blog
+          <ArrowLeftIcon className="h-4 w-4"  color="white"/> Back to blog
         </Link>
 
         <div className="mb-5">

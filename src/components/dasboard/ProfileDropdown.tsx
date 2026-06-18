@@ -1,0 +1,117 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeftStartOnRectangleIcon, Cog6ToothIcon, UserIcon } from '@heroicons/react/24/outline';
+
+export default function ProfileDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+const [user, setUser] = useState({
+  name: '',
+  email: '',
+})
+
+useEffect(() => {
+  async function fetchUser() {
+    try {
+      const response = await fetch('/api/auth/me')
+
+      if (!response.ok) return
+
+      const data = await response.json()
+
+      setUser({
+        name: data.name,
+        email: data.email,
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  fetchUser()
+}, [])
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const logout = async () => {
+    setIsLoggingOut(true);
+    
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+      
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      setIsLoggingOut(false);
+    }
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {/* Profile Image - Click to toggle dropdown */}
+      <img
+        src={
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user.name || 'User'
+    )}`
+  } // Add your default profile image URL
+        alt="Profile"
+        className={`w-8 h-8 rounded-full border border-white/20 cursor-pointer hover:border-blue-400 transition-colors`}
+        onClick={() => setIsOpen(!isOpen)}
+      />
+
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 backdrop-blur-2xl bg-black/90 border border-white/10 rounded-xl shadow-2xl shadow-black/70 py-1 z-50">
+          <div className="px-4 py-3 border-b border-white/10">
+            <p className="text-sm font-medium text-white"> {user.name || 'Loading...'}</p>
+            <p className="text-xs text-gray-400">{user.email || 'Loading...'}</p>
+          </div>
+          
+          <Link
+            href="/profile"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <UserIcon className="w-5 h-5 text-gray-400" />
+            Profile
+          </Link>
+          
+          <Link
+            href="/settings"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <Cog6ToothIcon className="w-5 h-5 text-gray-400" />
+            Settings
+          </Link>
+          
+          <div className="border-t border-white/10 my-1"></div>
+          
+          <button
+            onClick={logout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors"
+          >
+            <ArrowLeftStartOnRectangleIcon className="w-5 h-5" />
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

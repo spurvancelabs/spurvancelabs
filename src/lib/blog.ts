@@ -17,9 +17,11 @@ export type BlogPost = {
   category: BlogCategory['slug'];
   categoryName: string;
   author: string;
+  authorImage?: string;
   readTime: string;
   gradient: string;
-  content: string[];
+  coverImage?: string;
+  content: string;
 };
 
 const categories: BlogCategory[] = [
@@ -56,6 +58,9 @@ export const blogPosts: BlogPost[] = [
     author: 'Muzammil Riaz',
     authorImage: 'https://plus.unsplash.com/premium_photo-1689607809841-cbbc3595f3fd?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0',
     date: '2025-11-20',
+    category: 'engineering',
+    categoryName: 'Engineering',
+    gradient: 'from-blue-500 to-purple-500',
     readTime: '9 min read',
     coverImage: 'https://images.unsplash.com/photo-1771740700854-dcb3162873a6?w=900&auto=format&fit=crop&q=70&ixlib=rb-4.1.0',
     content: `Color is one of the most powerful tools in a designer's arsenal. The right color palette can transform a website from ordinary to extraordinary, creating emotional connections with users and reinforcing brand identity. In this article, we'll explore 10 elegant color palettes that will elevate your web design projects and leave a lasting impression on your visitors.

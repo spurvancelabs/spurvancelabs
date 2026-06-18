@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-import { prisma } from '@/lib/prisma'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { generateAccessToken, generateRefreshToken, verifyToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
-import { notificationService } from '@/lib/notification-service'
+import { NotificationTrigger } from '@/lib/notification/trigger'
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1),
@@ -34,16 +35,23 @@ export async function POST(request: Request) {
     const body = (await request.json()) as ResetPasswordBody
     const { token, password } = resetPasswordSchema.parse(body)
 
-    const user = await prisma.user.findFirst({
-      where: {
-        resetToken: token,
-        resetTokenExpiry: {
-          gt: new Date()
-        }
-      }
+    const { data } = await supabaseAdmin().auth.admin.listUsers({ page: 1, perPage: 1000 })
+
+    const user = data?.users?.find((u) => {
+      const meta = (u as any).user_metadata || {}
+      return meta.resetToken === token
     })
 
     if (!user) {
+      rateLimiter.increment(ip)
+      return NextResponse.json(
+        { error: 'Invalid or expired reset token' },
+        { status: 400 }
+      )
+    }
+
+    const expiresAt = (user.user_metadata || {}).resetTokenExpiry
+    if (expiresAt && new Date(expiresAt) < new Date()) {
       rateLimiter.increment(ip)
       return NextResponse.json(
         { error: 'Invalid or expired reset token' },
@@ -55,25 +63,36 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
+    await supabaseAdmin().auth.admin.updateUserById(user.id, {
+      password,
+      user_metadata: {
+        ...user.user_metadata,
         password: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null,
       }
     })
 
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
+    await supabaseAdmin()
+      .from('audit_logs')
+      .insert({
+        user_id: user.id,
         action: 'PASSWORD_RESET',
         ip,
-        userAgent: request.headers.get('user-agent')
-      }
-    })
+        user_agent: request.headers.get('user-agent'),
+      })
 
-    notificationService.notifyUserAction(user.id, 'PASSWORD_RESET', { ip }).catch(console.error)
+    // Create password reset notification
+    try {
+      await NotificationTrigger.triggerNotification({
+        user_id: user.id,
+        type: 'success',
+        title: 'Password Reset Successful',
+        message: 'Your password has been changed successfully.',
+      });
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+    }
 
     const response = NextResponse.json(
       { message: 'Password reset successful' },
