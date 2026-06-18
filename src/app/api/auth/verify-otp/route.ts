@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import crypto from 'crypto'
-import { prisma } from '@/lib/prisma'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { rateLimiter } from '@/lib/rate-limit'
 
 const verifyOTPSchema = z.object({
@@ -28,19 +28,22 @@ export async function POST(request: Request) {
     const body = (await request.json()) as VerifyOTPBody
     const { email, otp } = verifyOTPSchema.parse(body)
 
-    const otpHash = crypto.createHash('sha256').update(otp).digest('hex')
+    const { data } = await supabaseAdmin().auth.admin.listUsers({ page: 1, perPage: 1000 })
 
-    const user = await prisma.user.findFirst({
-      where: {
-        email,
-        resetOTP: otpHash,
-        resetOTPExpiry: {
-          gt: new Date()
-        }
-      }
-    })
+    const user = data?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase())
 
     if (!user) {
+      rateLimiter.increment(ip)
+      return NextResponse.json(
+        { error: 'Invalid or expired OTP' },
+        { status: 400 }
+      )
+    }
+
+    const storedOTP = (user.user_metadata || {}).resetOTP
+    const expiry = (user.user_metadata || {}).resetOTPExpiry
+
+    if (!storedOTP || !expiry || new Date(expiry) < new Date() || storedOTP !== otp) {
       rateLimiter.increment(ip)
       return NextResponse.json(
         { error: 'Invalid or expired OTP' },
@@ -51,11 +54,11 @@ export async function POST(request: Request) {
     rateLimiter.reset(ip)
 
     const resetToken = crypto.randomBytes(32).toString('hex')
-    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000)
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000).toISOString()
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
+    await supabaseAdmin().auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
         resetOTP: null,
         resetOTPExpiry: null,
         resetToken,

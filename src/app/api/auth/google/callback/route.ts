@@ -1,96 +1,65 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from "@/lib/auth";
+import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
+export async function GET(request: Request) {
+  try {
+    const url = new URL(request.url)
+    const code = url.searchParams.get('code')
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
+    if (!code) {
+      return NextResponse.redirect('/login')
+    }
 
-  if (!code) {
-    return NextResponse.redirect("/login");
-  }
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
+        grant_type: 'authorization_code',
+      }),
+    })
 
-  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      code,
-      client_id: process.env.GOOGLE_CLIENT_ID!,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
-      grant_type: "authorization_code",
-    }),
-  });
+    const tokenData = await tokenRes.json()
 
-  const tokenData = await tokenRes.json();
-
-  const userRes = await fetch(
-    "https://www.googleapis.com/oauth2/v3/userinfo",
-    {
+    const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
       },
+    })
+
+    const googleUser = await userRes.json()
+
+    const { data: existingUser } = await supabaseAdmin()
+      .from('users')
+      .select('*')
+      .eq('email', googleUser.email)
+      .single()
+
+    if (!existingUser) {
+      const { data: newUser } = await supabaseAdmin()
+        .from('users')
+        .insert({
+          email: googleUser.email,
+          name: googleUser.name,
+          image: googleUser.picture,
+          provider: 'google',
+          provider_id: googleUser.sub,
+          email_verified: true,
+        })
+        .select()
+        .single()
+
+      if (!newUser) {
+        return NextResponse.redirect('/login?error=signup_failed')
+      }
     }
-  );
 
-  const googleUser = await userRes.json();
-
-  let user = await prisma.user.findUnique({
-    where: { email: googleUser.email },
-  });
-
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email: googleUser.email,
-        name: googleUser.name,
-        image: googleUser.picture,
-        provider: "google",
-        providerId: googleUser.sub,
-        emailVerified: true,
-      },
-    });
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
+  } catch (error) {
+    console.error('Google callback error:', error)
+    return NextResponse.redirect('/login?error=server_error')
   }
-
-  const accessToken = generateAccessToken({
-    userId: user.id,
-    email: user.email,
-  });
-
-  const refreshToken = generateRefreshToken({
-    userId: user.id,
-    email: user.email,
-  });
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { refreshToken },
-  });
-
-  // 🔥 IMPORTANT FIX: cookie MUST be set on response
-  const response = NextResponse.redirect(
-    `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-  );
-
-  response.cookies.set("token", accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 15 * 60,
-  });
-
-  response.cookies.set("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60,
-  });
-
-  return response;
 }

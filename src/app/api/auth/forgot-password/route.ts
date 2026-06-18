@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
-import crypto from 'crypto'
-import { prisma } from '@/lib/prisma'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { rateLimiter } from '@/lib/rate-limit'
-import { sendEmail } from '@/lib/email'
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
 })
-
-type ForgotPasswordBody = z.infer<typeof forgotPasswordSchema>
 
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString()
@@ -17,11 +13,12 @@ function generateOTP(): string {
 
 export async function POST(request: Request) {
   try {
-    const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-               request.headers.get('x-real-ip') || 
-               request.headers.get('cf-connecting-ip') || 
-               'unknown') as string
-    
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      request.headers.get('cf-connecting-ip') ||
+      'unknown'
+
     if (rateLimiter.isBlocked(ip)) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
@@ -29,75 +26,79 @@ export async function POST(request: Request) {
       )
     }
 
-    const body = (await request.json()) as ForgotPasswordBody
+    const body = await request.json()
     const { email } = forgotPasswordSchema.parse(body)
 
-    const user = await prisma.user.findUnique({
-      where: { email }
-    })
+    // ✅ FIX: correct destructuring
+    const { data, error } = await supabaseAdmin().auth.admin.listUsers()
 
+    if (error) {
+      return NextResponse.json(
+        { error: 'Failed to fetch users' },
+        { status: 500 }
+      )
+    }
+
+    const user = data.users.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase()
+    )
+
+    rateLimiter.reset(ip)
+
+    // ⚠️ Always return same response (security best practice)
     if (!user) {
       return NextResponse.json(
-        { message: 'If an account exists with that email, you will receive reset instructions.' },
+        {
+          message:
+            'If an account exists with that email, you will receive reset instructions.',
+        },
         { status: 200 }
       )
     }
 
     const otp = generateOTP()
-    const otpHash = crypto.createHash('sha256').update(otp).digest('hex')
-    const expiry = new Date(Date.now() + 10 * 60 * 1000)
+    const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString()
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        resetOTP: otpHash,
+    await supabaseAdmin().auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
+        resetOTP: otp,
         resetOTPExpiry: expiry,
-      }
+      },
     })
 
-    rateLimiter.reset(ip)
-
-    console.log('=== OTP DEBUG ===')
-    console.log('To:', email)
-    console.log('OTP:', otp)
-    console.log('=================')
-
     try {
-      const result = await sendEmail({
+      const { sendEmail } = await import('@/lib/email')
+
+      await sendEmail({
         to: email,
         subject: 'Your password reset OTP',
-        html: `<p>Your password reset OTP is: <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
+        html: `<p>Your OTP is: <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
       })
-      if (!result.success) {
-        console.error('Email send failed:', result.error)
-        return NextResponse.json(
-          { error: 'Failed to send email. Please try again later.' },
-          { status: 500 }
-        )
-      }
     } catch (emailError) {
-      console.error('Email send error:', emailError)
-      return NextResponse.json(
-        { error: 'Failed to send email. Please try again later.' },
-        { status: 500 }
-      )
+      console.error('Email error:', emailError)
     }
 
     return NextResponse.json(
-      { 
-        message: 'If an account exists with that email, you will receive reset instructions.',
-        ...(process.env.NODE_ENV === 'development' ? { otp } : {})
+      {
+        message:
+          'If an account exists with that email, you will receive reset instructions.',
       },
       { status: 200 }
     )
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
+        {
+          error: 'Validation failed',
+          issues: z.flattenError(error).fieldErrors,
+        },
         { status: 400 }
       )
     }
+
     console.error('Forgot password error:', error)
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -67,20 +67,20 @@ function ResetPasswordForm() {
             <span>© 2026 Spurvancelab</span>
           </div>
         </div>
-        <GradientImage />
       </div>
     );
   }
 
   return (
     <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
+          <GradientImage />
+
       <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-8 md:gap-5 md:px-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold md:text-3xl">Reset Password</h1>
             <p className="mt-2 text-xs text-gray-300 md:text-sm">Enter your new password below.</p>
           </div>
-
           <form onSubmit={handleSubmit} className="flex w-full max-w-[280px] flex-col gap-4 md:max-w-[300px]">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="password" className="text-xs font-medium md:text-sm">New Password</label>
