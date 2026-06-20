@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useNotifications } from '@/hooks/useNotifications';
+import React from 'react';
+import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/useNotificationQueries';
+import { Notification } from '@/lib/notification/types';
 import { formatDistanceToNow } from 'date-fns';
 import { 
   CheckCircleIcon, 
@@ -20,17 +21,9 @@ import "../../global.css";
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { 
-    notifications, 
-    isLoading, 
-    error, 
-    markAsRead, 
-    fetchNotifications
-  } = useNotifications();
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+  const { data: notifications = [], isLoading, error, refetch } = useNotifications();
+  const markAsReadMutation = useMarkAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -45,9 +38,9 @@ export default function NotificationsPage() {
     }
   };
 
-  const handleNotificationClick = async (notification: any) => {
+  const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
-      await markAsRead([notification.id]);
+      await markAsReadMutation.mutateAsync([notification.id]);
     }
     if (notification.link) {
       window.location.assign(notification.link);
@@ -57,7 +50,7 @@ export default function NotificationsPage() {
   const handleMarkAllAsRead = async () => {
     const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
     if (unreadIds.length > 0) {
-      await markAsRead(unreadIds);
+      await markAllAsReadMutation.mutateAsync();
     }
   };
 
@@ -73,8 +66,8 @@ export default function NotificationsPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-400">{error}</p>
-          <button onClick={fetchNotifications} className="text-blue-400 mt-2">
+          <p className="text-red-400">{error instanceof Error ? error.message : 'An error occurred'}</p>
+          <button onClick={() => refetch()} className="text-blue-400 mt-2">
             Retry
           </button>
         </div>
@@ -166,5 +159,3 @@ export default function NotificationsPage() {
     </div>
   );
 }
-
-

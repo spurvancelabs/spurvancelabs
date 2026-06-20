@@ -1,30 +1,46 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+
   const token = req.cookies.get("token")?.value;
+  const payload = token ? verifyToken(token) : null;
 
   const isProtected =
     req.nextUrl.pathname.startsWith("/dashboard") ||
     req.nextUrl.pathname.startsWith("/profile");
 
-    if (isProtected && !token) {
+  const isAuthPage =
+    req.nextUrl.pathname.startsWith("/login") ||
+    req.nextUrl.pathname.startsWith("/signup");
+
+  const isVerifyPage = req.nextUrl.pathname.startsWith("/verify-email");
+
+  if (isProtected && !payload) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (isProtected && token) {
-    const decoded = verifyToken(token);
-
-    if (!decoded) {
-      const res = NextResponse.redirect(new URL("/login", req.url));
-
-      res.cookies.delete("token");
-      res.cookies.delete("refreshToken");
-
-      return res;
-    }
+  if (isAuthPage && payload) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  return NextResponse.next();
+  if (isVerifyPage && payload) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  return res;
 }
+
+export const config = {
+  matcher: [
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/login",
+    "/signup",
+    "/verify-email",
+  ],
+};

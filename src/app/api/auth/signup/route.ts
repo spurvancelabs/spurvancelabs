@@ -43,7 +43,7 @@ export async function POST(request: Request) {
           name,
           role: 'USER',
         },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/verify-email`,
       },
     })
 

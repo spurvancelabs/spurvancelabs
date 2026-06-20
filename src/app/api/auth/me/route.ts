@@ -18,6 +18,9 @@ export async function GET() {
     }
 
     const payload = verifyToken(token)
+    if (!payload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     const { data: user } = await supabaseAdmin()
       .from('users')
