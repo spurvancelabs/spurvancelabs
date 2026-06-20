@@ -10,7 +10,8 @@
   import GradientImage from "@/components/GradientImage";
   import toast from 'react-hot-toast';
   import { useMutation } from '@tanstack/react-query';
-import { signupUser } from '@/lib/api/auth';
+  import { signupUser } from '@/lib/api/auth';
+
 
   export default function SignupPage() {
     const router = useRouter();
@@ -21,14 +22,15 @@ import { signupUser } from '@/lib/api/auth';
       password: '',
     });
 
-   const mutation = useMutation({
+// app/signup/page.tsx - Update the mutation
+const mutation = useMutation({
   mutationFn: signupUser,
 
-  onSuccess: () => {
+  onSuccess: (data) => {
     toast.success('Verification email sent! Check your inbox');
-
-    // Optional:
-    // router.push('/verify-email');
+    
+    // Redirect to verification page with email
+    router.push(`/verify-email?email=${encodeURIComponent(form.email)}`);
   },
 
   onError: (error: any) => {
@@ -160,7 +162,7 @@ import { signupUser } from '@/lib/api/auth';
               <button
                 type="submit"
                disabled={mutation.isPending}
-                className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
+                className="mt-2 flex h-10 w-full items-center cursor-pointer justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
               >
               {mutation.isPending ? 'Creating account...' : 'Sign up'}
               </button>

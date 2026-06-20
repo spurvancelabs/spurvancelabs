@@ -2,18 +2,23 @@
 
 import React from 'react';
 import { Toaster } from "react-hot-toast";
-import { NotificationProvider } from '@/context/NotificationContext';
 import QueryProvider from '@/providers/QueryProvider';
+import { useNotificationRealtime } from '@/hooks/useNotificationRealtime';
+
+const AppContent = ({ children }: { children: React.ReactNode }) => {
+  useNotificationRealtime();
+  return <>{children}</>;
+};
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <body>
         <QueryProvider>
-          <NotificationProvider>
+          <AppContent>
             {children}
-            <Toaster position="top-right" />
-          </NotificationProvider>
+          </AppContent>
+          <Toaster position="top-right" />
         </QueryProvider>
       </body>
     </html>

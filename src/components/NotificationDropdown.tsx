@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useNotifications } from '@/hooks/useNotifications';
+import React from 'react';
+import { useNotifications, useMarkAsRead, useDeleteNotification } from '@/hooks/useNotificationQueries';
 import { Notification } from '@/lib/notification/types';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -23,16 +23,10 @@ interface NotificationDropdownProps {
 }
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) => {
-  const { 
-    notifications, 
-    isLoading, 
-    error, 
-    markAsRead, 
-    deleteNotification,
-    fetchNotifications
-  } = useNotifications();
+  const { data: notifications = [], isLoading, error, refetch } = useNotifications();
+  const markAsReadMutation = useMarkAsRead();
+  const deleteNotificationMutation = useDeleteNotification();
 
-  // Get only the 5 most recent notifications for the dropdown
   const recentNotifications = notifications.slice(0, 5);
   const hasMoreNotifications = notifications.length > 5;
 
@@ -59,7 +53,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
-      await markAsRead([notification.id]);
+      await markAsReadMutation.mutateAsync([notification.id]);
     }
     
     if (notification.link) {
@@ -70,13 +64,13 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
 
   const handleMarkRead = async (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
-    await markAsRead([notificationId]);
+    await markAsReadMutation.mutateAsync([notificationId]);
   };
 
   const handleDelete = async (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
     if (confirm('Are you sure you want to delete this notification?')) {
-      await deleteNotification(notificationId);
+      await deleteNotificationMutation.mutateAsync(notificationId);
     }
   };
 
@@ -91,9 +85,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
   if (error) {
     return (
       <div className="p-4 text-center bg-black rounded-lg">
-        <p className="text-red-400">{error}</p>
+        <p className="text-red-400">{error instanceof Error ? error.message : 'An error occurred'}</p>
         <button 
-          onClick={() => fetchNotifications()}
+          onClick={() => refetch()}
           className="mt-2 text-blue-400 hover:text-blue-300"
         >
           Retry

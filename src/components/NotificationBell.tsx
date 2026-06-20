@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BellIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
-import { useNotifications, useUnreadCount } from '@/hooks/useNotifications';
+import { useUnreadCount, useMarkAllAsRead } from '@/hooks/useNotificationQueries';
 import NotificationDropdown from './NotificationDropdown';
 
 interface NotificationBellProps {
@@ -20,7 +20,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   
   const unreadCount = useUnreadCount();
-  const { markAllAsRead } = useNotifications();
+  const markAllAsReadMutation = useMarkAllAsRead();
 
   const badgeSizeMap = {
     sm: 'w-4 h-4 text-[10px]',
@@ -51,7 +51,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({
   };
 
   const handleMarkAllRead = async () => {
-    await markAllAsRead();
+    await markAllAsReadMutation.mutateAsync();
   };
 
   const formatCount = (count: number): string => {
