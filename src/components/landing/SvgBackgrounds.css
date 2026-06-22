@@ -1,0 +1,33 @@
+/* .svg-2 {
+  position: absolute;
+  top: 1000px;
+  z-index: -1;
+  width: 100%;
+  height: auto;
+  /* overflow: hidden; */
+  /* border: 1px solid red; */
+/* } */ 
+
+.svg-2 {
+  position: absolute;
+  top: 1000px;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.svg-3 {
+  position: absolute;
+  top: 2750px;
+  z-index: -1;
+  overflow: hidden;
+
+}
+
+.svg-4 {
+  position: absolute;
+  top: 6500px;
+  z-index: -1;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
