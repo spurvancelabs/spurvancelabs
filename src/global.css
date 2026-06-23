@@ -2,7 +2,7 @@
 
 body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-image: linear-gradient(to to , rgb(0, 0, 0) , rgb(0, 0, 143));
+  /* background:rgb(0, 0, 0); */
 }
 
 .auth-bg {
@@ -120,4 +120,116 @@ body {
 
 .animate-scale-in {
   animation: scaleIn 0.5s ease-out forwards;
+}
+
+
+
+
+@keyframes flow {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: -1000;
+  }
+}
+
+.tech-flowing-gradient-line {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 90 910;
+  stroke-dashoffset: 1000;
+  animation: flow 3.5s linear infinite;
+}
+
+/* Different animation durations for each line */
+.tech-flow-left-top { stroke: url(#cyberMix1); animation-duration: 5.8s; }
+.tech-flow-left-mid { stroke: url(#cyberMix2); animation-duration: 6.8s; }
+.tech-flow-left-bot { stroke: url(#cyberMix3); animation-duration: 5.4s; }
+.tech-flow-right-top { stroke: url(#cyberMix3); animation-duration: 6.4s; }
+.tech-flow-right-mid { stroke: url(#cyberMix1); animation-duration: 4.8s; }
+.tech-flow-right-bot { stroke: url(#cyberMix2); animation-duration: 5.9s; }
+.tech-flow-top-left { stroke: url(#cyberMix2); animation-duration: 6.2s; }
+.tech-flow-top-mid { stroke: url(#cyberMix3); animation-duration: 4.6s; }
+.tech-flow-top-right { stroke: url(#cyberMix1); animation-duration: 5.6s; }
+.tech-flow-card-left { stroke: url(#cyberMix1); animation-duration: 5.2s; }
+.tech-flow-card-center { stroke: url(#cyberMix2); animation-duration: 4.4s; }
+.tech-flow-card-right { stroke: url(#cyberMix3); animation-duration: 5.7s; }
+
+
+.services-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+.feature-item.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.why-choose-card.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+.process-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes spotFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.1); }
+  66% { transform: translate(-20px, 30px) scale(0.9); }
+}
+
+@keyframes progressSlide {
+  0% { left: 0; }
+  100% { left: 80%; }
+}
+
+.case-slide.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+
+
+@keyframes rotateRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.testimonial-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.1); }
+  66% { transform: translate(-20px, 30px) scale(0.9); }
+}
+
+/* For animation delays */
+.-animation-delay-2s {
+  animation-delay: -2s;
+}
+
+.-animation-delay-4s {
+  animation-delay: -4s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import './Services.css';
 
 const services = [
   {
@@ -63,25 +62,40 @@ export default function Services() {
   }, []);
 
   return (
-    <section className="services-section">
-      <div className="services-header">
-        <span className="services-badge">What We Do</span>
-        <h2>Our <span>services</span></h2>
-        <p>Comprehensive solutions tailored to your business needs</p>
+    <section className="py-16 px-8 pb-20 max-w-[1200px] mx-auto text-center">
+      <div className="mb-14">
+        <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
+          What We Do
+        </span>
+        <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          Our <span className="text-[#888] font-light">services</span>
+        </h2>
+        <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
+          Comprehensive solutions tailored to your business needs
+        </p>
       </div>
-      <div className="services-grid">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[2rem_1.5rem] mt-4">
         {services.map((service, index) => (
           <div
             key={index}
-            className="services-item"
+            className="flex flex-col items-center text-center p-10 px-6 rounded-xl border border-transparent transition-[0.3s_ease] cursor-default bg-transparent relative overflow-hidden opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:-translate-y-1.5"
             ref={(el) => { itemsRef.current[index] = el; }}
           >
-            <div className="services-icon">
-              <i className={`fas ${service.icon}`}></i>
+            <div className="w-[70px] h-[70px] flex items-center justify-center rounded-full bg-[#1a1a1a] mb-5 transition-[0.3s_ease] border border-[#2a2a2a] hover:bg-[#2a2a2a] hover:border-[#444] hover:scale-105">
+              <i className={`fas ${service.icon} text-[1.8rem] text-[#888] transition-[0.3s_ease] hover:text-white`}></i>
             </div>
-            <h3>{service.title}</h3>
-            <p>{service.description}</p>
-            <a href="#" className="services-link">Learn More →</a>
+            <h3 className="text-white text-[1.2rem] font-semibold mb-[0.6rem] tracking-[-0.01em]">
+              {service.title}
+            </h3>
+            <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-5 max-w-[280px]">
+              {service.description}
+            </p>
+            <a 
+              href="#" 
+              className="text-[#888] text-[0.85rem] font-medium no-underline transition-[0.3s_ease] inline-flex items-center gap-[0.3rem] border-b border-transparent pb-[2px] hover:text-white hover:border-b-white hover:gap-[0.6rem]"
+            >
+              Learn More →
+            </a>
           </div>
         ))}
       </div>

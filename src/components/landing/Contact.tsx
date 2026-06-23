@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import './Contact.css';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -110,82 +109,94 @@ export default function Contact() {
   };
 
   return (
-    <section className="contact-section">
-      <div className="contact-header">
-        <h2>Let's <span>connect</span></h2>
-        <p>Have a project in mind? Let's discuss how we can bring your vision to life</p>
+    <section className="py-20 px-8 pb-24 overflow-hidden">
+      <div className="text-center mb-14">
+        <h2 className="text-white text-[3rem] font-bold tracking-[-0.03em] mb-3">
+          Let's <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">connect</span>
+        </h2>
+        <p className="text-[#666] text-[1.1rem] font-light max-w-[500px] mx-auto">
+          Have a project in mind? Let's discuss how we can bring your vision to life
+        </p>
       </div>
 
-      <div className="contact-container">
-        <div className="contact-info">
-          <div className="contact-info-card">
-            <div className="contact-info-header">
-              <h3>Contact Information</h3>
-              <p>Reach out to us through any of the channels below</p>
-            </div>
+      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 items-start">
+        {/* Contact Info */}
+        <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="mb-8">
+            <h3 className="text-white text-[1.4rem] font-semibold mb-2">Contact Information</h3>
+            <p className="text-[#666] text-[0.9rem] leading-[1.6]">Reach out to us through any of the channels below</p>
+          </div>
 
-            <div className="contact-info-items">
-              <div className="contact-info-item">
-                <div className="contact-icon">
-                  <i className="fas fa-map-marker-alt"></i>
-                </div>
-                <div className="contact-detail">
-                  <span className="contact-label">Location</span>
-                  <p>123 Tech Street, Silicon Valley, CA 94025</p>
-                </div>
+          <div className="flex flex-col gap-6 mb-8">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 min-w-[44px] rounded-xl bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a]">
+                <i className="fas fa-map-marker-alt text-[#666] text-[1rem] transition-[0.3s_ease] hover:text-white"></i>
               </div>
-
-              <div className="contact-info-item">
-                <div className="contact-icon">
-                  <i className="fas fa-envelope"></i>
-                </div>
-                <div className="contact-detail">
-                  <span className="contact-label">Email</span>
-                  <p>hello@spurvancelab.com</p>
-                  <p>support@spurvancelab.com</p>
-                </div>
-              </div>
-
-              <div className="contact-info-item">
-                <div className="contact-icon">
-                  <i className="fas fa-phone-alt"></i>
-                </div>
-                <div className="contact-detail">
-                  <span className="contact-label">Phone</span>
-                  <p>+1 (555) 123-4567</p>
-                  <p>+1 (555) 987-6543</p>
-                </div>
-              </div>
-
-              <div className="contact-info-item">
-                <div className="contact-icon">
-                  <i className="fas fa-clock"></i>
-                </div>
-                <div className="contact-detail">
-                  <span className="contact-label">Working Hours</span>
-                  <p>Mon - Fri: 9:00 AM - 6:00 PM</p>
-                  <p>Sat - Sun: By Appointment</p>
-                </div>
+              <div>
+                <span className="block text-[#444] text-[0.65rem] uppercase tracking-[0.08em] mb-[0.2rem]">Location</span>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">123 Tech Street, Silicon Valley, CA 94025</p>
               </div>
             </div>
 
-            <div className="contact-social">
-              <span className="social-label">Follow Us</span>
-              <div className="social-icons">
-                <a href="#"><i className="fab fa-linkedin-in"></i></a>
-                <a href="#"><i className="fab fa-twitter"></i></a>
-                <a href="#"><i className="fab fa-github"></i></a>
-                <a href="#"><i className="fab fa-youtube"></i></a>
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 min-w-[44px] rounded-xl bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a]">
+                <i className="fas fa-envelope text-[#666] text-[1rem] transition-[0.3s_ease] hover:text-white"></i>
               </div>
+              <div>
+                <span className="block text-[#444] text-[0.65rem] uppercase tracking-[0.08em] mb-[0.2rem]">Email</span>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">hello@spurvancelab.com</p>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">support@spurvancelab.com</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 min-w-[44px] rounded-xl bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a]">
+                <i className="fas fa-phone-alt text-[#666] text-[1rem] transition-[0.3s_ease] hover:text-white"></i>
+              </div>
+              <div>
+                <span className="block text-[#444] text-[0.65rem] uppercase tracking-[0.08em] mb-[0.2rem]">Phone</span>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">+1 (555) 123-4567</p>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">+1 (555) 987-6543</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 min-w-[44px] rounded-xl bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a]">
+                <i className="fas fa-clock text-[#666] text-[1rem] transition-[0.3s_ease] hover:text-white"></i>
+              </div>
+              <div>
+                <span className="block text-[#444] text-[0.65rem] uppercase tracking-[0.08em] mb-[0.2rem]">Working Hours</span>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">Mon - Fri: 9:00 AM - 6:00 PM</p>
+                <p className="text-[#c0c0c0] text-[0.9rem] leading-[1.6] m-0">Sat - Sun: By Appointment</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-[#1a1a1a]">
+            <span className="block text-[#444] text-[0.65rem] uppercase tracking-[0.08em] mb-3">Follow Us</span>
+            <div className="flex gap-3">
+              <a href="#" className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+                <i className="fab fa-linkedin-in"></i>
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+                <i className="fab fa-twitter"></i>
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+                <i className="fab fa-github"></i>
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+                <i className="fab fa-youtube"></i>
+              </a>
             </div>
           </div>
         </div>
 
-        <div className="contact-form-wrapper">
-          <form className="contact-form" ref={formRef} onSubmit={handleSubmit} noValidate>
-            <div className="form-row">
-              <div className={`form-group ${errors.fullName ? 'error' : ''}`}>
-                <label htmlFor="fullName">Full Name</label>
+        {/* Contact Form */}
+        <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <form className="flex flex-col gap-6" ref={formRef} onSubmit={handleSubmit} noValidate>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className={`flex flex-col gap-1 ${errors.fullName ? 'error' : ''}`}>
+                <label htmlFor="fullName" className="text-[#888] text-[0.8rem] font-medium tracking-[0.02em]">Full Name</label>
                 <input
                   type="text"
                   id="fullName"
@@ -195,11 +206,14 @@ export default function Contact() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   required
+                  className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-[10px] px-5 py-[0.9rem] text-white text-[0.95rem] transition-[0.3s_ease] w-full focus:outline-none focus:border-[#2a2a2a] focus:bg-[#111] focus:shadow-[0_0_30px_rgba(255,255,255,0.02)] placeholder:text-[#444] ${
+                    errors.fullName ? 'border-[#ef4444]' : ''
+                  }`}
                 />
-                <span className="form-error">{errors.fullName}</span>
+                <span className={`text-[#ef4444] text-[0.75rem] ${errors.fullName ? 'block' : 'hidden'}`}>{errors.fullName}</span>
               </div>
-              <div className={`form-group ${errors.emailAddress ? 'error' : ''}`}>
-                <label htmlFor="emailAddress">Email Address</label>
+              <div className={`flex flex-col gap-1 ${errors.emailAddress ? 'error' : ''}`}>
+                <label htmlFor="emailAddress" className="text-[#888] text-[0.8rem] font-medium tracking-[0.02em]">Email Address</label>
                 <input
                   type="email"
                   id="emailAddress"
@@ -209,13 +223,16 @@ export default function Contact() {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   required
+                  className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-[10px] px-5 py-[0.9rem] text-white text-[0.95rem] transition-[0.3s_ease] w-full focus:outline-none focus:border-[#2a2a2a] focus:bg-[#111] focus:shadow-[0_0_30px_rgba(255,255,255,0.02)] placeholder:text-[#444] ${
+                    errors.emailAddress ? 'border-[#ef4444]' : ''
+                  }`}
                 />
-                <span className="form-error">{errors.emailAddress}</span>
+                <span className={`text-[#ef4444] text-[0.75rem] ${errors.emailAddress ? 'block' : 'hidden'}`}>{errors.emailAddress}</span>
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="subject">Subject</label>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="subject" className="text-[#888] text-[0.8rem] font-medium tracking-[0.02em]">Subject</label>
               <input
                 type="text"
                 id="subject"
@@ -223,11 +240,12 @@ export default function Contact() {
                 placeholder="Project Discussion"
                 value={formData.subject}
                 onChange={handleChange}
+                className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-[10px] px-5 py-[0.9rem] text-white text-[0.95rem] transition-[0.3s_ease] w-full focus:outline-none focus:border-[#2a2a2a] focus:bg-[#111] focus:shadow-[0_0_30px_rgba(255,255,255,0.02)] placeholder:text-[#444]"
               />
             </div>
 
-            <div className={`form-group ${errors.message ? 'error' : ''}`}>
-              <label htmlFor="message">Message</label>
+            <div className={`flex flex-col gap-1 ${errors.message ? 'error' : ''}`}>
+              <label htmlFor="message" className="text-[#888] text-[0.8rem] font-medium tracking-[0.02em]">Message</label>
               <textarea
                 id="message"
                 name="message"
@@ -237,11 +255,14 @@ export default function Contact() {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
+                className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-[10px] px-5 py-[0.9rem] text-white text-[0.95rem] transition-[0.3s_ease] w-full focus:outline-none focus:border-[#2a2a2a] focus:bg-[#111] focus:shadow-[0_0_30px_rgba(255,255,255,0.02)] placeholder:text-[#444] resize-y min-h-[120px] ${
+                  errors.message ? 'border-[#ef4444]' : ''
+                }`}
               ></textarea>
-              <span className="form-error">{errors.message}</span>
+              <span className={`text-[#ef4444] text-[0.75rem] ${errors.message ? 'block' : 'hidden'}`}>{errors.message}</span>
             </div>
 
-            <div className={`form-group checkbox-group ${errors.agree ? 'error' : ''}`}>
+            <div className={`flex flex-row items-center gap-3 flex-wrap ${errors.agree ? 'error' : ''}`}>
               <input
                 type="checkbox"
                 id="agree"
@@ -250,31 +271,29 @@ export default function Contact() {
                 onChange={handleChange}
                 onBlur={handleBlur}
                 required
+                className="w-[18px] h-[18px] min-w-[18px] accent-white cursor-pointer p-0"
               />
-              <label htmlFor="agree">
-                I agree to the <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>
+              <label htmlFor="agree" className="text-[#666] text-[0.85rem] font-normal cursor-pointer">
+                I agree to the <a href="#" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Privacy Policy</a> and <a href="#" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Terms of Service</a>
               </label>
-              <span className="form-error">{errors.agree}</span>
+              <span className={`text-[#ef4444] text-[0.75rem] w-full ${errors.agree ? 'block' : 'hidden'}`}>{errors.agree}</span>
             </div>
 
-            <button type="submit" className="contact-submit" disabled={isSubmitting}>
+            <button type="submit" className="inline-flex items-center justify-center gap-3 px-10 py-4 bg-white text-black border-none rounded-[50px] text-[1rem] font-semibold cursor-pointer transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] relative overflow-hidden w-full hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(255,255,255,0.15)] hover:gap-5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" disabled={isSubmitting}>
+              <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-[0.6s_ease] hover:left-full"></span>
               <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
               {isSubmitting ? (
-                <i className="fas fa-spinner fa-spin"></i>
+                <i className="fas fa-spinner fa-spin text-[0.9rem]"></i>
               ) : (
-                <i className="fas fa-paper-plane"></i>
+                <i className="fas fa-paper-plane text-[0.9rem] transition-[0.3s_ease] hover:translate-x-1"></i>
               )}
             </button>
 
-            {isSuccess && (
-              <div className="contact-success show">
-                <div className="contact-success-icon">
-                  <i className="fas fa-check-circle"></i>
-                </div>
-                <h3>Message Sent!</h3>
-                <p>Thank you for reaching out. We'll get back to you within 24 hours.</p>
-              </div>
-            )}
+            <div className={`text-center p-8 ${isSuccess ? 'block' : 'hidden'}`}>
+              <i className="fas fa-check-circle text-[3rem] text-[#22c55e] mb-4"></i>
+              <h3 className="text-white text-[1.4rem] mb-2">Message Sent!</h3>
+              <p className="text-[#666] text-[0.95rem]">Thank you for reaching out. We'll get back to you within 24 hours.</p>
+            </div>
           </form>
         </div>
       </div>

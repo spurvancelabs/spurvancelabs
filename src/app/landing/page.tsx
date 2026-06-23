@@ -22,25 +22,79 @@ import "../../global.css";
 
 export default function Home() {
   return (
-    <main className="main">
+    <main className="main min-h-screen overflow-hidden">
+      {/* Fixed Header - sticky at top */}
       <Header />
-      <Hero />
-      <TechStack />
-      <TrustedBy />
-      <Stats />
-      <Services />
-      <WhyChooseUs />
-      <Process />
-      <Interective/>
-      <DesignShowCase/>
-      <OurNetwork/>
-      <Portfolio />
-      <CaseStudies />
-      <Testimonials />
-      <Faq />
-      <Cta />
-      <Contact />
-      <SvgBackgrounds />
+      
+      {/* All sections with proper spacing and responsive padding */}
+      <section className="w-full">
+        <Hero />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <TechStack />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <TrustedBy />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Stats />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Services />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <WhyChooseUs />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Process />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Interective />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <DesignShowCase />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <OurNetwork />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Portfolio />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <CaseStudies />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Testimonials />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Faq />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Cta />
+      </section>
+      
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <Contact />
+      </section>
+      
+      {/* SVG Backgrounds - positioned absolutely with proper z-index */}
+    
+        <SvgBackgrounds />      
+      {/* Footer - full width */}
       <Footer />
     </main>
   );
