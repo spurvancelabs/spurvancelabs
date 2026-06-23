@@ -1,18 +1,221 @@
-body{
-    background-color: #000000;
-    overflow-x: hidden;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: white;
-    margin: 0;
-    padding: 0;
+/* /* 
+/* ===== PAGE LAYOUT ===== */
+.main {
+  min-height: 100vh;
+    /* background:rgb(0, 0, 0); */
+    /* background-color: white; */
+
+  overflow-x: hidden;
+  position: relative;
 }
 
-.main {
-  /* background-color: #000000; */
-  overflow-x: hidden;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: white;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
+/* ===== SECTION SPACING RESPONSIVE ===== */
+/* Each section gets proper spacing at all breakpoints */
+section {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== RESPONSIVE PADDING UTILITIES ===== */
+/* Mobile first - small padding on mobile, larger on desktop */
+.responsive-section {
+  padding: 3rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-section {
+    padding: 4rem 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-section {
+    padding: 5rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-section {
+    padding: 6rem 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-section {
+    padding: 7rem 4rem;
+  }
+}
+
+/* ===== CONTAINER MAX-WIDTH ===== */
+.container-responsive {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ===== RESPONSIVE GRID HELPERS ===== */
+.grid-responsive {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* ===== RESPONSIVE TEXT SIZES ===== */
+.text-responsive-h1 {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1.1;
+}
+
+.text-responsive-h2 {
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  line-height: 1.2;
+}
+
+.text-responsive-h3 {
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  line-height: 1.3;
+}
+
+.text-responsive-h4 {
+  font-size: clamp(1rem, 1.8vw, 1.5rem);
+  line-height: 1.4;
+}
+
+.text-responsive-body {
+  font-size: clamp(0.875rem, 1.2vw, 1.125rem);
+  line-height: 1.7;
+}
+
+.text-responsive-small {
+  font-size: clamp(0.75rem, 0.8vw, 0.9rem);
+  line-height: 1.5;
+}
+
+/* ===== RESPONSIVE SPACING ===== */
+.spacing-section {
+  padding: clamp(3rem, 8vw, 8rem) 0;
+}
+
+.spacing-section-top {
+  padding-top: clamp(3rem, 8vw, 8rem);
+}
+
+.spacing-section-bottom {
+  padding-bottom: clamp(3rem, 8vw, 8rem);
+}
+
+/* ===== RESPONSIVE FLEX LAYOUTS ===== */
+.flex-responsive {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .flex-responsive {
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+/* ===== RESPONSIVE IMAGES ===== */
+.img-responsive {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* ===== ANIMATION OPTIMIZATION ===== */
+/* Reduce animation on mobile for better performance */
+@media (max-width: 768px) {
+  * {
+    animation-duration: 0.8s !important;
+  }
+  
+  /* Disable parallax-like effects on mobile */
+  .parallax-effect {
+    transform: none !important;
+  }
+}
+
+/* ===== TOUCH DEVICE OPTIMIZATIONS ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  button, 
+  a,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .hover-effect:hover {
+    transform: none !important;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  .text-muted {
+    color: #999 !important;
+  }
+  
+  .border-muted {
+    border-color: #666 !important;
+  }
+}
+
+/* ===== SCROLL BEHAVIOR ===== */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* ===== LOADING SKELETON ===== */
+.skeleton {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

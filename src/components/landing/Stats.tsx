@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import './Stats.css';
 
 const statsData = [
   { count: 500, label: 'Projects Delivered', suffix: '+' },
@@ -49,18 +48,27 @@ export default function Stats() {
   }, [hasAnimated]);
 
   return (
-    <section className="stats-section" ref={sectionRef}>
-      <div className="stats-header">
-        <h2>By the <span>numbers</span></h2>
-        <p>Delivering excellence through measurable results</p>
+    <section className="py-16 px-8 pb-20 max-w-[1100px] mx-auto text-center" ref={sectionRef}>
+      <div className="mb-12">
+        <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          By the <span className="text-[#888] font-light">numbers</span>
+        </h2>
+        <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
+          Delivering excellence through measurable results
+        </p>
       </div>
-      <div className="stats-grid">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-[2rem_1.5rem] mt-4">
         {statsData.map((stat, index) => (
-          <div key={index} className="stats-item">
-            <span className="stats-number">
+          <div 
+            key={index} 
+            className="flex flex-col items-center gap-1 py-8 px-4 rounded-xl border border-transparent transition-[0.25s_ease] cursor-default hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:-translate-y-1"
+          >
+            <span className="text-[3.2rem] font-bold bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent leading-[1.2] tracking-[-0.02em]">
               {counts[index]}{stat.suffix}
             </span>
-            <span className="stats-label">{stat.label}</span>
+            <span className="text-[0.9rem] text-[#666] tracking-[0.03em] font-normal uppercase hover:text-[#aaa]">
+              {stat.label}
+            </span>
           </div>
         ))}
       </div>

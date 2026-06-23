@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import './Process.css';
 
 const processSteps = [
   {
@@ -81,35 +80,46 @@ export default function Process() {
   }, []);
 
   return (
-    <section className="process-section">
-      <div className="process-header">
-        <h2>Our <span>development process</span></h2>
-        <p>A streamlined approach to turn your ideas into reality</p>
+    <section className="py-20 px-8 pb-24 overflow-hidden">
+      <div className="text-center mb-16">
+        <h2 className="text-white text-[2.8rem] font-bold tracking-[-0.03em] mb-2">
+          Our <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent">development process</span>
+        </h2>
+        <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
+          A streamlined approach to turn your ideas into reality
+        </p>
       </div>
 
-      <div className="process-timeline">
+      <div className="max-w-[1000px] mx-auto relative before:content-[''] before:absolute before:left-1/2 before:top-0 before:bottom-0 before:w-[2px] before:bg-gradient-to-b before:from-transparent before:via-[#2a2a2a] before:via-[#444] before:to-transparent before:-translate-x-1/2 lg:before:block before:hidden">
         {processSteps.map((step, index) => (
           <div
             key={index}
-            className="process-step"
+            className="flex items-center mb-16 relative opacity-0 translate-y-[50px] transition-[0.8s_cubic-bezier(0.25,0.46,0.45,0.94)] [&.visible]:opacity-100 [&.visible]:translate-y-0 last:mb-0 flex-col lg:flex-row lg:odd:flex-row lg:even:flex-row-reverse pl-[70px] lg:pl-0"
             data-delay={index * 150}
             ref={(el) => { stepsRef.current[index] = el; }}
           >
-            <div className="step-number">{step.number}</div>
-            <div className="step-content">
-              <div className="step-image">
-                <img src={step.image} alt={step.title} />
-                <div className="step-image-overlay">
-                  <i className={`fas ${step.icon}`}></i>
+            <div className="absolute left-[30px] lg:left-1/2 -translate-x-1/2 w-[50px] h-[50px] lg:w-[50px] lg:h-[50px] rounded-full bg-[#1a1a1a] border-2 border-[#2a2a2a] flex items-center justify-center text-[1rem] font-bold text-[#888] z-[2] transition-[0.4s_ease] hover:bg-[#2a2a2a] hover:border-[#444] hover:text-white hover:scale-110 lg:hover:scale-110">
+              {step.number}
+            </div>
+            
+            <div className={`flex items-center gap-8 w-full lg:w-[calc(50%-40px)] p-6 rounded-xl border border-transparent transition-[0.4s_ease] bg-transparent hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:scale-[1.02] flex-col lg:flex-row ${index % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'}`}>
+              <div className="relative w-full lg:w-[120px] h-[200px] lg:h-[120px] min-w-full lg:min-w-[120px] rounded-xl overflow-hidden border border-[#1a1a1a]">
+                <img 
+                  src={step.image} 
+                  alt={step.title} 
+                  className="w-full h-full object-cover transition-[0.4s_ease] hover:scale-110"
+                />
+                <div className="absolute top-0 left-0 right-0 bottom-0 bg-black/60 flex items-center justify-center opacity-0 transition-[0.4s_ease] hover:opacity-100">
+                  <i className={`fas ${step.icon} text-4xl text-white`}></i>
                 </div>
               </div>
-              <div className="step-text">
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-                <ul className="step-details">
+              <div className="flex-1">
+                <h3 className="text-white text-[1.2rem] font-semibold mb-2">{step.title}</h3>
+                <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-3">{step.description}</p>
+                <ul className="list-none p-0 flex flex-wrap gap-2 gap-x-4">
                   {step.details.map((detail, i) => (
-                    <li key={i}>
-                      <i className="fas fa-check"></i> {detail}
+                    <li key={i} className="text-[#666] text-[0.8rem] flex items-center gap-1.5">
+                      <i className="fas fa-check text-[#888] text-[0.7rem]"></i> {detail}
                     </li>
                   ))}
                 </ul>
