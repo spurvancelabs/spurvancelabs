@@ -6,6 +6,7 @@ import Header from '@/components/landing/Header'
 import React from 'react'
 import "../../../global.css"
 import MapContact from '@/components/landing/Contact/MapContact'
+import GetStarted from '@/components/landing/Internships/GetStarted'
 
 function ContactPage() {
   return (
@@ -13,7 +14,7 @@ function ContactPage() {
         <Header/>
         <HeroContact/>
         <MapContact/>
-
+        <GetStarted/>
         <Footer/>
     </section>
   )

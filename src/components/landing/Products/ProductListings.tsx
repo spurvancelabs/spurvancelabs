@@ -9,9 +9,7 @@ const products = [
     category: 'Productivity',
     description: 'Advanced project management and team collaboration platform with AI-powered insights and automation.',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&crop=center',
-    price: 'Starting at $29/month',
     features: ['Task Management', 'Team Collaboration', 'Time Tracking', 'Analytics'],
-    icon: 'fa-tasks',
   },
   {
     id: 2,
@@ -19,9 +17,7 @@ const products = [
     category: 'Infrastructure',
     description: 'Secure cloud storage and synchronization solution for businesses with military-grade encryption.',
     image: 'https://images.unsplash.com/photo-1548613260-8bbf6fe5c8e1?w=600&h=400&fit=crop&crop=center',
-    price: 'Starting at $99/month',
     features: ['Secure Storage', 'Auto-sync', 'File Sharing', 'Backup'],
-    icon: 'fa-cloud',
   },
   {
     id: 3,
@@ -29,9 +25,7 @@ const products = [
     category: 'Design',
     description: 'Comprehensive design toolkit with component libraries, templates, and collaboration features.',
     image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop&crop=center',
-    price: 'Starting at $49/month',
     features: ['Component Library', 'Figma Integration', 'Templates', 'Prototyping'],
-    icon: 'fa-palette',
   },
   {
     id: 4,
@@ -39,9 +33,7 @@ const products = [
     category: 'Business',
     description: 'Real-time business intelligence and data visualization platform for data-driven decisions.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&crop=center',
-    price: 'Starting at $79/month',
     features: ['Real-time Data', 'Custom Dashboards', 'Export Reports', 'Team Sharing'],
-    icon: 'fa-chart-bar',
   },
   {
     id: 5,
@@ -49,9 +41,7 @@ const products = [
     category: 'AI',
     description: 'No-code platform for creating intelligent chatbots for customer service and automation.',
     image: 'https://images.unsplash.com/photo-1587582224793-0820d7a3d031?w=600&h=400&fit=crop&crop=center',
-    price: 'Starting at $39/month',
     features: ['No-code Builder', 'AI Responses', 'Multi-channel', 'Analytics'],
-    icon: 'fa-robot',
   },
   {
     id: 6,
@@ -59,9 +49,7 @@ const products = [
     category: 'Cybersecurity',
     description: 'Comprehensive security monitoring and threat detection platform for modern applications.',
     image: 'https://images.unsplash.com/photo-1563013534281-512a7a0b1e32?w=600&h=400&fit=crop&crop=center',
-    price: 'Starting at $149/month',
     features: ['Threat Detection', 'Vulnerability Scan', 'Real-time Alerts', 'Compliance'],
-    icon: 'fa-shield-alt',
   },
 ];
 
@@ -142,13 +130,11 @@ export default function ProductListings() {
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
-                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
-                  <i className={`fas ${product.icon} text-blue-500`}></i>
-                </div>
+              
               </div>
 
               <div className="p-6 flex flex-col flex-1">
-                <span className="text-blue-500 text-[0.7rem] uppercase tracking-[0.1em] font-medium mb-2">
+                <span className="text-gray-500 text-[0.7rem] uppercase tracking-[0.1em] font-medium mb-2">
                   {product.category}
                 </span>
 
@@ -169,8 +155,7 @@ export default function ProductListings() {
                 </div>
 
                 <div className="flex justify-between items-center pt-4 border-t border-[#1a1a1a]">
-                  <span className="text-white font-semibold text-[1rem]">{product.price}</span>
-                  <button className="bg-blue-500 text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5">
+                  <button className=" text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5">
                     Learn More
                   </button>
                 </div>

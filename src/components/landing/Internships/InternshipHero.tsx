@@ -3,11 +3,9 @@ import Image from 'next/image';
 
 function InternshipHero() {
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden mt-10">
       <div className="relative z-10 max-w-6xl mx-auto px-8 text-center">
-        <span className="inline-block bg-[#1a1a1a] text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-5 border border-[#2a2a2a]">
-          Career Opportunities
-        </span>
+        
         <h1 className="text-white text-5xl md:text-6xl font-bold tracking-[-0.02em] mb-6">
           Launch Your Tech <span className="text-blue-500">Career</span>
         </h1>

@@ -38,9 +38,7 @@ export default function JobsPerks() {
     <section className="py-20 px-8 pb-24">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-16">
-          <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
-            Employee Benefits
-          </span>
+       
           <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Why Work <span className="text-[#888] font-light">With Us</span>
           </h2>
