@@ -17,9 +17,9 @@ function JobsHero() {
           <input
             type="text"
             placeholder="Search by role, skill, or location..."
-            className="w-full px-6 py-4 pl-14 bg-[#0a0a0a] border border-[#1a1a1a] rounded-full text-white text-[1rem] focus:outline-none focus:border-[#2a2a2a] placeholder:text-[#444]"
+            className="w-full px-6 py-4 pl-14 bg-[#1a1a1a] border border-[#4d4c4c] rounded-full text-white text-[1rem] focus:outline-none focus:border-[#2a2a2a] placeholder:text-[#676767]"
           />
-          <i className="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-[#666] text-lg"></i>
+          <i className="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-[#7a7a7a] text-lg"></i>
         </div>
       </div>
       
