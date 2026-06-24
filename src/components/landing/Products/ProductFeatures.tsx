@@ -83,7 +83,7 @@ export default function ProductFeatures() {
               className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-8 transition-[0.3s_ease] opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col items-center text-center"
               ref={(el) => { itemsRef.current[index] = el; }}
             >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-5">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-black-500 to-gray-500 flex items-center justify-center mb-5">
                 <i className={`fas ${feature.icon} text-3xl text-white`}></i>
               </div>
               <h3 className="text-white text-[1.3rem] font-semibold mb-3">

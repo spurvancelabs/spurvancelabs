@@ -13,7 +13,6 @@ const jobOpenings = [
     skills: ['React', 'TypeScript', 'Next.js', 'GraphQL'],
     description: 'Lead frontend development for enterprise applications. Mentor junior developers and drive technical decisions.',
     icon: 'fa-laptop-code',
-    urgent: true,
   },
   {
     id: 2,
@@ -36,7 +35,6 @@ const jobOpenings = [
     skills: ['React', 'Node.js', 'MongoDB', 'Docker'],
     description: 'Work across the entire stack to deliver end-to-end solutions. Collaborate with cross-functional teams.',
     icon: 'fa-code',
-    urgent: true,
   },
   {
     id: 4,
@@ -92,7 +90,6 @@ const jobOpenings = [
     skills: ['Architecture', 'Leadership', 'Full Stack', 'Mentoring'],
     description: 'Lead technical projects and guide teams through architecture and development decisions.',
     icon: 'fa-users-cog',
-    urgent: true,
   },
   {
     id: 9,
@@ -144,9 +141,7 @@ export default function JobsListings() {
     <section className="py-20 px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-16">
-          <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
-            Open Positions
-          </span>
+     
           <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Available <span className="text-[#888] font-light">Jobs</span>
           </h2>

@@ -4,9 +4,10 @@ import HeroService from '@/components/landing/Services/HeroService'
 import Header from '@/components/landing/Header'
 import Footer from '@/components/landing/Footer'
 import AIServices from '@/components/landing/Services/AIServices'
-import PricingService from '@/components/landing/Services/PricingService'
+import InternshipPricing from '@/components/landing/Services/InternshipPricing'
 import ServiceGrid from '@/components/landing/Services/ServiceGrid'
 import ServiceProcess from '@/components/landing/Services/ServiceProcess'
+import GetStarted from '@/components/landing/Internships/GetStarted'
 function ServicePage() {
   return (
 <section className=' '>
@@ -15,8 +16,9 @@ function ServicePage() {
     <HeroService/>
     <ServiceGrid/>
     <AIServices/>
+    <InternshipPricing/>
     <ServiceProcess/>
-    <PricingService/>
+    <GetStarted/>
     </div>
     <Footer/>
 </section>

@@ -20,7 +20,7 @@ function ProductHero() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-5">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
               <i className="fas fa-rocket text-3xl text-white"></i>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3 text-center">Enterprise Ready</h3>
@@ -28,7 +28,7 @@ function ProductHero() {
           </div>
           
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mx-auto mb-5">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
               <i className="fas fa-bolt text-3xl text-white"></i>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3 text-center">Lightning Fast</h3>
@@ -36,7 +36,7 @@ function ProductHero() {
           </div>
           
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mx-auto mb-5">
+            <div className="w-20 h-20 rounded-full  flex items-center justify-center mx-auto mb-5">
               <i className="fas fa-shield-alt text-3xl text-white"></i>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3 text-center">Secure & Reliable</h3>

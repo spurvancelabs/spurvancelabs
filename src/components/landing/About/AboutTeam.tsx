@@ -78,22 +78,20 @@ export default function AboutTeam() {
               ref={(el) => { itemsRef.current[index] = el; }}
             >
               <div className="relative mb-5">
-                <div className="w-full aspect-square rounded-2xl overflow-hidden border-2 border-[#1a1a1a] transition-all duration-300 group-hover:border-blue-500">
+                <div className="w-full aspect-square rounded-2xl overflow-hidden border-2 border-[#1a1a1a] transition-all duration-300 ">
                   <img
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
-                <div className="absolute -bottom-3 -right-3 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <i className="fas fa-code text-white"></i>
-                </div>
+              
               </div>
               
               <h3 className="text-white text-[1.3rem] font-semibold mb-1">
                 {member.name}
               </h3>
-              <p className="text-blue-500 text-[0.85rem] font-medium mb-3">
+              <p className="text-gray-500 text-[0.85rem] font-medium mb-3">
                 {member.role}
               </p>
               
