@@ -177,11 +177,6 @@ export default function JobsListings() {
                 <div className="w-14 h-14 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
                   <i className={`fas ${job.icon} text-2xl text-blue-500`}></i>
                 </div>
-                {job.urgent && (
-                  <span className="text-[0.65rem] text-orange-400 uppercase tracking-[0.1em] font-semibold bg-orange-400/10 px-2 py-1 rounded-full">
-                    Urgent
-                  </span>
-                )}
               </div>
 
               <h3 className="text-white text-[1.3rem] font-semibold mb-2">
