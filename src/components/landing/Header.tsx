@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Header() {
   return (
@@ -20,21 +21,39 @@ export default function Header() {
         </div>
         <nav>
           <ul className="list-none flex gap-2">
-            <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+            <Link href="/landing" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
               Home
             </li>
-            <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+            </Link>
+            <Link href="/landing/services" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
               Services
             </li>
-            <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+            </Link>
+            <Link href="/landing/about" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
               About
             </li>
-            <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+            </Link>
+            <Link href="/landing/internships" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+              Internships
+            </li>
+            </Link>
+            <Link href="/landing/jobs" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+              Jobs
+            </li>
+            </Link>
+            <Link href="/landing/products" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+              Products
+            </li>
+            </Link>
+            <Link href="/landing/contact" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
               Contact
             </li>
-            <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
-              Login
-            </li>
+            </Link>
+            <Link href="/login" > 
+              <li className="bg-white inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#00000] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#a4a4a4] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
+                Login
+              </li>
+            </Link>
           </ul>
         </nav>
       </div>
