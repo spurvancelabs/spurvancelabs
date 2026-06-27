@@ -20,7 +20,7 @@ export default function Header() {
           </h1>
         </div>
         <nav>
-          <ul className="list-none flex gap-2">
+          <ul className="list-none flex gap-1 sm:gap-2">
             <Link href="/landing" > <li className="inline-block px-4 py-2 cursor-pointer text-[0.9rem] font-medium text-[#ccc] rounded-[40px] transition-all duration-200 hover:text-white hover:bg-[#1a1a1a] max-sm:px-2.5 max-sm:py-1 max-sm:text-[0.75rem]">
               Home
             </li>

@@ -1,120 +1,47 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import JobApplicationModal from './JobApplicationModal';
 
-const jobOpenings = [
-  {
-    id: 1,
-    title: 'Senior Frontend Engineer',
-    department: 'Engineering',
-    type: 'Full-time',
-    location: 'Remote / Hybrid',
-    salary: '$120k - $160k',
-    skills: ['React', 'TypeScript', 'Next.js', 'GraphQL'],
-    description: 'Lead frontend development for enterprise applications. Mentor junior developers and drive technical decisions.',
-    icon: 'fa-laptop-code',
-  },
-  {
-    id: 2,
-    title: 'Backend Engineer',
-    department: 'Engineering',
-    type: 'Full-time',
-    location: 'On-site',
-    salary: '$110k - $150k',
-    skills: ['Node.js', 'Python', 'AWS', 'Microservices'],
-    description: 'Build scalable backend systems and APIs. Work with modern cloud technologies and distributed systems.',
-    icon: 'fa-server',
-  },
-  {
-    id: 3,
-    title: 'Full Stack Developer',
-    department: 'Engineering',
-    type: 'Full-time',
-    location: 'Remote',
-    salary: '$100k - $140k',
-    skills: ['React', 'Node.js', 'MongoDB', 'Docker'],
-    description: 'Work across the entire stack to deliver end-to-end solutions. Collaborate with cross-functional teams.',
-    icon: 'fa-code',
-  },
-  {
-    id: 4,
-    title: 'Product Designer',
-    department: 'Design',
-    type: 'Full-time',
-    location: 'Hybrid',
-    salary: '$90k - $130k',
-    skills: ['Figma', 'UI/UX', 'Prototyping', 'User Research'],
-    description: 'Design beautiful and intuitive user experiences for web and mobile applications.',
-    icon: 'fa-palette',
-  },
-  {
-    id: 5,
-    title: 'DevOps Engineer',
-    department: 'Infrastructure',
-    type: 'Full-time',
-    location: 'Remote / On-site',
-    salary: '$115k - $155k',
-    skills: ['Kubernetes', 'AWS', 'CI/CD', 'Terraform'],
-    description: 'Manage infrastructure, automate deployments, and ensure system reliability at scale.',
-    icon: 'fa-cloud',
-  },
-  {
-    id: 6,
-    title: 'AI/ML Engineer',
-    department: 'Data Science',
-    type: 'Full-time',
-    location: 'On-site',
-    salary: '$130k - $180k',
-    skills: ['Python', 'TensorFlow', 'PyTorch', 'MLOps'],
-    description: 'Build and deploy machine learning models. Research and implement AI solutions for clients.',
-    icon: 'fa-brain',
-  },
-  {
-    id: 7,
-    title: 'QA Automation Engineer',
-    department: 'Quality',
-    type: 'Full-time',
-    location: 'Remote',
-    salary: '$95k - $125k',
-    skills: ['Selenium', 'Jest', 'Cypress', 'Test Automation'],
-    description: 'Design and implement automated testing solutions to ensure product quality.',
-    icon: 'fa-bug',
-  },
-  {
-    id: 8,
-    title: 'Technical Lead',
-    department: 'Engineering',
-    type: 'Full-time',
-    location: 'Hybrid',
-    salary: '$150k - $200k',
-    skills: ['Architecture', 'Leadership', 'Full Stack', 'Mentoring'],
-    description: 'Lead technical projects and guide teams through architecture and development decisions.',
-    icon: 'fa-users-cog',
-  },
-  {
-    id: 9,
-    title: 'Mobile Developer',
-    department: 'Mobile',
-    type: 'Full-time',
-    location: 'Remote',
-    salary: '$105k - $145k',
-    skills: ['React Native', 'Flutter', 'iOS', 'Android'],
-    description: 'Build cross-platform mobile applications with native performance and user experience.',
-    icon: 'fa-mobile-alt',
-  },
-];
+interface Job {
+  id: string;
+  title: string;
+  department: string;
+  type: string;
+  location: string;
+  salary: string | null;
+  skills: string[];
+  description: string;
+  icon: string | null;
+}
 
 const departments = ['All', 'Engineering', 'Design', 'Infrastructure', 'Data Science', 'Mobile', 'Quality'];
 
 export default function JobsListings() {
   const [activeDepartment, setActiveDepartment] = useState('All');
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
+  useEffect(() => {
+    fetch('/api/jobs')
+      .then(r => r.json())
+      .then(data => {
+        setJobs(data.jobs || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
   const filteredJobs = activeDepartment === 'All' 
-    ? jobOpenings 
-    : jobOpenings.filter(job => job.department === activeDepartment);
+    ? jobs 
+    : jobs.filter(job => job.department === activeDepartment);
 
   useEffect(() => {
+    if (!filteredJobs.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -135,14 +62,14 @@ export default function JobsListings() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [filteredJobs]);
 
   return (
     <section className="py-20 px-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-16">
      
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Available <span className="text-[#888] font-light">Jobs</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
@@ -175,7 +102,8 @@ export default function JobsListings() {
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-14 h-14 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
-                  <i className={`fas ${job.icon} text-2xl text-blue-500`}></i>
+      <img src={job.icon ?? ''} alt={job.title} className="w-10 h-10 object-contain" />
+
                 </div>
               </div>
 
@@ -201,7 +129,10 @@ export default function JobsListings() {
 
               <div className="flex justify-between items-center pt-4 border-t border-[#1a1a1a]">
                 <span className="text-white font-semibold">{job.salary}</span>
-                <button className="bg-blue-500 text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600">
+                <button
+                  onClick={() => { setSelectedJob(job); setShowModal(true); }}
+                  className="bg-blue-500 text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600"
+                >
                   Apply
                 </button>
               </div>
@@ -209,6 +140,12 @@ export default function JobsListings() {
           ))}
         </div>
       </div>
+      {showModal && (
+        <JobApplicationModal
+          job={selectedJob}
+          onClose={() => { setShowModal(false); setSelectedJob(null); }}
+        />
+      )}
     </section>
   );
 }

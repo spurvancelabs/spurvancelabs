@@ -56,21 +56,21 @@ function Interective() {
   const isActive = (tabName: string) => activeTab === tabName
 
   return (
-    <section className=" py-20 px-8 pb-24 border-t border-[#1a1a1a] overflow-hidden">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 border-t border-[#1a1a1a] overflow-hidden">
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-14">
           <span className="inline-block text-[#888] text-[0.7rem] uppercase tracking-[0.2em] bg-[#1a1a1a] px-6 py-[0.4rem] rounded-[30px] mb-3 border border-[#2a2a2a]">
             Interactive Tour
           </span>
-          <h2 className="text-white text-[3rem] font-bold tracking-[-0.03em] mb-3">
+          <h2 className="text-white text-[2rem] sm:text-[2.4rem] md:text-[3rem] font-bold tracking-[-0.03em] mb-3">
             See it in <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">action</span>
           </h2>
-          <p className="text-[#666] text-[1.1rem] font-light max-w-[500px] mx-auto">
+          <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
             Explore our platform's key features through this interactive demo
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8 bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden min-h-[500px] relative">
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-0 lg:gap-8 bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden min-h-[500px] relative">
           {/* Sidebar Tabs */}
           <div className="bg-[#0a0a0a] p-6 px-4 border-r border-[#1a1a1a] flex flex-row flex-wrap lg:flex-col gap-[0.3rem] lg:border-r lg:border-b-0 border-b border-[#1a1a1a]">
             <div 
@@ -160,7 +160,7 @@ function Interective() {
           </div>
 
           {/* Main Content Area */}
-          <div className="p-4 overflow-y-auto lg:max-h-[600px]">
+          <div className="p-3 sm:p-4 overflow-y-auto lg:max-h-[600px]">
             {/* Dashboard Panel */}
             {isActive('dashboard') && (
               <div className="block animate-[fadeIn_0.4s_ease]">
@@ -169,21 +169,21 @@ function Interective() {
                   <p className="text-[#666] text-[0.9rem] mb-6">Real-time overview of your business performance</p>
                 </div>
                 <div className="tour-panel-body">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-5 text-center">
-                      <span className="block text-white text-[1.6rem] font-bold tracking-[-0.02em]">$124.5K</span>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-3 sm:p-5 text-center">
+                      <span className="block text-white text-[1.2rem] sm:text-[1.6rem] font-bold tracking-[-0.02em]">$124.5K</span>
                       <span className="block text-[#666] text-[0.75rem] mt-[0.2rem]">Total Revenue</span>
                     </div>
-                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-5 text-center">
-                      <span className="block text-white text-[1.6rem] font-bold tracking-[-0.02em]">2,847</span>
+                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-3 sm:p-5 text-center">
+                      <span className="block text-white text-[1.2rem] sm:text-[1.6rem] font-bold tracking-[-0.02em]">2,847</span>
                       <span className="block text-[#666] text-[0.75rem] mt-[0.2rem]">Active Users</span>
                     </div>
-                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-5 text-center">
-                      <span className="block text-white text-[1.6rem] font-bold tracking-[-0.02em]">67%</span>
+                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-3 sm:p-5 text-center">
+                      <span className="block text-white text-[1.2rem] sm:text-[1.6rem] font-bold tracking-[-0.02em]">67%</span>
                       <span className="block text-[#666] text-[0.75rem] mt-[0.2rem]">Engagement Rate</span>
                     </div>
-                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-5 text-center">
-                      <span className="block text-white text-[1.6rem] font-bold tracking-[-0.02em]">183</span>
+                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-3 sm:p-5 text-center">
+                      <span className="block text-white text-[1.2rem] sm:text-[1.6rem] font-bold tracking-[-0.02em]">183</span>
                       <span className="block text-[#666] text-[0.75rem] mt-[0.2rem]">New Signups</span>
                     </div>
                   </div>
@@ -211,9 +211,9 @@ function Interective() {
                   <p className="text-[#666] text-[0.9rem] mb-6">Deep insights into your data and user behavior</p>
                 </div>
                 <div className="tour-panel-body">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-5 text-center">
-                      <span className="block text-white text-[1.4rem] font-bold">42.8K</span>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                    <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-4 sm:p-5 text-center">
+                      <span className="block text-white text-[1.2rem] sm:text-[1.4rem] font-bold">42.8K</span>
                       <span className="text-[#666] text-[0.75rem]">Page Views</span>
                     </div>
                     <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-5 text-center">

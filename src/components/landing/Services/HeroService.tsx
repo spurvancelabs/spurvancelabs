@@ -6,7 +6,7 @@ function HeroService() {
     <div className='min-h-screen overflow-hidden'> 
         {/* Heading */}
         <div className='mt-25 z-20 flex justify-center items-center'>
-            <h1 className='text-white font-bold text-6xl w-[600px] text-center leading-tight'>
+            <h1 className='text-white font-bold text-4xl md:text-5xl lg:text-6xl w-full max-w-[600px] px-4 sm:px-0 text-center leading-tight'>
                 Ready To Scale <span className='font-serif text-blue-500 italic font-semibold tracking-wide'>Your brands </span>
  with paid Tools?
             </h1>
