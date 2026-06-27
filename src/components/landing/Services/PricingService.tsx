@@ -5,7 +5,7 @@ function PricingService() {
     <div className='py-20 px-4 relative min-h-screen flex items-center mt-8'>
         {/* Large Background Heading */}
         <div className='absolute inset-0 bottom-295 flex items-center justify-center pointer-events-none'>
-            <h1 className='text-[12rem] font-bold text-white select-none tracking-wider'>
+            <h1 className='text-[5rem] md:text-[8rem] lg:text-[12rem] font-bold text-white select-none tracking-wider'>
                 Interships
             </h1>
         </div>
@@ -21,7 +21,7 @@ function PricingService() {
                 <div className='backdrop-blur-xs bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-white/5 group'>
                     <div className='text-center'>
                         <span className='text-white/40 text-xs uppercase tracking-[0.25em] font-medium'>Free Plan</span>
-                        <h3 className='text-white font-bold text-5xl mt-3'>Free</h3>
+                        <h3 className='text-white font-bold text-4xl md:text-5xl mt-3'>Free</h3>
                         <p className='text-white/40 text-sm mt-2'>Perfect for getting started</p>
                     </div>
                     
@@ -67,7 +67,7 @@ function PricingService() {
                     
                     <div className='text-center'>
                         <span className='text-white/40 text-xs uppercase tracking-[0.25em] font-medium'>Standard Plan</span>
-                        <h3 className='text-white font-bold text-5xl mt-3'>$9.99<span className='text-xl text-white/40'>/mo</span></h3>
+                        <h3 className='text-white font-bold text-4xl md:text-5xl mt-3'>$9.99<span className='text-xl text-white/40'>/mo</span></h3>
                         <p className='text-white/40 text-sm mt-2'>Best for growing businesses</p>
                     </div>
                     
@@ -109,7 +109,7 @@ function PricingService() {
                 <div className='backdrop-blur-xs bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-white/5 group'>
                     <div className='text-center'>
                         <span className='text-white/40 text-xs uppercase tracking-[0.25em] font-medium'>Premium Plan</span>
-                        <h3 className='text-white font-bold text-5xl mt-3'>$19.99<span className='text-xl text-white/40'>/mo</span></h3>
+                        <h3 className='text-white font-bold text-4xl md:text-5xl mt-3'>$19.99<span className='text-xl text-white/40'>/mo</span></h3>
                         <p className='text-white/40 text-sm mt-2'>For enterprises and teams</p>
                     </div>
                     
@@ -148,7 +148,7 @@ function PricingService() {
                 </div>
 
 
-<div className='w-100 h-100 border backdrop-blur-xs rounded-2xl  border-white/10 flex flex-col items-center justify-center relative left-90 text-center mt-10 z-20 bg-white/5 '>
+<div className='w-full max-w-[400px] mx-auto md:w-100 h-auto md:h-100 border backdrop-blur-xs rounded-2xl  border-white/10 flex flex-col items-center justify-center relative left-0 md:left-90 text-center mt-10 z-20 bg-white/5 '>
     <h1 className='text-white font-bold text-4xl'>Heading <br />Statement</h1>
     <h2 className='text-gray-500'>Lorem</h2>
 </div> 

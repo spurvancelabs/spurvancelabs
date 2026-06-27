@@ -121,7 +121,7 @@ export default function InternshipPricing() {
   return (
     <div className="py-20 px-4 relative min-h-screen flex items-center ">
       <div className="absolute  inset-0 flex items-center justify-center pointer-events-none">
-        <h1 className="text-[12rem] font-bold text-white/5 select-none tracking-wider">
+        <h1 className="text-[5rem] md:text-[8rem] lg:text-[12rem] font-bold text-white/5 select-none tracking-wider">
           INTERSHIPS
         </h1>
       </div>
@@ -131,7 +131,7 @@ export default function InternshipPricing() {
           <span className="inline-block text-[#888] text-[0.75rem] uppercase tracking-[0.1em] bg-[#1a1a1a] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
             Program Details
           </span>
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Internship <span className="text-[#888] font-light">Programs</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">

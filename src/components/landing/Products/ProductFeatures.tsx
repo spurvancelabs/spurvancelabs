@@ -68,7 +68,7 @@ export default function ProductFeatures() {
           <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
             Product Features
           </span>
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Why Our <span className="text-[#888] font-light">Products</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
@@ -80,10 +80,10 @@ export default function ProductFeatures() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-8 transition-[0.3s_ease] opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col items-center text-center"
+              className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-6 md:p-8 transition-[0.3s_ease] opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col items-center text-center"
               ref={(el) => { itemsRef.current[index] = el; }}
             >
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-black-500 to-gray-500 flex items-center justify-center mb-5">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-black-500 to-gray-500 flex items-center justify-center mb-5">
                      <img src={feature.icon} alt={feature.title} className="w-10 h-10 object-contain" />
 
               </div>
@@ -98,8 +98,8 @@ export default function ProductFeatures() {
         </div>
 
         <div className="mt-20 text-center">
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-12 max-w-4xl mx-auto">
-            <h3 className="text-white text-[2rem] font-bold mb-6">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-12 max-w-4xl mx-auto">
+            <h3 className="text-white text-[1.5rem] md:text-[2rem] font-bold mb-6">
               Ready to Get Started?
             </h3>
             <p className="text-[#666] text-[1.1rem] mb-8 max-w-2xl mx-auto">

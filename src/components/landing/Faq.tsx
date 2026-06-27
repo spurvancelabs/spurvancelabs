@@ -79,12 +79,12 @@ export default function Faq() {
   const rightColumn = faqData.slice(midPoint);
 
   return (
-    <section className="py-20 px-8 pb-24 overflow-hidden">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
       <div className="text-center mb-14">
-        <h2 className="text-white text-[3rem] font-bold tracking-[-0.03em] mb-3">
+        <h2 className="text-white text-[2rem] sm:text-[2.4rem] md:text-[3rem] font-bold tracking-[-0.03em] mb-3">
           Frequently Asked <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">questions</span>
         </h2>
-        <p className="text-[#666] text-[1.1rem] font-light max-w-[500px] mx-auto">
+        <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
           Everything you need to know about working with us
         </p>
       </div>
@@ -102,15 +102,15 @@ export default function Faq() {
                 ref={(el) => { itemsRef.current[index] = el; }}
               >
                 <div 
-                  className="flex items-center gap-4 px-6 py-[1.2rem] cursor-pointer transition-[0.3s_ease] select-none relative hover:bg-[rgba(255,255,255,0.02)]"
+                  className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-[1rem] sm:py-[1.2rem] cursor-pointer transition-[0.3s_ease] select-none relative hover:bg-[rgba(255,255,255,0.02)]"
                   onClick={() => toggleFaq(faq.id)}
                 >
-                  <span className={`text-[0.7rem] font-bold tracking-[0.05em] min-w-[30px] transition-[0.3s_ease] ${
+                  <span className={`text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.05em] min-w-[30px] transition-[0.3s_ease] ${
                     activeId === faq.id ? 'text-[#888]' : 'text-[#444]'
                   }`}>
                     {faq.number}
                   </span>
-                  <h3 className={`text-[1rem] font-medium flex-1 transition-[0.3s_ease] m-0 ${
+                  <h3 className={`text-[0.85rem] sm:text-[1rem] font-medium flex-1 transition-[0.3s_ease] m-0 ${
                     activeId === faq.id ? 'text-white' : 'text-white'
                   }`}>
                     {faq.question}
@@ -131,7 +131,7 @@ export default function Faq() {
                 <div className={`max-h-0 overflow-hidden transition-[max-height_0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] ${
                   activeId === faq.id ? 'max-h-[300px]' : ''
                 }`}>
-                  <p className="text-[#888] text-[0.9rem] leading-[1.8] px-6 pb-6 m-0">
+                  <p className="text-[#888] text-[0.85rem] sm:text-[0.9rem] leading-[1.8] px-4 sm:px-6 pb-4 sm:pb-6 m-0">
                     {faq.answer}
                   </p>
                 </div>
@@ -150,15 +150,15 @@ export default function Faq() {
                 ref={(el) => { itemsRef.current[index + midPoint] = el; }}
               >
                 <div 
-                  className="flex items-center gap-4 px-6 py-[1.2rem] cursor-pointer transition-[0.3s_ease] select-none relative hover:bg-[rgba(255,255,255,0.02)]"
+                  className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-[1rem] sm:py-[1.2rem] cursor-pointer transition-[0.3s_ease] select-none relative hover:bg-[rgba(255,255,255,0.02)]"
                   onClick={() => toggleFaq(faq.id)}
                 >
-                  <span className={`text-[0.7rem] font-bold tracking-[0.05em] min-w-[30px] transition-[0.3s_ease] ${
+                  <span className={`text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.05em] min-w-[30px] transition-[0.3s_ease] ${
                     activeId === faq.id ? 'text-[#888]' : 'text-[#444]'
                   }`}>
                     {faq.number}
                   </span>
-                  <h3 className={`text-[1rem] font-medium flex-1 transition-[0.3s_ease] m-0 ${
+                  <h3 className={`text-[0.85rem] sm:text-[1rem] font-medium flex-1 transition-[0.3s_ease] m-0 ${
                     activeId === faq.id ? 'text-white' : 'text-white'
                   }`}>
                     {faq.question}
@@ -179,7 +179,7 @@ export default function Faq() {
                 <div className={`max-h-0 overflow-hidden transition-[max-height_0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] ${
                   activeId === faq.id ? 'max-h-[300px]' : ''
                 }`}>
-                  <p className="text-[#888] text-[0.9rem] leading-[1.8] px-6 pb-6 m-0">
+                  <p className="text-[#888] text-[0.85rem] sm:text-[0.9rem] leading-[1.8] px-4 sm:px-6 pb-4 sm:pb-6 m-0">
                     {faq.answer}
                   </p>
                 </div>

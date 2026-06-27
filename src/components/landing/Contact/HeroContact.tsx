@@ -5,10 +5,10 @@ import Image from 'next/image'
 
 function HeroContact() {
   return (
-      <div className='flex items-center justify-center w-full h-screen mt-20 mb-10'>
-        <div className='flex-1 p-10'>
+      <div className='flex flex-col lg:flex-row items-center justify-center w-full h-auto lg:h-screen mt-20 mb-10'>
+        <div className='flex-1 p-5 md:p-10'>
             <h3 className='font-bold text-white'>Do, you want to contact us</h3>
-            <h1 className='font-bold text-4xl text-white'>Hello, Everyone From Spurvancelab Meeting Team</h1>
+            <h1 className='font-bold text-2xl md:text-4xl text-white'>Hello, Everyone From Spurvancelab Meeting Team</h1>
             <p className='text-sm text-gray-500 mt-10'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repudiandae rem, error quas assumenda deserunt nisi tenetur aperiam, vero facilis at voluptates dolorum, aliquam eligendi nesciunt. Repudiandae aperiam inventore omnis accusamus.</p>
             <div className='flex gap-5 mt-5'>
             <button className='relative bg-white font-semibold text-black py-2 px-4 rounded-full hover:bg-gray-300 cursor-pointer'>Schedule Meeting</button>
@@ -16,7 +16,7 @@ function HeroContact() {
             </div>
         </div>
        {/* Contact Form */}
-<div className="bg-[#0a0a0a] flex-1 m-30 [#0a0a0a] border border-[#1a1a1a] rounded-2xl p-5 transition-[0.4s_ease] hover:border-[#2a2a2a] shadow-[30px_0px_0px_0px_rgba(255,255,255,1)]">
+<div className="bg-[#0a0a0a] flex-1 m-4 md:m-10 lg:m-30 [#0a0a0a] border border-[#1a1a1a] rounded-2xl p-5 transition-[0.4s_ease] hover:border-[#2a2a2a] shadow-[30px_0px_0px_0px_rgba(255,255,255,1)]">
   <form className="flex flex-col gap-6">
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="flex flex-col gap-1">

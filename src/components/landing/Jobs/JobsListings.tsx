@@ -142,7 +142,7 @@ export default function JobsListings() {
       <div className="max-w-[1200px] mx-auto">
         <div className="text-center mb-16">
      
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Available <span className="text-[#888] font-light">Jobs</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">

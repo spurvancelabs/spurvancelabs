@@ -15,8 +15,8 @@ function InternshipHero() {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
              <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/rocket.png" alt="rocket"/>
 
             </div>
@@ -24,8 +24,8 @@ function InternshipHero() {
             <p className="text-[#666] text-sm">Accelerate your learning with mentorship from industry experts</p>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
               <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/programming.png" alt="programming"/>
 
             </div>
@@ -33,8 +33,8 @@ function InternshipHero() {
             <p className="text-[#666] text-sm">Work on production code used by real clients and users</p>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
               <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/conference-call--v2.png" alt="collaboration"/>
 
             </div>

@@ -2,7 +2,7 @@
 
 export default function TechStack() {
   return (
-    <section className="flex flex-col items-center justify-center bg-transparent px-5 pb-[60px] pt-10 rounded-[40px] relative overflow-hidden">
+    <section className="flex flex-col items-center justify-center bg-transparent px-4 sm:px-5 pb-10 sm:pb-[60px] pt-8 sm:pt-10 rounded-[40px] relative overflow-hidden">
       <div className="relative flex flex-col items-center">
         {/* SVG with flowing gradients */}
         <svg 
@@ -161,8 +161,8 @@ export default function TechStack() {
         </svg>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full relative z-[5]">
-          <div className="bg-[rgba(9,9,11,0.6)] border border-[rgba(39,39,42,0.6)] rounded-[18px] p-[28px_24px] flex flex-col gap-4 backdrop-blur-[24px] [-webkit-backdrop-filter:blur(24px)] transition-all duration-[0.4s] ease-[cubic-bezier(0.16,1,0.3,1)] relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 hover:border-[rgba(168,85,247,0.4)] hover:bg-[rgba(14,14,18,0.85)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(168,85,247,0.05)]">
-            <div className="text-[1.6rem] w-12 h-12 flex items-center justify-center rounded-[14px] bg-[#0b0b0e] border border-[rgba(39,39,42,0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <div className="bg-[rgba(9,9,11,0.6)] border border-[rgba(39,39,42,0.6)] rounded-[18px] p-5 sm:p-[28px_24px] flex flex-col gap-3 sm:gap-4 backdrop-blur-[24px] [-webkit-backdrop-filter:blur(24px)] transition-all duration-[0.4s] ease-[cubic-bezier(0.16,1,0.3,1)] relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 hover:border-[rgba(168,85,247,0.4)] hover:bg-[rgba(14,14,18,0.85)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(168,85,247,0.05)]">
+            <div className="text-[1.3rem] sm:text-[1.6rem] w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-[14px] bg-[#0b0b0e] border border-[rgba(39,39,42,0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
               ⚛️
             </div>
             <div>
@@ -175,8 +175,8 @@ export default function TechStack() {
             </div>
           </div>
 
-          <div className="bg-[rgba(9,9,11,0.6)] border border-[rgba(39,39,42,0.6)] rounded-[18px] p-[28px_24px] flex flex-col gap-4 backdrop-blur-[24px] [-webkit-backdrop-filter:blur(24px)] transition-all duration-[0.4s] ease-[cubic-bezier(0.16,1,0.3,1)] relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 hover:border-[rgba(168,85,247,0.4)] hover:bg-[rgba(14,14,18,0.85)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(168,85,247,0.05)]">
-            <div className="text-[1.6rem] w-12 h-12 flex items-center justify-center rounded-[14px] bg-[#0b0b0e] border border-[rgba(39,39,42,0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <div className="bg-[rgba(9,9,11,0.6)] border border-[rgba(39,39,42,0.6)] rounded-[18px] p-5 sm:p-[28px_24px] flex flex-col gap-3 sm:gap-4 backdrop-blur-[24px] [-webkit-backdrop-filter:blur(24px)] transition-all duration-[0.4s] ease-[cubic-bezier(0.16,1,0.3,1)] relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 hover:border-[rgba(168,85,247,0.4)] hover:bg-[rgba(14,14,18,0.85)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(168,85,247,0.05)]">
+            <div className="text-[1.3rem] sm:text-[1.6rem] w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-[14px] bg-[#0b0b0e] border border-[rgba(39,39,42,0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
               📦
             </div>
             <div>
@@ -189,8 +189,8 @@ export default function TechStack() {
             </div>
           </div>
 
-          <div className="bg-[rgba(9,9,11,0.6)] border border-[rgba(39,39,42,0.6)] rounded-[18px] p-[28px_24px] flex flex-col gap-4 backdrop-blur-[24px] [-webkit-backdrop-filter:blur(24px)] transition-all duration-[0.4s] ease-[cubic-bezier(0.16,1,0.3,1)] relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 hover:border-[rgba(168,85,247,0.4)] hover:bg-[rgba(14,14,18,0.85)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(168,85,247,0.05)]">
-            <div className="text-[1.6rem] w-12 h-12 flex items-center justify-center rounded-[14px] bg-[#0b0b0e] border border-[rgba(39,39,42,0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+          <div className="bg-[rgba(9,9,11,0.6)] border border-[rgba(39,39,42,0.6)] rounded-[18px] p-5 sm:p-[28px_24px] flex flex-col gap-3 sm:gap-4 backdrop-blur-[24px] [-webkit-backdrop-filter:blur(24px)] transition-all duration-[0.4s] ease-[cubic-bezier(0.16,1,0.3,1)] relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1.5 hover:border-[rgba(168,85,247,0.4)] hover:bg-[rgba(14,14,18,0.85)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(168,85,247,0.05)]">
+            <div className="text-[1.3rem] sm:text-[1.6rem] w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-[14px] bg-[#0b0b0e] border border-[rgba(39,39,42,0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
               ⚡
             </div>
             <div>
