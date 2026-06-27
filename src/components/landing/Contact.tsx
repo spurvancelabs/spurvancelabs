@@ -109,21 +109,21 @@ export default function Contact() {
   };
 
   return (
-    <section className="py-20 px-8 pb-24 overflow-hidden">
-      <div className="text-center mb-14">
-        <h2 className="text-white text-[3rem] font-bold tracking-[-0.03em] mb-3">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
+          <div className="text-center mb-10 sm:mb-14">
+        <h2 className="text-white text-[2rem] sm:text-[2.4rem] md:text-[3rem] font-bold tracking-[-0.03em] mb-3">
           Let's <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">connect</span>
         </h2>
-        <p className="text-[#666] text-[1.1rem] font-light max-w-[500px] mx-auto">
+        <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
           Have a project in mind? Let's discuss how we can bring your vision to life
         </p>
       </div>
 
-      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 items-start">
+      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8 sm:gap-12 items-start">
         {/* Contact Info */}
-        <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-          <div className="mb-8">
-            <h3 className="text-white text-[1.4rem] font-semibold mb-2">Contact Information</h3>
+        <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 sm:p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-white text-[1.2rem] sm:text-[1.4rem] font-semibold mb-2">Contact Information</h3>
             <p className="text-[#666] text-[0.9rem] leading-[1.6]">Reach out to us through any of the channels below</p>
           </div>
 
@@ -192,11 +192,11 @@ export default function Contact() {
         </div>
 
         {/* Contact Form */}
-        <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-          <form className="flex flex-col gap-6" ref={formRef} onSubmit={handleSubmit} noValidate>
+        <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 sm:p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <form className="flex flex-col gap-5 sm:gap-6" ref={formRef} onSubmit={handleSubmit} noValidate>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className={`flex flex-col gap-1 ${errors.fullName ? 'error' : ''}`}>
-                <label htmlFor="fullName" className="text-[#888] text-[0.8rem] font-medium tracking-[0.02em]">Full Name</label>
+                <label htmlFor="fullName" className="text-[#888] text-[0.75rem] sm:text-[0.8rem] font-medium tracking-[0.02em]">Full Name</label>
                 <input
                   type="text"
                   id="fullName"

@@ -15,25 +15,28 @@ function InternshipHero() {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
-              <i className="fas fa-rocket text-3xl text-blue-500"></i>
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
+             <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/rocket.png" alt="rocket"/>
+
             </div>
             <h3 className="text-white text-xl font-semibold mb-3">Fast Track Growth</h3>
             <p className="text-[#666] text-sm">Accelerate your learning with mentorship from industry experts</p>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
-              <i className="fas fa-code text-3xl text-blue-500"></i>
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
+              <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/programming.png" alt="programming"/>
+
             </div>
             <h3 className="text-white text-xl font-semibold mb-3">Real Projects</h3>
             <p className="text-[#666] text-sm">Work on production code used by real clients and users</p>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
-              <i className="fas fa-users text-3xl text-blue-500"></i>
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mx-auto mb-5">
+              <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/conference-call--v2.png" alt="collaboration"/>
+
             </div>
             <h3 className="text-white text-xl font-semibold mb-3">Team Collaboration</h3>
             <p className="text-[#666] text-sm">Join a passionate team of developers and designers</p>

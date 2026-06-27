@@ -7,37 +7,37 @@ const processSteps = [
     number: '01',
     title: 'Discovery & Research',
     description: 'We analyze your business needs, market trends, and user requirements to create a solid foundation.',
-    icon: 'fa-search',
+    icon: 'https://img.icons8.com/3d-fluency/94/search.png',
   },
   {
     number: '02',
     title: 'Planning & Strategy',
     description: 'We create a comprehensive roadmap, define milestones, and establish clear timelines.',
-    icon: 'fa-sitemap',
+    icon: 'https://img.icons8.com/3d-fluency/94/flow-chart.png',
   },
   {
     number: '03',
     title: 'Design & Prototyping',
     description: 'We craft intuitive user interfaces and interactive prototypes for exceptional experiences.',
-    icon: 'fa-pencil-ruler',
+    icon: 'https://img.icons8.com/3d-fluency/94/pencil.png',
   },
   {
     number: '04',
     title: 'Development & Coding',
     description: 'Our expert developers build robust, scalable solutions using the latest technologies.',
-    icon: 'fa-code',
+    icon: 'https://img.icons8.com/3d-fluency/94/code.png',
   },
   {
     number: '05',
     title: 'Testing & QA',
     description: 'We conduct rigorous testing to ensure your application is bug-free and performs optimally.',
-    icon: 'fa-bug',
+    icon: 'https://img.icons8.com/3d-fluency/94/test-passed.png',
   },
   {
     number: '06',
     title: 'Deployment & Launch',
     description: 'We handle deployment and provide ongoing support to ensure your product\'s success.',
-    icon: 'fa-rocket',
+    icon: 'https://img.icons8.com/3d-fluency/94/rocket.png',
   },
 ];
 
@@ -74,7 +74,7 @@ export default function ServiceProcess() {
           <span className="inline-block text-[#888] text-[0.75rem] uppercase tracking-[0.1em] bg-[#1a1a1a] px-5 py-[0.3rem] rounded-[20px] mb-5 border border-[#2a2a2a]">
             Our Process
           </span>
-          <h2 className="text-white text-[2.8rem] font-bold tracking-[-0.03em] mb-4">
+          <h2 className="text-white text-[2rem] md:text-[2.8rem] font-bold tracking-[-0.03em] mb-4">
             Service <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent font-bold">Process</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] leading-[1.8] max-w-[500px] mx-auto">
@@ -90,8 +90,8 @@ export default function ServiceProcess() {
               data-delay={index * 100}
               ref={(el) => { stepsRef.current[index] = el; }}
             >
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-5">
-                <i className={`fas ${step.icon} text-2xl text-white`}></i>
+              <div className="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-5">
+                <img src={step.icon} alt={step.title} className="w-[44px] h-[44px] object-contain" />
               </div>
               <span className="text-blue-500 text-[0.8rem] font-bold mb-2">{step.number}</span>
               <h3 className="text-white text-[1.3rem] font-semibold mb-3">

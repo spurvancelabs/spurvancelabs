@@ -80,12 +80,12 @@ export default function Process() {
   }, []);
 
   return (
-    <section className="py-20 px-8 pb-24 overflow-hidden">
-      <div className="text-center mb-16">
-        <h2 className="text-white text-[2.8rem] font-bold tracking-[-0.03em] mb-2">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
+      <div className="text-center mb-10 sm:mb-16">
+        <h2 className="text-white text-[2rem] sm:text-[2.4rem] md:text-[2.8rem] font-bold tracking-[-0.03em] mb-2">
           Our <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent">development process</span>
         </h2>
-        <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
+        <p className="text-[#666] text-[0.9rem] sm:text-[1.05rem] font-light max-w-[500px] mx-auto">
           A streamlined approach to turn your ideas into reality
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function Process() {
         {processSteps.map((step, index) => (
           <div
             key={index}
-            className="flex items-center mb-16 relative opacity-0 translate-y-[50px] transition-[0.8s_cubic-bezier(0.25,0.46,0.45,0.94)] [&.visible]:opacity-100 [&.visible]:translate-y-0 last:mb-0 flex-col lg:flex-row lg:odd:flex-row lg:even:flex-row-reverse pl-[70px] lg:pl-0"
+            className="flex items-center mb-10 sm:mb-16 relative opacity-0 translate-y-[50px] transition-[0.8s_cubic-bezier(0.25,0.46,0.45,0.94)] [&.visible]:opacity-100 [&.visible]:translate-y-0 last:mb-0 flex-col lg:flex-row lg:odd:flex-row lg:even:flex-row-reverse pl-[70px] lg:pl-0"
             data-delay={index * 150}
             ref={(el) => { stepsRef.current[index] = el; }}
           >
@@ -102,8 +102,8 @@ export default function Process() {
               {step.number}
             </div>
             
-            <div className={`flex items-center gap-8 w-full lg:w-[calc(50%-40px)] p-6 rounded-xl border border-transparent transition-[0.4s_ease] bg-transparent hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:scale-[1.02] flex-col lg:flex-row ${index % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'}`}>
-              <div className="relative w-full lg:w-[120px] h-[200px] lg:h-[120px] min-w-full lg:min-w-[120px] rounded-xl overflow-hidden border border-[#1a1a1a]">
+            <div className={`flex items-center gap-4 sm:gap-8 w-full lg:w-[calc(50%-40px)] p-4 sm:p-6 rounded-xl border border-transparent transition-[0.4s_ease] bg-transparent hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:scale-[1.02] flex-col lg:flex-row ${index % 2 === 0 ? 'lg:mr-auto' : 'lg:ml-auto'}`}>
+              <div className="relative w-full lg:w-[120px] h-[180px] sm:h-[200px] lg:h-[120px] min-w-full lg:min-w-[120px] rounded-xl overflow-hidden border border-[#1a1a1a]">
                 <img 
                   src={step.image} 
                   alt={step.title} 
@@ -114,8 +114,8 @@ export default function Process() {
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="text-white text-[1.2rem] font-semibold mb-2">{step.title}</h3>
-                <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-3">{step.description}</p>
+                <h3 className="text-white text-[1.1rem] sm:text-[1.2rem] font-semibold mb-2">{step.title}</h3>
+                <p className="text-[#666] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] mb-3">{step.description}</p>
                 <ul className="list-none p-0 flex flex-wrap gap-2 gap-x-4">
                   {step.details.map((detail, i) => (
                     <li key={i} className="text-[#666] text-[0.8rem] flex items-center gap-1.5">
