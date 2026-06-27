@@ -104,16 +104,16 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="py-20 px-8 pb-24 border-t border-[#1a1a1a] overflow-hidden">
-      <div className="text-center mb-14">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 border-t border-[#1a1a1a] overflow-hidden">
+      <div className="text-center mb-10 sm:mb-14">
         <span className="inline-block text-[#888] text-[0.7rem] uppercase tracking-[0.2em] bg-[#1a1a1a] px-6 py-[0.4rem] rounded-[30px] mb-3 border border-[#2a2a2a] relative">
           Testimonials
           <span className="absolute -top-px -left-px -right-px -bottom-px rounded-[30px] bg-gradient-to-br from-transparent via-[#444] to-transparent z-[-1] opacity-30"></span>
         </span>
-        <h2 className="text-white text-[3rem] font-bold tracking-[-0.03em] mb-3">
+        <h2 className="text-white text-[2rem] sm:text-[2.4rem] md:text-[3rem] font-bold tracking-[-0.03em] mb-3">
           What our <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">clients say</span>
         </h2>
-        <p className="text-[#666] text-[1.1rem] font-light max-w-[500px] mx-auto">
+        <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
           Real feedback from real people who trusted us with their vision
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function Testimonials() {
         {testimonials.map((testimonial, index) => (
           <div
             key={testimonial.id}
-            className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-[1.8rem] transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-[30px] scale-[0.95] [&.visible]:opacity-100 [&.visible]:translate-y-0 [&.visible]:scale-100 hover:border-[#2a2a2a] hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:bg-[#111] ${
+            className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-4 sm:p-[1.8rem] transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-[30px] scale-[0.95] [&.visible]:opacity-100 [&.visible]:translate-y-0 [&.visible]:scale-100 hover:border-[#2a2a2a] hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:bg-[#111] ${
               testimonial.large || testimonial.bottomFeatured ? 'md:col-span-2' : ''
             }`}
             ref={(el) => { cardsRef.current[index] = el; }}
@@ -138,8 +138,8 @@ export default function Testimonials() {
                   />
                 </div>
                 <div className="testimonial-user-info">
-                  <h4 className="text-white text-[1rem] font-semibold mb-[0.2rem]">{testimonial.name}</h4>
-                  <span className="text-[#666] text-[0.75rem]">{testimonial.role}</span>
+                  <h4 className="text-white text-[0.9rem] sm:text-[1rem] font-semibold mb-[0.2rem]">{testimonial.name}</h4>
+                  <span className="text-[#666] text-[0.7rem] sm:text-[0.75rem]">{testimonial.role}</span>
                   <div className="mt-[0.2rem]">
                     <i className="fas fa-star text-[#fbbf24] text-[0.7rem] mr-[1px]"></i>
                     <i className="fas fa-star text-[#fbbf24] text-[0.7rem] mr-[1px]"></i>
@@ -151,7 +151,7 @@ export default function Testimonials() {
               </div>
               <div className="relative flex-1">
                 <i className="fas fa-quote-left absolute top-[-5px] left-[-5px] text-[#1a1a1a] text-[1.2rem] opacity-50"></i>
-                <p className={`text-[#c0c0c0] text-[0.9rem] leading-[1.7] pl-6 font-light m-0 ${
+                <p className={`text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.7] pl-6 font-light m-0 ${
                   testimonial.large ? 'lg:text-[1.05rem]' : ''
                 } ${testimonial.bottomFeatured ? 'md:text-[1rem]' : ''}`}>
                   {testimonial.quote}

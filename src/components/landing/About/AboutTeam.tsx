@@ -62,7 +62,7 @@ export default function AboutTeam() {
           <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
             Meet Our Team
           </span>
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Leadership <span className="text-[#888] font-light">Team</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">

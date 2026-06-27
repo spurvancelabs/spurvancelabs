@@ -222,7 +222,7 @@ export default function CaseStudies() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-white text-[0.75rem] xs:text-[0.8rem] sm:text-[0.9rem] font-semibold mb-0.5 truncate">
+                    <h4 className="text-white text-[0.7rem] xs:text-[0.8rem] sm:text-[0.9rem] font-semibold mb-0.5 truncate">
                       {study.title}
                     </h4>
                     <p className="text-[#666] text-[0.6rem] xs:text-[0.65rem] sm:text-[0.75rem] m-0 truncate">

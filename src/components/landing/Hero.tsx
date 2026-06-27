@@ -10,18 +10,18 @@ export const Hero: React.FC<HeroProps> = ({
   height = 500,
 }) => {
   return (
-    <section className="relative text-center px-5 pt-[120px] pb-[60px] max-w-full mx-auto -mt-[100px] min-h-screen flex items-center justify-center flex-col overflow-hidden">
+    <section className="relative text-center px-4 sm:px-5 pt-[100px] sm:pt-[120px] pb-[40px] sm:pb-[60px] max-w-full mx-auto -mt-[100px] min-h-screen flex items-center justify-center flex-col overflow-hidden">
       {/* Content Container */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 top-20">
+        <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12 top-12 sm:top-20">
         {/* Left Content */}
-        <div className="w-full md:w-1/2 text-left space-y-6">
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
+          <div className="w-full md:w-1/2 text-left space-y-4 sm:space-y-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
             Software Company
           </h1>
-          <p className="text-md md:text-md text-gray-400 font-light max-w-lg">
+          <p className="text-sm sm:text-base md:text-md text-gray-400 font-light max-w-lg">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione odit qui dicta officia reprehenderit nisi et nemo! Exercitationem aliquid eveniet et sunt at quas, rem repellendus maiores quasi explicabo maxime.
           </p>
-          <button className="px-4 py-1.5 bg-white text-black rounded-full font-medium text-lg hover:bg-gray-200 transition-colors duration-200">
+          <button className="px-4 py-1.5 bg-white text-black rounded-full font-medium text-base sm:text-lg hover:bg-gray-200 transition-colors duration-200">
             Learn more
           </button>
         </div>

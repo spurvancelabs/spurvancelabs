@@ -74,7 +74,7 @@ export default function ServiceProcess() {
           <span className="inline-block text-[#888] text-[0.75rem] uppercase tracking-[0.1em] bg-[#1a1a1a] px-5 py-[0.3rem] rounded-[20px] mb-5 border border-[#2a2a2a]">
             Our Process
           </span>
-          <h2 className="text-white text-[2.8rem] font-bold tracking-[-0.03em] mb-4">
+          <h2 className="text-white text-[2rem] md:text-[2.8rem] font-bold tracking-[-0.03em] mb-4">
             Service <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent font-bold">Process</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] leading-[1.8] max-w-[500px] mx-auto">

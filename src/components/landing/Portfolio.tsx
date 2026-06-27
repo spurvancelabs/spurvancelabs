@@ -117,12 +117,12 @@ export default function Portfolio() {
   const totalDots = Math.ceil(totalSlides / Math.floor(visibleSlides));
 
   return (
-    <section className="py-20 px-8 pb-24 overflow-hidden">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
       <div className="text-center mb-12">
-        <h2 className="text-white text-[3.2rem] font-bold tracking-[-0.03em] mb-2">
+        <h2 className="text-white text-[2rem] sm:text-[2.6rem] md:text-[3.2rem] font-bold tracking-[-0.03em] mb-2">
           Featured <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">projects</span>
         </h2>
-        <p className="text-[#666] text-[1.1rem] font-light max-w-[500px] mx-auto tracking-[0.02em]">
+        <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto tracking-[0.02em]">
           Handcrafted digital experiences that deliver results
         </p>
       </div>
@@ -148,12 +148,12 @@ export default function Portfolio() {
                       <span className="inline-block text-[#888] text-[0.6rem] uppercase tracking-[0.15em] bg-black/80 px-4 py-[0.25rem] rounded-[20px] border border-white/5 backdrop-blur-[10px] mb-[0.6rem]">
                         {project.category}
                       </span>
-                      <h3 className="text-white text-[1.4rem] font-semibold mb-3 tracking-[-0.02em] max-sm:text-[1rem]">
+                      <h3 className="text-white text-[1.1rem] sm:text-[1.4rem] font-semibold mb-3 tracking-[-0.02em] max-sm:text-[1rem]">
                         {project.title}
                       </h3>
                       <a 
                         href="#" 
-                        className="inline-flex items-center gap-[0.6rem] text-white text-[0.85rem] font-medium no-underline px-6 py-2 border border-white/15 rounded-[30px] transition-[0.4s_ease] tracking-[0.02em] bg-white/5 backdrop-blur-[10px] hover:bg-white/10 hover:border-white/30 hover:gap-4"
+                        className="inline-flex items-center gap-[0.4rem] sm:gap-[0.6rem] text-white text-[0.75rem] sm:text-[0.85rem] font-medium no-underline px-4 sm:px-6 py-1.5 sm:py-2 border border-white/15 rounded-[30px] transition-[0.4s_ease] tracking-[0.02em] bg-white/5 backdrop-blur-[10px] hover:bg-white/10 hover:border-white/30 hover:gap-4"
                       >
                         View Project <i className="fas fa-arrow-right text-[0.7rem] transition-[0.3s_ease] hover:translate-x-1"></i>
                       </a>
@@ -178,7 +178,7 @@ export default function Portfolio() {
           <i className="fas fa-chevron-right"></i>
         </button>
 
-        <div className="flex justify-center gap-3 mt-10">
+        <div className="flex justify-center gap-2 sm:gap-3 mt-6 sm:mt-10">
           {Array.from({ length: totalDots }).map((_, i) => (
             <span
               key={i}

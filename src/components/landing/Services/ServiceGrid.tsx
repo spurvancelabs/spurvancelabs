@@ -67,7 +67,7 @@ export default function ServiceGrid() {
         <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
           What We Do
         </span>
-        <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+        <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
           Our <span className="text-[#888] font-light">services</span>
         </h2>
         <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
@@ -78,7 +78,7 @@ export default function ServiceGrid() {
         {services.map((service, index) => (
           <div
             key={index}
-            className="flex flex-col items-center text-center p-10 px-6 rounded-xl border border-transparent transition-[0.3s_ease] cursor-default bg-transparent relative overflow-hidden opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:-translate-y-1.5"
+            className="flex flex-col items-center text-center p-6 md:p-10 px-6 rounded-xl border border-transparent transition-[0.3s_ease] cursor-default bg-transparent relative overflow-hidden opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:-translate-y-1.5"
             ref={(el) => { itemsRef.current[index] = el; }}
           >
             <div className="w-[70px] h-[70px] flex items-center justify-center rounded-full bg-[#1a1a1a] mb-5 transition-[0.3s_ease] border border-[#2a2a2a] hover:bg-[#2a2a2a] hover:border-[#444] hover:scale-105">

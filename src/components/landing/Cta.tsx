@@ -33,9 +33,9 @@ export default function Cta() {
   }, []);
 
   return (
-    <section className="py-20 px-8 overflow-hidden relative">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 overflow-hidden relative">
       <div 
-        className="max-w-[1100px] mx-auto relative bg-gradient-to-br from-[#0a0a0a] to-[#111] border border-[#1a1a1a] rounded-3xl p-16 px-12 overflow-hidden transition-[0.4s_ease] hover:border-[#2a2a2a] hover:shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
+        className="max-w-[1100px] mx-auto relative bg-gradient-to-br from-[#0a0a0a] to-[#111] border border-[#1a1a1a] rounded-3xl p-6 sm:p-10 md:p-16 md:px-12 overflow-hidden transition-[0.4s_ease] hover:border-[#2a2a2a] hover:shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
         ref={containerRef}
       >
         <div className="absolute w-[300px] h-[300px] top-[-100px] right-[-50px] rounded-full blur-[80px] pointer-events-none bg-[rgba(79,70,229,0.1)] animate-[floatOrb_8s_ease-in-out_infinite]"></div>
@@ -68,7 +68,7 @@ export default function Cta() {
             </a>
           </div>
           
-          <div className="flex justify-center items-center gap-8 pt-8 border-t border-[#1a1a1a] flex-col sm:flex-row">
+          <div className="flex justify-center items-center gap-6 sm:gap-8 pt-8 border-t border-[#1a1a1a] flex-col sm:flex-row">
             <div className="flex flex-col items-center">
               <span className="text-white text-[1.5rem] font-bold tracking-[-0.02em] max-sm:text-[1.2rem]">500+</span>
               <span className="text-[#666] text-[0.8rem] font-light mt-[0.2rem] max-sm:text-[0.7rem]">Projects Delivered</span>

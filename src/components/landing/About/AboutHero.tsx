@@ -14,24 +14,24 @@ function AboutHero() {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-5">
               <span className="text-white text-3xl font-bold">10+</span>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3">Years Experience</h3>
             <p className="text-[#666] text-sm">Delivering excellence since 2015</p>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full  flex items-center justify-center mx-auto mb-5">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full  flex items-center justify-center mx-auto mb-5">
               <span className="text-white text-3xl font-bold">500+</span>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3">Projects Completed</h3>
             <p className="text-[#666] text-sm">From startups to enterprises</p>
           </div>
           
-          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
-            <div className="w-20 h-20 rounded-full  flex items-center justify-center mx-auto mb-5">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full  flex items-center justify-center mx-auto mb-5">
               <span className="text-white text-3xl font-bold">98%</span>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3">Client Satisfaction</h3>

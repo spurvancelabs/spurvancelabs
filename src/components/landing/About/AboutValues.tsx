@@ -42,7 +42,7 @@ export default function AboutValues() {
           <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
             Our Core Values
           </span>
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             What We <span className="text-[#888] font-light">Stand For</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
@@ -52,7 +52,7 @@ export default function AboutValues() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {values.map((value, index) => (
-            <div key={index} className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-8 transition-[0.3s_ease] hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col items-center text-center">
+            <div key={index} className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-6 md:p-8 transition-[0.3s_ease] hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-full  to-purple-600 flex items-center justify-center mb-5 overflow-hidden">
                 <img src={value.icon} alt={value.title} className="w-10 h-10 object-contain" />
               </div>

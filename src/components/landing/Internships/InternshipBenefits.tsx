@@ -41,7 +41,7 @@ export default function InternshipBenefits() {
           <span className="inline-block bg-black text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-3 border border-[#2a2a2a]">
             Why Choose Our Internships
           </span>
-          <h2 className="text-white text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
+          <h2 className="text-white text-[1.8rem] md:text-[2.4rem] font-normal tracking-[-0.02em] mb-2">
             Internship <span className="text-[#888] font-light">Benefits</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
@@ -51,7 +51,7 @@ export default function InternshipBenefits() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => (
-            <div key={index} className="flex flex-col items-center text-center p-8 rounded-xl border border-transparent transition-[0.3s_ease] cursor-default bg-transparent hover:border-[#2a2a2a] hover:bg-[#0a0a0a]">
+            <div key={index} className="flex flex-col items-center text-center p-6 md:p-8 rounded-xl border border-transparent transition-[0.3s_ease] cursor-default bg-transparent hover:border-[#2a2a2a] hover:bg-[#0a0a0a]">
               <div className="w-[70px] h-[70px] flex items-center justify-center rounded-full bg-[#1a1a1a] mb-5 transition-[0.3s_ease] border border-[#2a2a2a] hover:bg-[#2a2a2a] hover:border-[#444] hover:scale-105">
                 <img src={benefit.icon} alt={benefit.title} className="w-10 h-10 object-contain" />
               </div>
