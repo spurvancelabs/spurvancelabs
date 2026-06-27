@@ -4,32 +4,32 @@ import { useEffect, useRef } from 'react';
 
 const features = [
   {
-    icon: 'fa-bolt',
+    icon: 'https://img.icons8.com/3d-fluency/94/electricity.png',
     title: 'Lightning Performance',
     description: 'Optimized for speed with sub-second response times and global CDN delivery.',
   },
   {
-    icon: 'fa-shield-alt',
+    icon: 'https://img.icons8.com/3d-fluent/100/shield-37.png',
     title: 'Enterprise Security',
     description: 'Bank-level encryption, SOC 2 compliance, and regular security audits.',
   },
   {
-    icon: 'fa-infinity',
+    icon: 'https://img.icons8.com/3d-fluency/94/company.png',
     title: 'Scalable Architecture',
     description: 'Built to grow with your business from startup to enterprise scale.',
   },
   {
-    icon: 'fa-cog',
+    icon: 'https://img.icons8.com/3d-fluency/94/gear--v1.png',
     title: 'Easy Integration',
     description: 'API-first design with SDKs for all major platforms and languages.',
   },
   {
-    icon: 'fa-headset',
+    icon: 'https://img.icons8.com/3d-fluency/94/chatbot.png',
     title: '24/7 Support',
     description: 'Dedicated support team available around the clock for all plans.',
   },
   {
-    icon: 'fa-rocket',
+    icon: 'https://img.icons8.com/3d-fluency/94/rocket.png',
     title: 'Regular Updates',
     description: 'Continuous improvements and new features delivered monthly.',
   },
@@ -84,7 +84,8 @@ export default function ProductFeatures() {
               ref={(el) => { itemsRef.current[index] = el; }}
             >
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-black-500 to-gray-500 flex items-center justify-center mb-5">
-                <i className={`fas ${feature.icon} text-3xl text-white`}></i>
+                     <img src={feature.icon} alt={feature.title} className="w-10 h-10 object-contain" />
+
               </div>
               <h3 className="text-white text-[1.3rem] font-semibold mb-3">
                 {feature.title}

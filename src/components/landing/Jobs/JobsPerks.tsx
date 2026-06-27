@@ -2,32 +2,32 @@ import React from 'react';
 
 const perks = [
   {
-    icon: 'fa-heart',
+    icon: 'https://img.icons8.com/3d-fluency/94/like--v4.png',
     title: 'Health & Wellness',
     items: ['Medical Insurance', 'Dental Coverage', 'Mental Health Support', 'Gym Membership'],
   },
   {
-    icon: 'fa-plane',
+    icon: 'https://img.icons8.com/3d-fluency/94/airplane-take-off.png',
     title: 'Work-Life Balance',
     items: ['Flexible Hours', 'Unlimited PTO', 'Remote Work', 'Paid Time Off'],
   },
   {
-    icon: 'fa-chart-line',
+    icon: 'https://img.icons8.com/3d-fluency/94/positive-dynamic--v1.png',
     title: 'Growth & Learning',
     items: ['Training Budget', 'Conference Tickets', 'Online Courses', 'Career Development'],
   },
   {
-    icon: 'fa-coffee',
+    icon: 'https://img.icons8.com/3d-fluency/94/cafe.png',
     title: 'Office Perks',
     items: ['Free Meals', 'Snacks & Drinks', 'Office Events', 'Gaming Lounge'],
   },
   {
-    icon: 'fa-money-bill-wave',
+    icon: 'https://img.icons8.com/3d-fluency/94/split-money.png',
     title: 'Compensation',
     items: ['Competitive Salary', 'Stock Options', 'Bonus Structure', '401k Matching'],
   },
   {
-    icon: 'fa-users',
+    icon: 'https://img.icons8.com/3d-fluency/94/conference-call--v2.png',
     title: 'Team Culture',
     items: ['Team Retreats', 'Hackathons', 'Open Source', 'Tech Talks'],
   },
@@ -51,7 +51,7 @@ export default function JobsPerks() {
           {perks.map((perk, index) => (
             <div key={index} className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-8 transition-[0.3s_ease] hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5">
               <div className="w-16 h-16 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mb-5">
-                <i className={`fas ${perk.icon} text-2xl text-blue-500`}></i>
+                <img src={perk.icon} alt={perk.title} className="w-10 h-10 object-contain" />
               </div>
               <h3 className="text-white text-[1.3rem] font-semibold mb-4">
                 {perk.title}
