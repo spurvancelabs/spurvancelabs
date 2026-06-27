@@ -12,7 +12,7 @@ const internships = [
     stipend: '$1,500/month',
     skills: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js'],
     description: 'Build responsive, high-performance web applications with modern frameworks. Work closely with senior developers to create exceptional user experiences.',
-    icon: 'fa-laptop-code',
+    icon: 'https://img.icons8.com/3d-fluency/94/web.png',
   },
   {
     id: 2,
@@ -23,7 +23,7 @@ const internships = [
     stipend: '$1,800/month',
     skills: ['Node.js', 'Python', 'MongoDB', 'REST APIs'],
     description: 'Design and implement scalable server-side architectures, APIs, and database solutions for enterprise applications.',
-    icon: 'fa-server',
+    icon: 'https://img.icons8.com/3d-fluency/94/server.png',
   },
   {
     id: 3,
@@ -34,7 +34,7 @@ const internships = [
     stipend: '$1,600/month',
     skills: ['React Native', 'Flutter', 'iOS', 'Android'],
     description: 'Develop cross-platform mobile applications with a focus on performance, user experience, and clean code architecture.',
-    icon: 'fa-mobile-alt',
+    icon: 'https://img.icons8.com/3d-fluency/94/smartphone.png',
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ const internships = [
     stipend: '$1,200/month',
     skills: ['Figma', 'Adobe XD', 'User Research', 'Prototyping'],
     description: 'Create intuitive user interfaces and experiences for web and mobile applications with mentorship from senior designers.',
-    icon: 'fa-palette',
+    icon: 'https://img.icons8.com/3d-fluency/94/paint-palette.png',
   },
   {
     id: 5,
@@ -56,7 +56,7 @@ const internships = [
     stipend: '$2,000/month',
     skills: ['Python', 'TensorFlow', 'PyTorch', 'Data Analysis'],
     description: 'Work on cutting-edge AI projects, from model development to deployment, with guidance from our ML team.',
-    icon: 'fa-robot',
+    icon: 'https://img.icons8.com/3d-fluent/100/robot-6.png',
   },
   {
     id: 6,
@@ -67,7 +67,7 @@ const internships = [
     stipend: '$1,700/month',
     skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD'],
     description: 'Manage cloud infrastructure, automate deployments, and ensure system reliability and scalability.',
-    icon: 'fa-cloud',
+    icon: 'https://img.icons8.com/3d-fluency/94/cloud.png',
   },
 ];
 
@@ -120,7 +120,8 @@ export default function InternshipListings() {
               ref={(el) => { itemsRef.current[index] = el; }}
             >
               <div className="w-14 h-14 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mb-4">
-                <i className={`fas ${internship.icon} text-2xl text-blue-500`}></i>
+        <img src={internship.icon} alt={internship.title} className="w-10 h-10 object-contain" />
+
               </div>
 
               <h3 className="text-white text-[1.3rem] font-semibold mb-2">

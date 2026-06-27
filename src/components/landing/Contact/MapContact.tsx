@@ -12,7 +12,7 @@ function MapContact() {
         <div className="relative">
           <Image 
             className='w-full h-auto drop-shadow-2xl' 
-            src="/Map.svg" 
+            src="/map.svg" 
             width={600} 
             height={600} 
             alt="map"
@@ -47,8 +47,8 @@ function MapContact() {
         
         <div className="space-y-4 pt-2">
           <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-all duration-300 group-hover:scale-110">
-              <HiOutlineLocationMarker className="text-blue-400 text-2xl" />
+            <div className="w-12 h-12 rounded-full  flex items-center justify-center  transition-all duration-300 group-hover:scale-110">
+              <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/place-marker.png" alt="location"/>
             </div>
             <div>
               <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Location</p>
@@ -57,8 +57,8 @@ function MapContact() {
           </div>
           
           <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-all duration-300 group-hover:scale-110">
-              <HiOutlinePhone className="text-blue-400 text-2xl" />
+            <div className="w-12 h-12 rounded-full  flex items-center justify-center  transition-all duration-300 group-hover:scale-110">
+              <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/phone-disconnected.png" alt="contact"/>
             </div>
             <div>
               <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Phone</p>
@@ -67,8 +67,8 @@ function MapContact() {
           </div>
           
           <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-all duration-300 group-hover:scale-110">
-              <HiOutlineMail className="text-blue-400 text-2xl" />
+            <div className="w-12 h-12 rounded-full  flex items-center justify-center  transition-all duration-300 group-hover:scale-110">
+              <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/mail.png" alt="contact"/>
             </div>
             <div>
               <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Email</p>
@@ -77,7 +77,7 @@ function MapContact() {
           </div>
         </div>
         
-        <button className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-10 py-4 rounded-full font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/50 transition-all duration-300">
+        <button className="group cursor-pointer relative overflow-hidden bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-3 rounded-full font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/50 transition-all duration-300">
           <span className="relative z-10 flex items-center gap-2">
             <FaRegEnvelope className="text-lg" />
             Contact Us

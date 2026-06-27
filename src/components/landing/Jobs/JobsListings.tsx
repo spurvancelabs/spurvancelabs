@@ -12,7 +12,7 @@ const jobOpenings = [
     salary: '$120k - $160k',
     skills: ['React', 'TypeScript', 'Next.js', 'GraphQL'],
     description: 'Lead frontend development for enterprise applications. Mentor junior developers and drive technical decisions.',
-    icon: 'fa-laptop-code',
+    icon: 'https://img.icons8.com/3d-fluency/94/web.png',
   },
   {
     id: 2,
@@ -23,7 +23,7 @@ const jobOpenings = [
     salary: '$110k - $150k',
     skills: ['Node.js', 'Python', 'AWS', 'Microservices'],
     description: 'Build scalable backend systems and APIs. Work with modern cloud technologies and distributed systems.',
-    icon: 'fa-server',
+    icon: 'https://img.icons8.com/3d-fluency/94/server.png',
   },
   {
     id: 3,
@@ -34,7 +34,7 @@ const jobOpenings = [
     salary: '$100k - $140k',
     skills: ['React', 'Node.js', 'MongoDB', 'Docker'],
     description: 'Work across the entire stack to deliver end-to-end solutions. Collaborate with cross-functional teams.',
-    icon: 'fa-code',
+    icon: 'https://img.icons8.com/3d-fluency/94/under-computer.png',
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ const jobOpenings = [
     salary: '$90k - $130k',
     skills: ['Figma', 'UI/UX', 'Prototyping', 'User Research'],
     description: 'Design beautiful and intuitive user experiences for web and mobile applications.',
-    icon: 'fa-palette',
+    icon: 'https://img.icons8.com/3d-fluency/94/paint-palette.png',
   },
   {
     id: 5,
@@ -56,7 +56,7 @@ const jobOpenings = [
     salary: '$115k - $155k',
     skills: ['Kubernetes', 'AWS', 'CI/CD', 'Terraform'],
     description: 'Manage infrastructure, automate deployments, and ensure system reliability at scale.',
-    icon: 'fa-cloud',
+    icon: 'https://img.icons8.com/3d-fluency/94/cloud.png',
   },
   {
     id: 6,
@@ -67,7 +67,7 @@ const jobOpenings = [
     salary: '$130k - $180k',
     skills: ['Python', 'TensorFlow', 'PyTorch', 'MLOps'],
     description: 'Build and deploy machine learning models. Research and implement AI solutions for clients.',
-    icon: 'fa-brain',
+    icon: 'https://img.icons8.com/3d-fluency/94/brain-3--v1.png',
   },
   {
     id: 7,
@@ -78,7 +78,7 @@ const jobOpenings = [
     salary: '$95k - $125k',
     skills: ['Selenium', 'Jest', 'Cypress', 'Test Automation'],
     description: 'Design and implement automated testing solutions to ensure product quality.',
-    icon: 'fa-bug',
+    icon: 'https://img.icons8.com/3d-fluency/94/automatic.png',
   },
   {
     id: 8,
@@ -89,7 +89,7 @@ const jobOpenings = [
     salary: '$150k - $200k',
     skills: ['Architecture', 'Leadership', 'Full Stack', 'Mentoring'],
     description: 'Lead technical projects and guide teams through architecture and development decisions.',
-    icon: 'fa-users-cog',
+    icon: 'https://img.icons8.com/3d-fluency/94/conference.png',
   },
   {
     id: 9,
@@ -100,7 +100,7 @@ const jobOpenings = [
     salary: '$105k - $145k',
     skills: ['React Native', 'Flutter', 'iOS', 'Android'],
     description: 'Build cross-platform mobile applications with native performance and user experience.',
-    icon: 'fa-mobile-alt',
+    icon: 'https://img.icons8.com/3d-fluency/94/smartphone.png',
   },
 ];
 
@@ -175,7 +175,8 @@ export default function JobsListings() {
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="w-14 h-14 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
-                  <i className={`fas ${job.icon} text-2xl text-blue-500`}></i>
+      <img src={job.icon} alt={job.title} className="w-10 h-10 object-contain" />
+
                 </div>
               </div>
 

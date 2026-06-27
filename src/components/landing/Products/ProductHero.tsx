@@ -21,7 +21,8 @@ function ProductHero() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
-              <i className="fas fa-rocket text-3xl text-white"></i>
+<img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/rocket.png" alt="rocket"/>
+
             </div>
             <h3 className="text-white text-xl font-semibold mb-3 text-center">Enterprise Ready</h3>
             <p className="text-[#666] text-sm text-center">Built for scale and security with enterprise-grade infrastructure.</p>
@@ -29,7 +30,7 @@ function ProductHero() {
           
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5">
-              <i className="fas fa-bolt text-3xl text-white"></i>
+            <img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluency/94/electricity.png" alt="electricity"/>
             </div>
             <h3 className="text-white text-xl font-semibold mb-3 text-center">Lightning Fast</h3>
             <p className="text-[#666] text-sm text-center">Optimized performance for the best user experience.</p>
@@ -37,7 +38,9 @@ function ProductHero() {
           
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
             <div className="w-20 h-20 rounded-full  flex items-center justify-center mx-auto mb-5">
-              <i className="fas fa-shield-alt text-3xl text-white"></i>
+              
+<img className='w-10 h-10 object-cover' src="https://img.icons8.com/3d-fluent/100/shield-37.png" alt="trust"/>
+
             </div>
             <h3 className="text-white text-xl font-semibold mb-3 text-center">Secure & Reliable</h3>
             <p className="text-[#666] text-sm text-center">Robust security measures and 99.9% uptime guarantee.</p>
