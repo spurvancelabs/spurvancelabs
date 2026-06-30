@@ -20,9 +20,13 @@ export default function LoginPage() {
 const mutation = useMutation({
   mutationFn: loginUser,
 
-  onSuccess: () => {
+  onSuccess: (data) => {
     toast.success('Logged in successfully');
-    router.push('/dashboard');
+    if (data?.user?.role === 'ADMIN') {
+      router.push('/admin/dashboard');
+    } else {
+      router.push('/dashboard');
+    }
   },
 
   onError: (error: any) => {
@@ -119,7 +123,7 @@ const handleSubmit = (e: React.FormEvent) => {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
+              className="mt-2 flex h-10 w-full items-center cursor-pointer justify-center rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 md:h-11 md:text-sm"
             >
               {mutation.isPending ? 'Logging in...' : 'Login'}
             </button>

@@ -92,12 +92,19 @@ export async function POST(request: Request) {
       console.error('Failed to create notification:', notificationError);
     }
 
+    const { data: userRecord } = await supabaseAdmin()
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
     return NextResponse.json(
       {
         message: 'Login successful',
         user: {
           id: user.id,
           email: user.email,
+          role: userRecord?.role || 'USER',
         },
       },
       { status: 200 }
