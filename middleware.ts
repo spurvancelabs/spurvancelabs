@@ -12,7 +12,8 @@ export async function middleware(req: NextRequest) {
 
   const isProtected =
     req.nextUrl.pathname.startsWith("/dashboard") ||
-    req.nextUrl.pathname.startsWith("/profile");
+    req.nextUrl.pathname.startsWith("/profile") ||
+    req.nextUrl.pathname.startsWith("/admin");
 
   const isAuthPage =
     req.nextUrl.pathname.startsWith("/login") ||
@@ -39,6 +40,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/profile/:path*",
+    "/admin/:path*",
     "/login",
     "/signup",
     "/verify-email",

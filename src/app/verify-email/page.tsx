@@ -1,22 +1,22 @@
 // app/verify-email/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircleIcon, XCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { createBrowserClient } from '@/lib/supabase/client'; // Use named import
+import { createBrowserClient } from '@/lib/supabase/client';
 import "../../global.css"
-export default function VerifyEmailPage() {
+
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createBrowserClient(); // Create new instance
+  const supabase = createBrowserClient();
   const [status, setStatus] = useState<'checking' | 'verified' | 'error'>('checking');
   const [message, setMessage] = useState('Waiting for email verification...');
   const [email, setEmail] = useState<string>('');
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
-    // Get email from URL if provided
     const emailParam = searchParams.get('email');
     if (emailParam) {
       setEmail(emailParam);
@@ -24,7 +24,6 @@ export default function VerifyEmailPage() {
 
     const checkVerification = async () => {
       try {
-        // Check if we have tokens in URL (user just clicked verification link)
         const hash = window.location.hash;
         if (hash) {
           const params = new URLSearchParams(hash.replace('#', ''));
@@ -65,7 +64,6 @@ export default function VerifyEmailPage() {
           }
         }
 
-        // Check current session
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user?.email_confirmed_at) {
@@ -85,7 +83,6 @@ export default function VerifyEmailPage() {
           return;
         }
 
-        // If no verification detected, show waiting state
         setStatus('checking');
         setMessage('Waiting for email verification...');
         
@@ -272,5 +269,17 @@ export default function VerifyEmailPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen w-full items-center justify-center bg-black">
+        <div className="w-20 h-20 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
