@@ -10,16 +10,6 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const payload = token ? verifyToken(token) : null;
 
-  const landingPages = ["/about", "/contact", "/internships", "/jobs", "/products", "/services"]
-
-  if (req.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/landing", req.url));
-  }
-
-  if (landingPages.includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL(`/landing${req.nextUrl.pathname}`, req.url));
-  }
-
   const isProtected =
     req.nextUrl.pathname.startsWith("/dashboard") ||
     req.nextUrl.pathname.startsWith("/profile") ||
@@ -48,13 +38,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
-    "/about",
-    "/contact",
-    "/internships",
-    "/jobs",
-    "/products",
-    "/services",
     "/dashboard/:path*",
     "/profile/:path*",
     "/admin/:path*",
