@@ -12,7 +12,7 @@ function MapContact() {
         <div className="relative">
           <Image 
             className='w-full h-auto drop-shadow-2xl' 
-            src="/map.svg" 
+            src="/Map.svg" 
             width={600} 
             height={600} 
             alt="map"
