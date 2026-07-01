@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = getSupabaseAdminClient();
+    const period = request.nextUrl.searchParams.get('period') || 'monthly';
 
     const [{ count: totalJobs }, { count: totalInternships }, { data: jobs }] = await Promise.all([
       supabase.from('jobs').select('*', { count: 'exact', head: true }),
@@ -49,23 +50,57 @@ export async function GET() {
     });
     const jobsByDepartment = Object.entries(deptCounts).map(([department, count]) => ({ department, count }));
 
-    const usersByMonthMap: Record<string, number> = {};
-    (authData?.users ?? [])
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-      .forEach(u => {
-        if (u.created_at) {
-          const month = new Date(u.created_at).toISOString().slice(0, 7);
-          usersByMonthMap[month] = (usersByMonthMap[month] || 0) + 1;
-        }
-      });
-    const usersByMonth = Object.entries(usersByMonthMap).map(([month, count]) => ({ month, count }));
+    function getPeriodKey(dateStr: string, period: string): string {
+      const d = new Date(dateStr);
+      if (period === 'daily') return d.toISOString().split('T')[0];
+      if (period === 'weekly') {
+        const start = new Date(d);
+        start.setDate(d.getDate() - d.getDay());
+        return start.toISOString().split('T')[0];
+      }
+      return d.toISOString().slice(0, 7);
+    }
 
-    const appsByMonthMap: Record<string, number> = {};
+    function generatePeriodLabels(period: string): string[] {
+      const now = new Date();
+      const labels: string[] = [];
+      if (period === 'daily') {
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date(now); d.setDate(d.getDate() - i);
+          labels.push(d.toISOString().split('T')[0]);
+        }
+      } else if (period === 'weekly') {
+        for (let i = 11; i >= 0; i--) {
+          const d = new Date(now); d.setDate(d.getDate() - d.getDay() - i * 7);
+          labels.push(d.toISOString().split('T')[0]);
+        }
+      } else {
+        for (let i = 11; i >= 0; i--) {
+          const d = new Date(now); d.setMonth(d.getMonth() - i);
+          labels.push(d.toISOString().slice(0, 7));
+        }
+      }
+      return labels;
+    }
+
+    const labelMap: Record<string, number> = {};
+    const labels = generatePeriodLabels(period);
+    for (const l of labels) labelMap[l] = 0;
+    for (const u of authData?.users || []) {
+      if (u.created_at) {
+        const key = getPeriodKey(u.created_at, period);
+        if (key in labelMap) labelMap[key]++;
+      }
+    }
+    const usersByMonth = labels.map(month => ({ month, count: labelMap[month] }));
+
+    const appsLabelMap: Record<string, number> = {};
+    for (const l of labels) appsLabelMap[l] = 0;
     allApplications.forEach(a => {
-      const month = new Date(a.created_at).toISOString().slice(0, 7);
-      appsByMonthMap[month] = (appsByMonthMap[month] || 0) + 1;
+      const key = getPeriodKey(a.created_at, period);
+      if (key in appsLabelMap) appsLabelMap[key]++;
     });
-    const applicationsByMonth = Object.entries(appsByMonthMap).map(([month, count]) => ({ month, count }));
+    const applicationsByMonth = labels.map(month => ({ month, count: appsLabelMap[month] }));
 
     const recentApplications = allApplications
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

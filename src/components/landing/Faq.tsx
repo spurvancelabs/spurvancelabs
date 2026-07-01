@@ -43,19 +43,27 @@ const faqData = [
 
 export default function Faq() {
   const [activeId, setActiveId] = useState<number | null>(1);
+  const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
   const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const item = entry.target;
-            const index = itemsRef.current.indexOf(item as HTMLDivElement);
-            setTimeout(() => {
-              item.classList.add('visible');
+            const id = Number(entry.target.getAttribute('data-faq-id'));
+            const index = Number(entry.target.getAttribute('data-faq-index'));
+            const timer = setTimeout(() => {
+              setVisibleIds((prev) => {
+                if (prev.has(id)) return prev;
+                const next = new Set(prev);
+                next.add(id);
+                return next;
+              });
             }, index * 80);
-            observer.unobserve(item);
+            timers.push(timer);
+            observer.unobserve(entry.target);
           }
         });
       },
@@ -66,7 +74,10 @@ export default function Faq() {
       if (item) observer.observe(item);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
   const toggleFaq = (id: number) => {
@@ -96,7 +107,11 @@ export default function Faq() {
             {leftColumn.map((faq, index) => (
               <div
                 key={faq.id}
-                className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl overflow-hidden transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-5 [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#1a1a1a] ${
+                data-faq-id={faq.id}
+                data-faq-index={index}
+                className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl overflow-hidden transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-5 hover:border-[#1a1a1a] ${
+                  visibleIds.has(faq.id) ? 'opacity-100 translate-y-0' : ''
+                } ${
                   activeId === faq.id ? 'border-[#2a2a2a] bg-[#111] hover:border-[#2a2a2a]' : ''
                 }`}
                 ref={(el) => { itemsRef.current[index] = el; }}
@@ -144,7 +159,11 @@ export default function Faq() {
             {rightColumn.map((faq, index) => (
               <div
                 key={faq.id}
-                className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl overflow-hidden transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-5 [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#1a1a1a] ${
+                data-faq-id={faq.id}
+                data-faq-index={index + midPoint}
+                className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl overflow-hidden transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-5 hover:border-[#1a1a1a] ${
+                  visibleIds.has(faq.id) ? 'opacity-100 translate-y-0' : ''
+                } ${
                   activeId === faq.id ? 'border-[#2a2a2a] bg-[#111] hover:border-[#2a2a2a]' : ''
                 }`}
                 ref={(el) => { itemsRef.current[index + midPoint] = el; }}

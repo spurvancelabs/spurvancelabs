@@ -148,9 +148,12 @@ model JobApplication {
   workAuthorization  String?  @map("work_authorization") @db.VarChar(100)
   referralSource     String?  @map("referral_source") @db.VarChar(200)
   additionalInfo     String?  @map("additional_info") @db.Text
-  status      ApplicationStatus @default(PENDING)
-  createdAt   DateTime          @default(now()) @map("created_at")
-  updatedAt   DateTime          @updatedAt @map("updated_at")
+  status          ApplicationStatus @default(PENDING)
+  interviewerName   String?   @map("interviewer_name") @db.VarChar(200)
+  interviewDate     DateTime? @map("interview_date") @db.Date
+  interviewerFeedback String? @map("interviewer_feedback") @db.Text
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
 
   job  Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
@@ -179,14 +182,26 @@ model InternshipApplication {
   additionalInfo      String?   @map("additional_info") @db.Text
   resumeUrl    String?           @map("resume_url") @db.VarChar(500)
   coverLetter  String?           @map("cover_letter") @db.Text
-  status       ApplicationStatus @default(PENDING)
-  createdAt    DateTime          @default(now()) @map("created_at")
-  updatedAt    DateTime          @updatedAt @map("updated_at")
+  status          ApplicationStatus @default(PENDING)
+  interviewerName   String?   @map("interviewer_name") @db.VarChar(200)
+  interviewDate     DateTime? @map("interview_date") @db.Date
+  interviewerFeedback String? @map("interviewer_feedback") @db.Text
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
 
   internship Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
 
   @@schema("public")
   @@map("internship_applications")
+}
+
+model Interviewer {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@schema("public")
+  @@map("interviewers")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

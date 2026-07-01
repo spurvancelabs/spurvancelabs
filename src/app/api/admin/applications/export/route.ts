@@ -17,10 +17,8 @@ export async function GET(request: NextRequest) {
         .from('job_applications')
         .select('*, jobs!inner(title)')
         .order('created_at', { ascending: false });
-
       if (status) query = query.eq('status', status);
       if (jobId) query = query.eq('job_id', jobId);
-
       const { data } = await query;
       if (data) {
         result.push(...data.map(a => ({ ...a, applicationType: 'job', postingTitle: a.jobs?.title })));
@@ -32,10 +30,8 @@ export async function GET(request: NextRequest) {
         .from('internship_applications')
         .select('*, internships!inner(title)')
         .order('created_at', { ascending: false });
-
       if (status) query = query.eq('status', status);
       if (internshipId) query = query.eq('internship_id', internshipId);
-
       const { data } = await query;
       if (data) {
         result.push(...data.map(a => ({ ...a, applicationType: 'internship', postingTitle: a.internships?.title })));
@@ -44,48 +40,45 @@ export async function GET(request: NextRequest) {
 
     result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    return NextResponse.json({ applications: result });
+    const headers = [
+      'ID', 'Type', 'Name', 'Email', 'Phone', 'Status',
+      'Applied For', 'Interviewer', 'Interview Date',
+      'Created At', 'Updated At',
+    ];
+
+    const csvRows = [headers.join(',')];
+
+    for (const app of result) {
+      const row = [
+        app.id,
+        app.applicationType,
+        escapeCsv(app.name),
+        escapeCsv(app.email),
+        escapeCsv(app.phone || ''),
+        app.status,
+        escapeCsv(app.postingTitle || ''),
+        escapeCsv(app.interviewer_name || ''),
+        app.interview_date ? app.interview_date.split('T')[0] : '',
+        app.created_at ? app.created_at.split('T')[0] : '',
+        app.updated_at ? app.updated_at.split('T')[0] : '',
+      ];
+      csvRows.push(row.join(','));
+    }
+
+    return new NextResponse(csvRows.join('\n'), {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="applications-${new Date().toISOString().split('T')[0]}.csv"`,
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = getSupabaseAdminClient();
-    const body = await request.json();
-    const { type, job_id, internship_id, name, email, phone, status, interviewer_name, interview_date, ...rest } = body;
-
-    if (!type || !['job', 'internship'].includes(type)) {
-      return NextResponse.json({ error: 'Valid type (job or internship) is required' }, { status: 400 });
-    }
-    if (!name || !email) {
-      return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
-    }
-
-    const table = type === 'job' ? 'job_applications' : 'internship_applications';
-    const idField = type === 'job' ? 'job_id' : 'internship_id';
-
-    const insertData: Record<string, any> = {
-      ...rest,
-      name,
-      email,
-      status: status || 'PENDING',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    if (phone) insertData.phone = phone;
-    if (interviewer_name) insertData.interviewer_name = interviewer_name;
-    if (interview_date) insertData.interview_date = interview_date;
-    if (job_id) insertData[idField] = job_id;
-    if (internship_id) insertData[idField] = internship_id;
-
-    const { data, error } = await supabase.from(table).insert([insertData]).select().single();
-    if (error) throw error;
-
-    return NextResponse.json({ application: { ...data, applicationType: type } }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
+function escapeCsv(value: string): string {
+  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`;
   }
+  return value;
 }
