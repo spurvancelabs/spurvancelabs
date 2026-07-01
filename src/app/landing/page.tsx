@@ -1,5 +1,6 @@
 import Header from '@/components/landing/Header';
 import {Hero} from '@/components/landing/Hero';
+import CcpBanner from '@/components/landing/CcpBanner';
 import TrustedBy from '@/components/landing/TrustedBy';
 import Stats from '@/components/landing/Stats';
 import Services from '@/components/landing/Services';
@@ -30,6 +31,8 @@ export default function Home() {
       <section className="w-full">
         <Hero />
       </section>
+
+      <CcpBanner />
       
       <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         <TechStack />
