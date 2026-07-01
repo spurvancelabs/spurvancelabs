@@ -1,38 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import ApplicationStatusBadge from '@/components/admin/ApplicationStatusBadge';
-import ApplicationDetailModal from '@/components/admin/ApplicationDetailModal';
 
 const statusOptions = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
-const tabs = [
-  { label: 'All', value: '' },
-  { label: 'Job Applications', value: 'job' },
-  { label: 'Internship Applications', value: 'internship' },
-];
 
-export default function AdminApplicationsPage() {
-  const searchParams = useSearchParams();
+const statusMeta: Record<string, { label: string; icon: string; color: string }> = {
+  PENDING:    { label: 'Pending',    icon: '⏳', color: 'yellow' },
+  REVIEWED:   { label: 'Reviewed',   icon: '👁️', color: 'blue' },
+  SHORTLISTED:{ label: 'Shortlisted',icon: '⭐', color: 'purple' },
+  REJECTED:   { label: 'Rejected',   icon: '❌', color: 'red' },
+  ACCEPTED:   { label: 'Accepted',   icon: '✅', color: 'green' },
+};
+
+export default function ApplicationStatusPage() {
   const router = useRouter();
-  const typeFromUrl = searchParams.get('type') || '';
   const queryClient = useQueryClient();
-  const [typeFilter, setTypeFilter] = useState(typeFromUrl);
-  useEffect(() => { setTypeFilter(typeFromUrl); }, [typeFromUrl]);
-  const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
   const [interviewerFilter, setInterviewerFilter] = useState('');
   const [positionFilter, setPositionFilter] = useState('');
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-applications', typeFilter],
+    queryKey: ['admin-all-applications'],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (typeFilter) params.set('type', typeFilter);
-      const res = await fetch(`/api/admin/applications?${params}`);
+      const res = await fetch('/api/admin/applications');
       if (!res.ok) throw new Error('Failed to fetch');
       return res.json();
     },
@@ -48,23 +43,6 @@ export default function AdminApplicationsPage() {
     },
   });
 
-  const statusMutation = useMutation({
-    mutationFn: async ({ appId, status, type }: { appId: string; status: string; type: string }) => {
-      const res = await fetch(`/api/admin/applications/${appId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, type }),
-      });
-      if (!res.ok) throw new Error('Failed to update status');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-applications', typeFilter] });
-    },
-    onError: (err: Error) => {
-      alert(err.message);
-    },
-  });
-
   const interviewMutation = useMutation({
     mutationFn: async ({ appId, interviewer_name, interview_date, type }: { appId: string; interviewer_name?: string; interview_date?: string; type: string }) => {
       const res = await fetch(`/api/admin/applications/${appId}`, {
@@ -76,21 +54,34 @@ export default function AdminApplicationsPage() {
     },
     onSuccess: () => {
       toast.success('Interview updated');
-      queryClient.invalidateQueries({ queryKey: ['admin-applications', typeFilter] });
+      queryClient.invalidateQueries({ queryKey: ['admin-all-applications'] });
     },
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const statusMutation = useMutation({
+    mutationFn: async ({ appId, status, type }: { appId: string; status: string; type: string }) => {
+      const res = await fetch(`/api/admin/applications/${appId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, type }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-applications'] });
+    },
+    onError: (err: Error) => { alert(err.message); },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async ({ appId, type }: { appId: string; type: string }) => {
-      const res = await fetch(`/api/admin/applications/${appId}?type=${type}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(`/api/admin/applications/${appId}?type=${type}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
     },
     onSuccess: () => {
       toast.success('Application deleted');
-      queryClient.invalidateQueries({ queryKey: ['admin-applications', typeFilter] });
+      queryClient.invalidateQueries({ queryKey: ['admin-all-applications'] });
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -98,14 +89,23 @@ export default function AdminApplicationsPage() {
   const applications = data?.applications || [];
   const interviewers = interviewersData || [];
 
-  const filteredApps = applications.filter((app: any) => {
-    const matchesSearch = !search || 
+  const statusCounts: Record<string, number> = {};
+  for (const s of statusOptions) statusCounts[s] = 0;
+  for (const app of applications) {
+    if (statusCounts[app.status] !== undefined) statusCounts[app.status]++;
+  }
+
+  const filteredByStatus = selectedStatus
+    ? applications.filter((a: any) => a.status === selectedStatus)
+    : applications;
+
+  const filteredApps = filteredByStatus.filter((app: any) => {
+    const matchesSearch = !search ||
       app.name?.toLowerCase().includes(search.toLowerCase()) ||
       app.email?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = !statusFilter || app.status === statusFilter;
     const matchesInterviewer = !interviewerFilter || app.interviewer_name === interviewerFilter;
     const matchesPosition = !positionFilter || app.postingTitle === positionFilter;
-    return matchesSearch && matchesStatus && matchesInterviewer && matchesPosition;
+    return matchesSearch && matchesInterviewer && matchesPosition;
   });
 
   const uniquePositions = [...new Set(applications.map((a: any) => a.postingTitle).filter(Boolean))] as string[];
@@ -114,17 +114,10 @@ export default function AdminApplicationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white">Applications</h1>
-          <p className="text-gray-400 text-sm mt-0.5">Manage all job and internship applications</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Application Status</h1>
+          <p className="text-gray-400 text-sm mt-0.5">Overview of applications grouped by status</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => router.push('/admin/applications/new')}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm text-white transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Add Application
-          </button>
           <label className="px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-sm text-gray-300 hover:text-white hover:border-gray-600 transition-all cursor-pointer flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" /></svg>
             Import CSV
@@ -142,7 +135,7 @@ export default function AdminApplicationsPage() {
                   const json = await res.json();
                   if (!res.ok) throw new Error(json.error);
                   toast.success(`Imported: ${json.imported}, Skipped: ${json.skipped}, Errors: ${json.errors}`);
-                  queryClient.invalidateQueries({ queryKey: ['admin-applications', typeFilter] });
+                  queryClient.invalidateQueries({ queryKey: ['admin-all-applications'] });
                 } catch (err: any) {
                   toast.error(err.message);
                 }
@@ -153,9 +146,7 @@ export default function AdminApplicationsPage() {
           <button
             onClick={async () => {
               try {
-                const params = new URLSearchParams();
-                if (typeFilter) params.set('type', typeFilter);
-                const res = await fetch(`/api/admin/applications/export?${params}`);
+                const res = await fetch('/api/admin/applications/export');
                 if (!res.ok) throw new Error('Export failed');
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
@@ -177,69 +168,78 @@ export default function AdminApplicationsPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 bg-zinc-900/50 border border-white/[0.06] rounded-lg p-1 w-fit">
-        {tabs.map(tab => (
-          <button
-            key={tab.value}
-            onClick={() => setTypeFilter(tab.value)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer ${
-              typeFilter === tab.value
-                ? 'bg-blue-500/20 text-blue-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {statusOptions.map(status => {
+          const meta = statusMeta[status];
+          const count = statusCounts[status] || 0;
+          const active = selectedStatus === status;
+          return (
+            <button
+              key={status}
+              onClick={() => setSelectedStatus(active ? null : status)}
+              className={`relative backdrop-blur-xl border rounded-2xl p-4 text-left transition-all cursor-pointer ${
+                active
+                  ? 'bg-white/10 border-white/20 ring-1 ring-white/20'
+                  : 'bg-white/5 border-white/10 hover:bg-white/[0.07]'
+              }`}
+            >
+              <div className="text-2xl mb-2">{meta.icon}</div>
+              <div className={`text-2xl font-bold text-white`}>{count}</div>
+              <div className="text-sm text-gray-400 mt-0.5">{meta.label}</div>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="relative flex-1 min-w-[200px]">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
-          />
+      {selectedStatus && (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name or email..."
+              className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg pl-10 pr-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <select
+            value={interviewerFilter}
+            onChange={(e) => setInterviewerFilter(e.target.value)}
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
+          >
+            <option value="">All Interviewers</option>
+            {interviewers.map((iv: any) => (
+              <option key={iv.id} value={iv.name}>{iv.name}</option>
+            ))}
+          </select>
+          <select
+            value={positionFilter}
+            onChange={(e) => setPositionFilter(e.target.value)}
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
+          >
+            <option value="">All Positions</option>
+            {uniquePositions.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => setSelectedStatus(null)}
+            className="px-3 py-2 text-sm text-gray-400 hover:text-white bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg transition-all cursor-pointer"
+          >
+            Clear filter
+          </button>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
-        >
-          <option value="">All Statuses</option>
-          {statusOptions.map(s => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-        <select
-          value={interviewerFilter}
-          onChange={(e) => setInterviewerFilter(e.target.value)}
-          className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
-        >
-          <option value="">All Interviewers</option>
-          {interviewers.map((iv: any) => (
-            <option key={iv.id} value={iv.name}>{iv.name}</option>
-          ))}
-        </select>
-        <select
-          value={positionFilter}
-          onChange={(e) => setPositionFilter(e.target.value)}
-          className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
-        >
-          <option value="">All Positions</option>
-          {uniquePositions.map(p => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-      </div>
+      )}
 
       <div className="bg-zinc-900/50 border border-white/[0.06] rounded-2xl overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : !selectedStatus ? (
+          <div className="text-center py-16">
+            <p className="text-gray-500">Select a status above to view applications.</p>
           </div>
         ) : filteredApps.length === 0 ? (
           <div className="text-center py-16">
@@ -250,15 +250,15 @@ export default function AdminApplicationsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Applicant</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Email</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Interviewer</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Interview Date</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Applied For</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Type</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Status</th>
-                    <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Date</th>
-                    <th className="text-right text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Actions</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Applicant</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Email</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Interviewer</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Interview Date</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Applied For</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Type</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Status</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Date</th>
+                  <th className="text-right text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.06]">
@@ -343,14 +343,6 @@ export default function AdminApplicationsPage() {
           </div>
         )}
       </div>
-
-      <ApplicationDetailModal
-        isOpen={!!selectedApp}
-        onClose={() => setSelectedApp(null)}
-        application={selectedApp || null}
-        jobInfo={null}
-        onUpdate={() => queryClient.invalidateQueries({ queryKey: ['admin-applications', typeFilter] })}
-      />
     </div>
   );
 }

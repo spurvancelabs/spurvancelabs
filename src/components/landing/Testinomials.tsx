@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const testimonials = [
   {
@@ -77,19 +77,26 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+  const [visibleIds, setVisibleIds] = useState<Set<number>>(new Set());
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const card = entry.target;
-            const index = cardsRef.current.indexOf(card as HTMLDivElement);
-            setTimeout(() => {
-              card.classList.add('visible');
-            }, index * 120);
-            observer.unobserve(card);
+            const id = Number(entry.target.getAttribute('data-testimonial-id'));
+            const timer = setTimeout(() => {
+              setVisibleIds((prev) => {
+                if (prev.has(id)) return prev;
+                const next = new Set(prev);
+                next.add(id);
+                return next;
+              });
+            }, 120);
+            timers.push(timer);
+            observer.unobserve(entry.target);
           }
         });
       },
@@ -100,7 +107,10 @@ export default function Testimonials() {
       if (card) observer.observe(card);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
   return (
@@ -122,10 +132,19 @@ export default function Testimonials() {
         {testimonials.map((testimonial, index) => (
           <div
             key={testimonial.id}
-            className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-4 sm:p-[1.8rem] transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] opacity-0 translate-y-[30px] scale-[0.95] [&.visible]:opacity-100 [&.visible]:translate-y-0 [&.visible]:scale-100 hover:border-[#2a2a2a] hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:bg-[#111] ${
+            data-testimonial-id={testimonial.id}
+            className={`bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-4 sm:p-[1.8rem] transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] ${
+              visibleIds.has(testimonial.id)
+                ? 'opacity-100 translate-y-0 scale-100'
+                : 'opacity-0 translate-y-[30px] scale-[0.95]'
+            } hover:border-[#2a2a2a] hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:bg-[#111] ${
               testimonial.large || testimonial.bottomFeatured ? 'md:col-span-2' : ''
             }`}
-            ref={(el) => { cardsRef.current[index] = el; }}
+            ref={(el) => {
+              if (el && !cardsRef.current.includes(el)) {
+                cardsRef.current.push(el);
+              }
+            }}
           >
             <div className="flex flex-col gap-4 h-full">
               <div className="flex items-center gap-4">

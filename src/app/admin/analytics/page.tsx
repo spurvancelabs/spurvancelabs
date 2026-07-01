@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -48,7 +49,7 @@ function KpiCard({ label, value, sub, trend, trendUp }: {
 }
 
 function ChartCard({ title, subtitle, badge, children }: {
-  title: string; subtitle: string; badge?: string; children: React.ReactNode;
+  title: string; subtitle: string; badge?: React.ReactNode; children: React.ReactNode;
 }) {
   return (
     <div className="bg-zinc-900/50 border border-white/[0.06] rounded-2xl p-4 sm:p-6 hover:border-white/[0.12] transition-all duration-300">
@@ -57,18 +58,25 @@ function ChartCard({ title, subtitle, badge, children }: {
           <h3 className="text-white text-sm font-semibold">{title}</h3>
           <p className="text-gray-500 text-xs mt-0.5">{subtitle}</p>
         </div>
-        {badge && <span className="text-[10px] text-gray-600 bg-white/[0.04] px-2 py-1 rounded-md tracking-wide">{badge}</span>}
+        {badge && typeof badge === 'string' ? <span className="text-[10px] text-gray-600 bg-white/[0.04] px-2 py-1 rounded-md tracking-wide">{badge}</span> : badge}
       </div>
       {children}
     </div>
   );
 }
 
+const PERIODS = [
+  { key: 'daily', label: 'Daily' },
+  { key: 'weekly', label: 'Weekly' },
+  { key: 'monthly', label: 'Monthly' },
+];
+
 export default function AdminAnalyticsPage() {
+  const [period, setPeriod] = useState('monthly');
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-analytics'],
+    queryKey: ['admin-analytics', period],
     queryFn: async () => {
-      const res = await fetch('/api/admin/analytics');
+      const res = await fetch(`/api/admin/analytics?period=${period}`);
       if (!res.ok) throw new Error('Failed to fetch');
       return res.json();
     },
@@ -98,7 +106,15 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <ChartCard title="User Growth" subtitle="Monthly signups over time" badge="12 months">
+        <ChartCard title="User Growth" subtitle="Signups over time" badge={
+          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5">
+            {PERIODS.map(p => (
+              <button key={p.key} onClick={() => setPeriod(p.key)}
+                className={`text-[10px] px-2 py-1 rounded-md transition-colors ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              >{p.label}</button>
+            ))}
+          </div>
+        }>
           {data?.usersByMonth && data.usersByMonth.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={data.usersByMonth} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
@@ -121,7 +137,15 @@ export default function AdminAnalyticsPage() {
           )}
         </ChartCard>
 
-        <ChartCard title="Application Trends" subtitle="Applications received per month" badge="12 months">
+        <ChartCard title="Application Trends" subtitle="Applications over time" badge={
+          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5">
+            {PERIODS.map(p => (
+              <button key={p.key} onClick={() => setPeriod(p.key)}
+                className={`text-[10px] px-2 py-1 rounded-md transition-colors ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              >{p.label}</button>
+            ))}
+          </div>
+        }>
           {data?.applicationsByMonth && data.applicationsByMonth.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.applicationsByMonth} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
