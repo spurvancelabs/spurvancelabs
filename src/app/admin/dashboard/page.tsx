@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   AreaChart, Area, ResponsiveContainer,
@@ -37,11 +38,18 @@ const nivoTheme = {
   legends: { text: { fill: '#71717a', fontSize: 10 } },
 };
 
+const PERIODS = [
+  { key: 'daily', label: 'Daily' },
+  { key: 'weekly', label: 'Weekly' },
+  { key: 'monthly', label: 'Monthly' },
+];
+
 export default function AdminDashboardPage() {
+  const [period, setPeriod] = useState('monthly');
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-dashboard-stats'],
+    queryKey: ['admin-dashboard-stats', period],
     queryFn: async () => {
-      const res = await fetch('/api/admin/dashboard/stats');
+      const res = await fetch(`/api/admin/dashboard/stats?period=${period}`);
       if (!res.ok) throw new Error('Failed to fetch stats');
       return res.json();
     },
@@ -137,7 +145,13 @@ export default function AdminDashboardPage() {
             <h3 className="text-white text-sm font-semibold">User Growth</h3>
             <p className="text-gray-500 text-xs mt-0.5">New users over time</p>
           </div>
-          <span className="text-[10px] text-gray-600 bg-white/[0.04] px-2 py-1 rounded-md">Monthly</span>
+          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5">
+            {PERIODS.map(p => (
+              <button key={p.key} onClick={() => setPeriod(p.key)}
+                className={`text-[10px] px-2 py-1 rounded-md transition-colors ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              >{p.label}</button>
+            ))}
+          </div>
         </div>
         {(data?.usersByMonth?.length ?? 0) > 0 ? (() => {
           const rawData = data.usersByMonth.map((d: any) => d.count);
@@ -307,7 +321,14 @@ export default function AdminDashboardPage() {
         <div className="flex items-center justify-between mb-4 shrink-0">
           <div>
             <h3 className="text-white text-sm font-semibold">Apps Trend</h3>
-            <p className="text-gray-500 text-xs mt-0.5">Applications per month</p>
+            <p className="text-gray-500 text-xs mt-0.5">Applications over time</p>
+          </div>
+          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5">
+            {PERIODS.map(p => (
+              <button key={p.key} onClick={() => setPeriod(p.key)}
+                className={`text-[10px] px-2 py-1 rounded-md transition-colors ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              >{p.label}</button>
+            ))}
           </div>
         </div>
         {barData.length ? (
