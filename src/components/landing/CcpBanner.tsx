@@ -31,48 +31,38 @@ export default function CcpBanner() {
   }, [])
 
   return (
-    <section className="relative py-16 sm:py-24 overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[120px]" />
-        <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full bg-blue-500/10 blur-[100px]" />
-      </div>
-
+    <section className="py-12 px-4 sm:py-20 sm:px-8 overflow-hidden">
       <div
         ref={sectionRef}
-        className="relative max-w-[1100px] mx-auto px-4 sm:px-6"
+        className="max-w-[1100px] mx-auto"
       >
-        <div className="relative bg-gradient-to-br from-purple-900/40 via-blue-900/20 to-purple-900/40 border border-purple-500/20 rounded-3xl p-8 sm:p-12 md:p-16 text-center overflow-hidden shadow-2xl shadow-purple-500/10 hover:border-purple-500/40 transition-all duration-500">
-          {/* Orb decorations */}
-          <div className="absolute w-[400px] h-[400px] top-[-150px] right-[-100px] rounded-full blur-[100px] pointer-events-none bg-purple-500/10 animate-pulse" />
-          <div className="absolute w-[250px] h-[250px] bottom-[-100px] left-[-80px] rounded-full blur-[100px] pointer-events-none bg-blue-500/10 animate-pulse" />
+        <div className="relative bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-8 sm:p-12 md:p-16 text-center overflow-hidden transition-all duration-500 hover:border-[#2a2a2a] group">
+          <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
           <div className="relative z-10">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-6">
-              <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
+            <span className="inline-block bg-[#1a1a1a] text-[#888] text-[0.7rem] sm:text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-5 border border-[#2a2a2a]">
               Now Available
-            </div>
+            </span>
 
-            <h2 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-4">
+            <h2 className="text-white text-[1.8rem] sm:text-[2.2rem] md:text-[2.6rem] font-bold tracking-[-0.03em] mb-4 leading-[1.2]">
               Introducing{' '}
-              <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-purple-300 bg-clip-text text-transparent">
-                CCP Platform
+              <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent">
+                Cyber Community Pakistan
               </span>
             </h2>
 
-            <p className="text-gray-400 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
-              A revolutionary platform built for the future. Experience speed, reliability, and innovation like never before.
+            <p className="text-[#666] text-[0.9rem] sm:text-[1.05rem] font-light max-w-[550px] mx-auto mb-8 leading-relaxed">
+              A thriving platform built for Pakistan&apos;s cybersecurity community. Connect, learn, and collaborate with like-minded professionals.
             </p>
 
             <a
               href="https://ccp.spurvancelabs.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-10 py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full text-base font-semibold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all duration-300"
+              className="inline-flex items-center gap-3 px-8 py-3 bg-white text-black rounded-full text-[0.95rem] font-semibold no-underline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] group/btn"
             >
-              Visit CCP
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <span>Visit CCP</span>
+              <svg className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </a>
