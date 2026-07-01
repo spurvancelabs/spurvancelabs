@@ -18,6 +18,7 @@ import DesignShowCase from '@/components/landing/DesignShowCase';
 import OurNetwork from '@/components/landing/OurNetwork';
 import Interective from '@/components/landing/Interective';
 import "../global.css";
+import "./landing/page.css";
 
 export default function Home() {
   return (
