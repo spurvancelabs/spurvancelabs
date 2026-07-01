@@ -10,6 +10,10 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const payload = token ? verifyToken(token) : null;
 
+  if (req.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/landing", req.url));
+  }
+
   const isProtected =
     req.nextUrl.pathname.startsWith("/dashboard") ||
     req.nextUrl.pathname.startsWith("/profile") ||
@@ -38,6 +42,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/profile/:path*",
     "/admin/:path*",
