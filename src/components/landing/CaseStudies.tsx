@@ -80,17 +80,27 @@ const caseStudies = [
 export default function CaseStudies() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [featuredData, setFeaturedData] = useState(caseStudies[0]);
+  const [noTransition, setNoTransition] = useState(false);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
-  const updateFeatured = (index: number) => {
-    setCurrentIndex(index);
-    setFeaturedData(caseStudies[index]);
-  };
+  const itemsPerPage = 4;
+  const gapSize = 12;
+  const extendedItems = [...caseStudies, ...caseStudies.slice(0, itemsPerPage)];
 
   const nextSlide = () => {
-    const nextIndex = (currentIndex + 1) % caseStudies.length;
-    updateFeatured(nextIndex);
+    const next = currentIndex + 1;
+    if (next >= caseStudies.length) {
+      setCurrentIndex(next);
+      setFeaturedData(caseStudies[0]);
+      setTimeout(() => {
+        setNoTransition(true);
+        setCurrentIndex(0);
+      }, 600);
+    } else {
+      setCurrentIndex(next);
+      setFeaturedData(caseStudies[next]);
+    }
   };
 
   const startAutoPlay = () => {
@@ -110,16 +120,25 @@ export default function CaseStudies() {
     return () => stopAutoPlay();
   }, [currentIndex]);
 
-  // Scroll animation for slides
   useEffect(() => {
+    if (noTransition) {
+      requestAnimationFrame(() => {
+        setNoTransition(false);
+      });
+    }
+  }, [noTransition]);
+
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const index = slideRefs.current.indexOf(entry.target as HTMLDivElement);
-            setTimeout(() => {
+            const timer = setTimeout(() => {
               entry.target.classList.add('visible');
             }, index * 100);
+            timers.push(timer);
             observer.unobserve(entry.target);
           }
         });
@@ -131,10 +150,12 @@ export default function CaseStudies() {
       if (slide) observer.observe(slide);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      timers.forEach(clearTimeout);
+    };
   }, []);
 
-  // Responsive slide height calculation
   const getSlideHeight = () => {
     if (typeof window === 'undefined') return 105;
     if (window.innerWidth < 480) return 160;
@@ -149,15 +170,20 @@ export default function CaseStudies() {
     const handleResize = () => {
       setSlideHeight(getSlideHeight());
     };
-    
+
     window.addEventListener('resize', handleResize);
     handleResize();
-    
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const itemStep = slideHeight + gapSize;
+  const containerHeight = itemsPerPage * slideHeight + (itemsPerPage - 1) * gapSize;
+  const totalPages = Math.ceil(caseStudies.length / itemsPerPage);
+  const currentPage = Math.min(Math.floor(currentIndex / itemsPerPage), totalPages - 1);
+
   return (
-    <section className="w-full bg-gradient-to-b from-[rgba(0,0,108,0.161)] via-black to-black backdrop-blur-[10px] py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-hidden">
+    <section className="w-full bg-gradient-to-b from-[rgba(0,0,108,0.161)] via-black to-black backdrop-blur-[10px] pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-8 sm:pb-10 md:pb-12 lg:pb-14 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-hidden">
       <div className="text-center mb-8 sm:mb-10 md:mb-12 lg:mb-14">
         <h2 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-[-0.03em] mb-2 sm:mb-3">
           Success <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">stories</span>
@@ -171,9 +197,9 @@ export default function CaseStudies() {
         {/* Featured Card */}
         <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl sm:rounded-2xl overflow-hidden transition-[0.4s_ease] hover:border-[#2a2a2a] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
           <div className="relative w-full h-[200px] xs:h-[220px] sm:h-[250px] md:h-[280px] lg:h-[300px] overflow-hidden">
-            <img 
-              src={featuredData.image.replace('300&h=200', '600&h=400')} 
-              alt={featuredData.featuredTitle} 
+            <img
+              src={featuredData.image.replace('300&h=200', '600&h=400')}
+              alt={featuredData.featuredTitle}
               className="w-full h-full object-cover transition-[0.6s_ease] hover:scale-105"
             />
             <span className="absolute top-3 sm:top-4 left-3 sm:left-4 bg-black/80 backdrop-blur-[10px] text-[#888] text-[0.5rem] sm:text-[0.6rem] uppercase tracking-[0.1em] px-2.5 sm:px-4 py-1 sm:py-[0.3rem] rounded-[20px] border border-white/5">
@@ -195,26 +221,26 @@ export default function CaseStudies() {
 
         {/* Slider */}
         <div className="relative overflow-hidden py-2 sm:py-2.5">
-          <div className="overflow-hidden rounded-xl">
-            <div 
-              className="flex flex-col transition-transform duration-[0.6s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]"
-              style={{ transform: `translateY(-${currentIndex * slideHeight}px)` }}
+          <div className="overflow-hidden rounded-xl" style={{ height: `${containerHeight}px` }}>
+            <div
+              className={`flex flex-col ${noTransition ? '' : 'transition-transform duration-[0.6s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]'}`}
+              style={{ transform: `translateY(-${currentIndex * itemStep}px)` }}
             >
-              {caseStudies.map((study, index) => (
+              {extendedItems.map((study, index) => (
                 <div
-                  key={study.id}
-                  className={`flex items-center gap-3 sm:gap-4 md:gap-5 bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-2.5 sm:p-3 cursor-pointer transition-[0.4s_ease] opacity-70 scale-[0.96] flex-shrink-0 mb-2 sm:mb-3 ${
-                    currentIndex === index ? 'opacity-100 scale-100 border-[#2a2a2a] bg-[#111] shadow-[0_0_30px_rgba(255,255,255,0.03)]' : ''
+                  key={`${study.id}-${index}`}
+                  className={`flex items-center gap-3 sm:gap-4 md:gap-5 bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-2.5 sm:p-3 cursor-pointer transition-[0.4s_ease] opacity-70 scale-[0.96] flex-shrink-0 mb-3 ${
+                    featuredData.id === study.id && index < caseStudies.length ? 'opacity-100 scale-100 border-[#2a2a2a] bg-[#111] shadow-[0_0_30px_rgba(255,255,255,0.03)]' : ''
                   } hover:border-[#2a2a2a] hover:bg-[#111] hover:translate-x-2`}
                   style={{ height: `${slideHeight}px` }}
-                  ref={(el) => { slideRefs.current[index] = el; }}
-                  onClick={() => { updateFeatured(index); stopAutoPlay(); setTimeout(startAutoPlay, 3000); }}
+                  ref={(el) => { if (index < caseStudies.length) slideRefs.current[index] = el; }}
+                  onClick={() => { setCurrentIndex(index); setFeaturedData(caseStudies[index]); stopAutoPlay(); setTimeout(startAutoPlay, 3000); }}
                 >
                   <div className="relative w-[50px] h-[50px] min-w-[50px] xs:w-[60px] xs:h-[60px] xs:min-w-[60px] sm:w-[70px] sm:h-[70px] sm:min-w-[70px] rounded-[10px] overflow-hidden flex-shrink-0">
-                    <img 
-                      src={study.image} 
-                      alt={study.title} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={study.image}
+                      alt={study.title}
+                      className="w-full h-full object-cover"
                       loading="lazy"
                     />
                     <span className="absolute bottom-1 right-1 bg-black/80 backdrop-blur-[10px] text-[#888] text-[0.3rem] xs:text-[0.35rem] sm:text-[0.4rem] uppercase tracking-[0.05em] px-1 sm:px-[0.4rem] py-0.5 sm:py-[0.1rem] rounded-lg border border-white/5">
@@ -235,10 +261,16 @@ export default function CaseStudies() {
           </div>
 
           {/* Progress Indicator */}
-          <div className="flex justify-center mt-3 sm:mt-4 px-4 sm:px-5">
-            <div className="h-[2px] bg-[#1a1a1a] rounded-[2px] w-[40px] sm:w-[50px] md:w-[60px] relative overflow-hidden">
-              <div className="absolute left-0 top-0 h-full w-[20%] bg-gradient-to-r from-[#444] to-[#888] rounded-[2px] animate-[progressSlide_4s_linear_infinite]"></div>
-            </div>
+          <div className="flex justify-center gap-2 mt-3 sm:mt-4">
+            {Array.from({ length: totalPages }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => { setCurrentIndex(idx * itemsPerPage); setFeaturedData(caseStudies[idx * itemsPerPage]); stopAutoPlay(); setTimeout(startAutoPlay, 3000); }}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  idx === currentPage ? 'bg-white w-6' : 'bg-[#444] hover:bg-[#666]'
+                }`}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 
-export async function GET() {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const supabase = getSupabaseAdminClient();
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('id, email, name, role, created_at')
-      .order('created_at', { ascending: false });
+    const { error } = await supabase
+      .from('interviewers')
+      .delete()
+      .eq('id', id);
 
     if (error) throw error;
-
-    return NextResponse.json({ users });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
   }
