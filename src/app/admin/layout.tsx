@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/login');
   }
 
-  const decoded = verifyToken(token);
+  const decoded = await verifyToken(token);
   if (!decoded?.userId) {
     redirect('/login');
   }

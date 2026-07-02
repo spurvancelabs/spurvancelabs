@@ -8,7 +8,7 @@ async function getUserIdFromCookie(): Promise<string | null> {
   const token = cookieStore.get('token')?.value;
   if (!token) return null;
   try {
-    const decoded = verifyToken(token);
+    const decoded = await verifyToken(token);
     return decoded?.userId ?? null;
   } catch {
     return null;
