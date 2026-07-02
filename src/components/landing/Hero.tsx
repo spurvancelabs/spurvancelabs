@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import React from 'react';
 interface HeroProps {
   width?: number;
@@ -15,15 +16,18 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12 top-12 sm:top-20">
         {/* Left Content */}
           <div className="w-full md:w-1/2 text-left space-y-4 sm:space-y-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
-            Software Company
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white spacing-less">
+            Software Development Company
+            for Remote Teams and Startups
           </h1>
           <p className="text-sm sm:text-base md:text-md text-gray-400 font-light max-w-lg">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione odit qui dicta officia reprehenderit nisi et nemo! Exercitationem aliquid eveniet et sunt at quas, rem repellendus maiores quasi explicabo maxime.
-          </p>
-          <button className="px-4 py-1.5 bg-white text-black rounded-full font-medium text-base sm:text-lg hover:bg-gray-200 transition-colors duration-200">
+            Spurvancelab is a full-stack custom software development company helping 
+              startups and remote teams design, build, and scale software, websites, and mobile 
+apps. From idea to launch, we turn your roadmap into a working product —
+without the overhead of building an in-house engineering team          </p>
+          <Link href="/about" className="px-4 py-1.5 bg-white text-black rounded-full font-medium text-base sm:text-lg hover:bg-gray-300 transition-colors duration-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
             Learn more
-          </button>
+          </Link>
         </div>
 
         {/* Right Content (optional - can be used for image/illustration) */}
@@ -31,7 +35,7 @@ export const Hero: React.FC<HeroProps> = ({
           <svg 
           width={width} 
           height={height} 
-          viewBox="0 0 1474 973" 
+          viewBox="0 0 1474 1500" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"

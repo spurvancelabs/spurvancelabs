@@ -23,7 +23,7 @@ import "../../global.css";
 
 export default function Home() {
   return (
-    <main className="main min-h-screen overflow-hidden ">
+    <main className="main min-h-screen">
       {/* Fixed Header - sticky at top */}
       <Header />
       
