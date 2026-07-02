@@ -10,18 +10,27 @@ import ServiceProcess from '@/components/landing/Services/ServiceProcess'
 import GetStarted from '@/components/landing/Internships/GetStarted'
 function ServicePage() {
   return (
-<section className=' '>
-    <Header/>
-    <div className=''>
+    <main className="min-h-screen overflow-hidden">
+      <Header />
+      <section className="w-full">
     <HeroService/>
-    <ServiceGrid/>
+      </section>
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+       <ServiceGrid/>
+
+      </section>
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
     <AIServices/>
-    <InternshipPricing/>
-    <ServiceProcess/>
-    <GetStarted/>
-    </div>
-    <Footer/>
-</section>
+      </section>
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-20">
+         <InternshipPricing/>
+      </section>
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-20">
+       <GetStarted/>
+      </section>
+      <Footer />
+    </main>
+
   )
 }
 
