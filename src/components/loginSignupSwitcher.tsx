@@ -106,23 +106,27 @@ const LoginSignupSwitcher = () => {
   }
 
   return (
-    <div className="flex w-full items-center justify-between px-6 py-5 md:px-8">
-      <div className="flex items-center gap-3">
-        <Link href="/">
+    <div className="switcher-compact flex w-full items-center justify-between px-3 py-4 sm:px-4 sm:py-5 md:px-6 lg:px-8">
+      {/* Logo Section - Responsive */}
+      <div className="switcher-gap flex items-center gap-2 sm:gap-2.5 md:gap-3">
+        <Link href="/" className="flex-shrink-0">
           <Image 
             src="/spurvance-logo.png" 
             alt="Spurvancelab" 
-            width={40}
-            height={40}
-            className="h-8 w-8 object-contain md:h-12 md:w-12"
+            width={32}
+            height={32}
+            className="switcher-logo h-6 w-6 object-contain sm:h-7 sm:w-7 md:h-8 md:w-8 lg:h-10 lg:w-10"
             priority
           />
         </Link>
-        <span className='text-[18px] font-semibold md:text-2xl'>Spurvancelab</span>
+        <span className='switcher-brand text-sm font-semibold sm:text-base md:text-[18px] lg:text-xl xl:text-2xl whitespace-nowrap'>
+          Spurvancelab
+        </span>
       </div>
       
+      {/* Toggle Switcher - Responsive */}
       <div 
-        className="relative flex cursor-grab items-center gap-1 rounded-full bg-[#3b3b3b] px-1 py-1 active:cursor-grabbing"
+        className="relative flex cursor-grab items-center gap-0.5 sm:gap-1 rounded-full bg-[#3b3b3b] px-1 py-1 active:cursor-grabbing"
         onMouseDown={handleDragStart}
         onTouchStart={handleDragStart}
       >
@@ -141,7 +145,7 @@ const LoginSignupSwitcher = () => {
         
         <button
           onClick={() => handleTabChange('signup')}
-          className={`cursor-pointer relative z-10 rounded-full px-3 py-1.5 border  text-xs font-medium transition-colors duration-200 md:px-4 md:text-sm ${
+          className={`switcher-btn cursor-pointer relative z-10 rounded-full px-2 py-1 sm:px-2.5 sm:py-1.5 md:px-3 lg:px-4 border text-[10px] sm:text-xs md:text-xs lg:text-sm font-medium transition-colors duration-200 ${
             activeTab === 'signup'
               ? 'text-white border border-white/10' 
               : 'text-[#5a5a5a] hover:text-white border border-[#5a5a5a]/10'
@@ -151,13 +155,15 @@ const LoginSignupSwitcher = () => {
             transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
-          Sign up
+          <span className="hidden xs:inline">Sign up</span>
+          <span className="xs:hidden">Sign up</span>
         </button>
+        
         <button
           onClick={() => handleTabChange('login')}
-          className={` cursor-pointer relative z-10 rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-200 md:px-4 md:text-sm ${
+          className={`switcher-btn cursor-pointer relative z-10 rounded-full px-2 py-1 sm:px-2.5 sm:py-1.5 md:px-3 lg:px-4 border text-[10px] sm:text-xs md:text-xs lg:text-sm font-medium transition-colors duration-200 ${
             activeTab === 'login'
-              ? 'text-white   border border-white/10' 
+              ? 'text-white border border-white/10' 
               : 'text-[#5a5a5a] hover:text-white border border-[#5a5a5a]/10'
           }`}
           style={{
@@ -165,7 +171,8 @@ const LoginSignupSwitcher = () => {
             transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
-          Sign in
+          <span className="hidden xs:inline">Sign in</span>
+          <span className="xs:hidden">Sign in</span>
         </button>
       </div>
     </div>
