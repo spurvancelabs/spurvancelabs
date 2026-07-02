@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 
 const caseStudies = [
@@ -213,9 +214,9 @@ export default function CaseStudies() {
             <p className="text-[#666] text-xs sm:text-sm md:text-[0.9rem] leading-[1.5] sm:leading-[1.6] mb-3 sm:mb-4">
               {featuredData.featuredDesc}
             </p>
-            <a href="#" className="inline-flex items-center gap-2 sm:gap-[0.6rem] text-[#888] text-xs sm:text-sm md:text-[0.85rem] font-medium no-underline transition-[0.3s_ease] border-b border-transparent pb-[2px] hover:text-white hover:border-b-[#444] hover:gap-3">
+            <Link href="/about" className="inline-flex items-center gap-2 sm:gap-[0.6rem] text-[#888] text-xs sm:text-sm md:text-[0.85rem] font-medium no-underline transition-[0.3s_ease] border-b border-transparent pb-[2px] hover:text-white hover:border-b-[#444] hover:gap-3">
               Read Full Story <i className="fas fa-arrow-right text-[0.6rem] sm:text-[0.7rem] transition-[0.3s_ease] hover:translate-x-1"></i>
-            </a>
+            </Link>
           </div>
         </div>
 

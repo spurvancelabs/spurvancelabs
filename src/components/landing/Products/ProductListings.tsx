@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 const products = [
@@ -155,9 +156,9 @@ export default function ProductListings() {
                 </div>
 
                 <div className="flex justify-between items-center pt-4 border-t border-[#1a1a1a]">
-                  <button className=" text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5">
+                  <Link href="/services" className=" text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5">
                     Learn More
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
