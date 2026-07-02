@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const projects = [
   {
@@ -44,6 +44,8 @@ const projects = [
 export default function Portfolio() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleSlides, setVisibleSlides] = useState(3.5);
+  const [noTransition, setNoTransition] = useState(false);
+  const [step, setStep] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -55,13 +57,13 @@ export default function Portfolio() {
   };
 
   const totalSlides = projects.length;
-  const maxIndex = Math.ceil(totalSlides - visibleSlides);
+  const cloneCount = Math.ceil(visibleSlides);
+  const extendedProjects = [...projects, ...projects.slice(0, cloneCount)];
 
   useEffect(() => {
     const handleResize = () => {
       setVisibleSlides(getVisibleSlides());
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -70,51 +72,77 @@ export default function Portfolio() {
     setVisibleSlides(getVisibleSlides());
   }, []);
 
-  const goToSlide = (index: number) => {
-    if (index < 0) index = 0;
-    if (index > maxIndex) index = maxIndex;
-    setCurrentIndex(index);
-  };
-
-  const nextSlide = () => {
-    if (currentIndex < maxIndex) {
-      goToSlide(currentIndex + 1);
-    } else {
-      goToSlide(0);
+  const updateStep = useCallback(() => {
+    if (trackRef.current && trackRef.current.children[0]) {
+      const child = trackRef.current.children[0] as HTMLElement;
+      const gap = 24;
+      setStep(child.offsetWidth + gap);
     }
-  };
+  }, []);
 
-  const prevSlide = () => {
-    if (currentIndex > 0) {
-      goToSlide(currentIndex - 1);
-    } else {
-      goToSlide(maxIndex);
-    }
-  };
+  useEffect(() => {
+    updateStep();
+    window.addEventListener('resize', updateStep);
+    return () => window.removeEventListener('resize', updateStep);
+  }, [visibleSlides, updateStep]);
 
-  const startAutoPlay = () => {
+  const nextSlide = useCallback(() => {
+    setCurrentIndex(prev => {
+      const next = prev + 1;
+      if (next >= totalSlides) {
+        setTimeout(() => {
+          setNoTransition(true);
+          setCurrentIndex(0);
+        }, 800);
+        return next;
+      }
+      return next;
+    });
+  }, [totalSlides]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex(prev => {
+      if (prev <= 0) {
+        setNoTransition(true);
+        setTimeout(() => {
+          setNoTransition(false);
+          setCurrentIndex(totalSlides - 1);
+        }, 50);
+        return totalSlides;
+      }
+      return prev - 1;
+    });
+  }, [totalSlides]);
+
+  const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     autoPlayRef.current = setInterval(nextSlide, 4000);
-  };
+  }, [nextSlide]);
 
-  const stopAutoPlay = () => {
+  const stopAutoPlay = useCallback(() => {
     if (autoPlayRef.current) {
       clearInterval(autoPlayRef.current);
       autoPlayRef.current = null;
     }
-  };
+  }, []);
 
-  const resetAutoPlay = () => {
+  const resetAutoPlay = useCallback(() => {
     stopAutoPlay();
     setTimeout(startAutoPlay, 3000);
-  };
+  }, [startAutoPlay, stopAutoPlay]);
 
   useEffect(() => {
     startAutoPlay();
     return () => stopAutoPlay();
-  }, [currentIndex]);
+  }, [currentIndex, startAutoPlay, stopAutoPlay]);
 
-  const totalDots = Math.ceil(totalSlides / Math.floor(visibleSlides));
+  useEffect(() => {
+    if (noTransition) {
+      requestAnimationFrame(() => {
+        setNoTransition(false);
+      });
+    }
+  }, [noTransition]);
 
   return (
     <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
@@ -129,22 +157,22 @@ export default function Portfolio() {
 
       <div className="relative max-w-[1200px] mx-auto overflow-hidden px-10 md:px-[40px]">
         <div 
-          className="flex transition-transform duration-[0.8s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] gap-6"
+          className={`flex gap-6 ${noTransition ? '' : 'transition-transform duration-[0.8s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]'}`}
           ref={trackRef}
-          style={{ transform: `translateX(-${currentIndex * (100 / visibleSlides)}%)` }}
+          style={{ transform: step ? `translateX(-${currentIndex * step}px)` : 'none' }}
         >
-          {projects.map((project) => (
-            <div key={project.id} className="px-[5px]" style={{ minWidth: `${100 / visibleSlides}%` }}>
-              <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] relative h-[450px] md:h-[400px] sm:h-[350px] max-sm:h-[300px] hover:border-[#2a2a2a] hover:shadow-[0_30px_60px_rgba(0,0,0,0.6)] hover:-translate-y-2">
+          {extendedProjects.map((project, index) => (
+            <div key={`${project.id}-${index}`} className="shrink-0 px-[5px]" style={{ minWidth: `${100 / visibleSlides}%` }}>
+              <div className="group bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] relative h-[450px] md:h-[400px] sm:h-[350px] max-sm:h-[300px] hover:border-[#2a2a2a] hover:shadow-[0_30px_60px_rgba(0,0,0,0.6)] hover:-translate-y-2">
                 <div className="absolute -top-px -left-px -right-px -bottom-px rounded-2xl bg-gradient-to-br from-transparent via-transparent to-[rgba(255,255,255,0.03)] z-0 pointer-events-none"></div>
                 <div className="relative w-full h-full overflow-hidden bg-[#1a1a1a]">
                   <img 
                     src={project.image} 
                     alt={project.title} 
-                    className="w-full h-full object-cover transition-[0.7s_cubic-bezier(0.25,0.46,0.45,0.94)] hover:scale-[1.08]"
+                    className="w-full h-full object-cover transition-[0.7s_cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-[1.08]"
                   />
-                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-end justify-center opacity-0 transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] p-8 hover:opacity-100">
-                    <div className="text-center translate-y-[30px] transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] w-full hover:translate-y-0">
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-end justify-center opacity-0 transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] p-8 group-hover:opacity-100">
+                    <div className="text-center translate-y-[30px] transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] w-full group-hover:translate-y-0">
                       <span className="inline-block text-[#888] text-[0.6rem] uppercase tracking-[0.15em] bg-black/80 px-4 py-[0.25rem] rounded-[20px] border border-white/5 backdrop-blur-[10px] mb-[0.6rem]">
                         {project.category}
                       </span>
@@ -155,7 +183,7 @@ export default function Portfolio() {
                         href="#" 
                         className="inline-flex items-center gap-[0.4rem] sm:gap-[0.6rem] text-white text-[0.75rem] sm:text-[0.85rem] font-medium no-underline px-4 sm:px-6 py-1.5 sm:py-2 border border-white/15 rounded-[30px] transition-[0.4s_ease] tracking-[0.02em] bg-white/5 backdrop-blur-[10px] hover:bg-white/10 hover:border-white/30 hover:gap-4"
                       >
-                        View Project <i className="fas fa-arrow-right text-[0.7rem] transition-[0.3s_ease] hover:translate-x-1"></i>
+                        View Project <i className="fas fa-arrow-right text-[0.7rem] transition-[0.3s_ease] group-hover:translate-x-1"></i>
                       </a>
                     </div>
                   </div>
@@ -177,16 +205,6 @@ export default function Portfolio() {
         >
           <i className="fas fa-chevron-right"></i>
         </button>
-
-        <div className="flex justify-center gap-2 sm:gap-3 mt-6 sm:mt-10">
-          {Array.from({ length: totalDots }).map((_, i) => (
-            <span
-              key={i}
-              className={`w-2.5 h-2.5 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] cursor-pointer transition-[0.4s_ease] hover:bg-[#444] ${Math.round(currentIndex / Math.floor(visibleSlides)) === i ? 'bg-white border-white scale-[1.2]' : ''}`}
-              onClick={() => { goToSlide(i * Math.floor(visibleSlides)); resetAutoPlay(); }}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );

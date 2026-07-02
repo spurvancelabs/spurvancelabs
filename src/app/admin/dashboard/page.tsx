@@ -92,26 +92,26 @@ export default function AdminDashboardPage() {
   }));
 
   return (
-    <div className="grid grid-cols-6 gap-4 auto-rows-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-auto p-3 sm:p-4 md:p-6">
 
       {/* ─── Row 1: Hero Banner ─── */}
-      <div className="col-span-6 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-6 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-6 md:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Dashboard</h1>
-            <p className="text-gray-400 text-sm mt-1">Platform overview</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight">Dashboard</h1>
+            <p className="text-gray-400 text-xs sm:text-sm mt-0.5 sm:mt-1">Platform overview</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             {[
               { label: 'Users', value: tUsers },
               { label: 'Apps', value: tApps },
               { label: 'Listings', value: tJobs + tInterns },
             ].map((m, i) => (
-              <div key={m.label} className="flex items-center gap-4">
-                {i > 0 && <div className="w-px h-10 bg-white/[0.06]" />}
+              <div key={m.label} className="flex items-center gap-3 sm:gap-4">
+                {i > 0 && <div className="hidden sm:block w-px h-8 sm:h-10 bg-white/[0.06]" />}
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-white">{m.value}</p>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">{m.label}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-white">{m.value}</p>
+                  <p className="text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-wider">{m.label}</p>
                 </div>
               </div>
             ))}
@@ -120,12 +120,12 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ─── Row 2: Stat Cards ─── */}
-      <div className="col-span-6 grid grid-cols-4 gap-4">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-6 grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((s, i) => (
-          <div key={s.label} className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-white/[0.12] transition-all duration-300">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-gray-400 text-xs uppercase tracking-wider font-medium">{s.label}</p>
-              <div className="w-16 h-8">
+          <div key={s.label} className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-5 hover:border-white/[0.12] transition-all duration-300">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <p className="text-gray-400 text-[10px] sm:text-xs uppercase tracking-wider font-medium">{s.label}</p>
+              <div className="w-12 h-6 sm:w-16 sm:h-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={s.data}>
                     <Area type="monotone" dataKey="count" stroke={s.fill} strokeWidth={1.5} fill={`${s.fill}20`} dot={false} />
@@ -133,22 +133,22 @@ export default function AdminDashboardPage() {
                 </ResponsiveContainer>
               </div>
             </div>
-            <p className="text-white text-2xl sm:text-3xl font-bold tracking-tight">{s.value.toLocaleString()}</p>
+            <p className="text-white text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{s.value.toLocaleString()}</p>
           </div>
         ))}
       </div>
 
       {/* ─── Row 3: User Growth — ECharts Line ─── */}
-      <div className="col-span-4 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 sm:p-6 flex flex-col">
-        <div className="flex items-center justify-between mb-4 shrink-0">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-4 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-5 md:p-6 flex flex-col">
+        <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3 mb-3 sm:mb-4 shrink-0">
           <div>
             <h3 className="text-white text-sm font-semibold">User Growth</h3>
             <p className="text-gray-500 text-xs mt-0.5">New users over time</p>
           </div>
-          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5">
+          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5 self-start xs:self-auto">
             {PERIODS.map(p => (
               <button key={p.key} onClick={() => setPeriod(p.key)}
-                className={`text-[10px] px-2 py-1 rounded-md transition-colors ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`text-[10px] px-2 sm:px-3 py-1 rounded-md transition-colors whitespace-nowrap ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
               >{p.label}</button>
             ))}
           </div>
@@ -187,7 +187,12 @@ export default function AdminDashboardPage() {
                     data: months,
                     axisLine: { show: false },
                     axisTick: { show: false },
-                    axisLabel: { color: '#52525b', fontSize: 10, fontFamily: 'Inter, sans-serif' },
+                    axisLabel: { 
+                      color: '#52525b', 
+                      fontSize: 10, 
+                      fontFamily: 'Inter, sans-serif',
+                      rotate: months.length > 8 ? 30 : 0
+                    },
                     splitLine: { show: false },
                   },
                   yAxis: {
@@ -226,10 +231,10 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ─── Row 3: App Status — ECharts (Excel-style) ─── */}
-      <div className="col-span-1 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-3 flex flex-col items-center justify-center">
-        <p className="text-white text-xs font-semibold mb-1">App Status</p>
+      <div className="col-span-1 sm:col-span-1 lg:col-span-1 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-3 sm:p-4 flex flex-col items-center justify-center">
+        <p className="text-white text-xs font-semibold mb-1 sm:mb-2">App Status</p>
         {pieData.length ? (
-          <div className="w-full h-[160px]">
+          <div className="w-full h-[120px] sm:h-[140px] md:h-[160px]">
             <ReactEChartsCore
               echarts={echarts}
               option={{
@@ -269,7 +274,10 @@ export default function AdminDashboardPage() {
                   label: {
                     show: true,
                     position: 'outside',
-                    formatter: '{d}%',
+                    formatter: (params: any) => {
+                      const percent = params.percent;
+                      return percent > 5 ? '{d}%' : '';
+                    },
                     color: '#71717a',
                     fontSize: 9,
                     fontFamily: 'Inter, sans-serif',
@@ -294,15 +302,15 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ─── Row 3: Dept Progress ─── */}
-      <div className="col-span-1 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 flex flex-col justify-center">
-        <p className="text-white text-xs font-semibold mb-3">Departments</p>
+      <div className="col-span-1 sm:col-span-1 lg:col-span-1 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-3 sm:p-4 flex flex-col justify-center">
+        <p className="text-white text-xs font-semibold mb-2 sm:mb-3">Departments</p>
         {data?.jobsByDepartment?.length ? (
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             {data.jobsByDepartment.slice(0, 4).map((d: any, i: number) => {
               const pct = Math.round((d.count / deptTotal) * 100);
               return (
                 <div key={d.department}>
-                  <div className="flex items-center justify-between text-[11px] mb-0.5">
+                  <div className="flex items-center justify-between text-[10px] sm:text-[11px] mb-0.5">
                     <span className="text-gray-400 truncate mr-1">{d.department}</span>
                     <span className="text-white font-medium">{pct}%</span>
                   </div>
@@ -317,22 +325,22 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ─── Row 4: Applications Trend — Nivo ─── */}
-      <div className="col-span-2 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 sm:p-6 flex flex-col">
-        <div className="flex items-center justify-between mb-4 shrink-0">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-2 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-5 md:p-6 flex flex-col">
+        <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3 mb-3 sm:mb-4 shrink-0">
           <div>
             <h3 className="text-white text-sm font-semibold">Apps Trend</h3>
             <p className="text-gray-500 text-xs mt-0.5">Applications over time</p>
           </div>
-          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5">
+          <div className="flex gap-1 bg-white/[0.04] rounded-md p-0.5 self-start xs:self-auto">
             {PERIODS.map(p => (
               <button key={p.key} onClick={() => setPeriod(p.key)}
-                className={`text-[10px] px-2 py-1 rounded-md transition-colors ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`text-[10px] px-2 sm:px-3 py-1 rounded-md transition-colors whitespace-nowrap ${period === p.key ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}
               >{p.label}</button>
             ))}
           </div>
         </div>
         {barData.length ? (
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0" style={{ minHeight: 150 }}>
             <ResponsiveBar
               data={barData}
               keys={['count']}
@@ -369,18 +377,18 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ─── Row 5: Recent Activity ─── */}
-      <div className="col-span-4 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 sm:p-6">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-4 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-5 md:p-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-white text-sm font-semibold">Recent Activity</h3>
         </div>
         {data?.recentApplications?.length ? (
           <div className="divide-y divide-white/[0.04]">
             {data.recentApplications.slice(0, 5).map((app: any, i: number) => (
-              <div key={i} className="flex items-center gap-3 py-2.5">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs shrink-0 ${
+              <div key={i} className="flex flex-col xs:flex-row xs:items-center gap-2 xs:gap-3 py-2.5">
+                <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-white text-xs shrink-0 ${
                   app.type === 'job' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'
                 }`}>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={app.type === 'job'
                       ? 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z'
                       : 'M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347'}
@@ -391,7 +399,7 @@ export default function AdminDashboardPage() {
                   <p className="text-white text-xs truncate">Application</p>
                   <p className="text-gray-600 text-[10px]">{app.status} &middot; {app.type}</p>
                 </div>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                <span className={`text-[10px] px-2 py-0.5 rounded-full border whitespace-nowrap ${
                   app.status === 'PENDING' ? 'text-yellow-400 border-yellow-500/20 bg-yellow-500/10' :
                   app.status === 'REVIEWED' ? 'text-blue-400 border-blue-500/20 bg-blue-500/10' :
                   app.status === 'SHORTLISTED' ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10' :
@@ -407,8 +415,8 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ─── Row 6: Quick Stats Bar ─── */}
-      <div className="col-span-6 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="col-span-1 sm:col-span-2 lg:col-span-6 rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 sm:p-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {[
             { label: 'Active Jobs', value: data?.jobs?.filter((j: any) => j.status === 'ACTIVE').length || 0 },
             { label: 'Avg Apps / Job', value: tJobs ? (tApps / tJobs).toFixed(1) : '0' },
@@ -416,8 +424,10 @@ export default function AdminDashboardPage() {
             { label: 'Total Listings', value: tJobs + tInterns },
           ].map((q) => (
             <div key={q.label} className="text-center sm:text-left">
-              <p className="text-gray-500 text-[10px] uppercase tracking-wider font-medium">{q.label}</p>
-              <p className="text-white text-lg font-bold mt-0.5">{q.value} {(q as any).suffix && <span className="text-gray-500 text-xs font-normal">{(q as any).suffix}</span>}</p>
+              <p className="text-gray-500 text-[8px] sm:text-[10px] uppercase tracking-wider font-medium">{q.label}</p>
+              <p className="text-white text-base sm:text-lg font-bold mt-0.5">
+                {q.value} {(q as any).suffix && <span className="text-gray-500 text-[10px] sm:text-xs font-normal">{(q as any).suffix}</span>}
+              </p>
             </div>
           ))}
         </div>

@@ -126,6 +126,23 @@ body {
 
 
 
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 @keyframes flow {
   0% {
     stroke-dashoffset: 1000;
@@ -142,22 +159,22 @@ body {
   fill: none;
   stroke-dasharray: 90 910;
   stroke-dashoffset: 1000;
-  animation: flow 3.5s linear infinite;
+  animation: flow 5.25s linear infinite;
 }
 
 /* Different animation durations for each line */
-.tech-flow-left-top { stroke: url(#cyberMix1); animation-duration: 5.8s; }
-.tech-flow-left-mid { stroke: url(#cyberMix2); animation-duration: 6.8s; }
-.tech-flow-left-bot { stroke: url(#cyberMix3); animation-duration: 5.4s; }
-.tech-flow-right-top { stroke: url(#cyberMix3); animation-duration: 6.4s; }
-.tech-flow-right-mid { stroke: url(#cyberMix1); animation-duration: 4.8s; }
-.tech-flow-right-bot { stroke: url(#cyberMix2); animation-duration: 5.9s; }
-.tech-flow-top-left { stroke: url(#cyberMix2); animation-duration: 6.2s; }
-.tech-flow-top-mid { stroke: url(#cyberMix3); animation-duration: 4.6s; }
-.tech-flow-top-right { stroke: url(#cyberMix1); animation-duration: 5.6s; }
-.tech-flow-card-left { stroke: url(#cyberMix1); animation-duration: 5.2s; }
-.tech-flow-card-center { stroke: url(#cyberMix2); animation-duration: 4.4s; }
-.tech-flow-card-right { stroke: url(#cyberMix3); animation-duration: 5.7s; }
+.tech-flow-left-top { stroke: url(#cyberMix1); animation-duration: 8.7s; }
+.tech-flow-left-mid { stroke: url(#cyberMix2); animation-duration: 10.2s; }
+.tech-flow-left-bot { stroke: url(#cyberMix3); animation-duration: 8.1s; }
+.tech-flow-right-top { stroke: url(#cyberMix3); animation-duration: 9.6s; }
+.tech-flow-right-mid { stroke: url(#cyberMix1); animation-duration: 7.2s; }
+.tech-flow-right-bot { stroke: url(#cyberMix2); animation-duration: 8.9s; }
+.tech-flow-top-left { stroke: url(#cyberMix2); animation-duration: 9.3s; }
+.tech-flow-top-mid { stroke: url(#cyberMix3); animation-duration: 6.9s; }
+.tech-flow-top-right { stroke: url(#cyberMix1); animation-duration: 8.4s; }
+.tech-flow-card-left { stroke: url(#cyberMix1); animation-duration: 7.8s; }
+.tech-flow-card-center { stroke: url(#cyberMix2); animation-duration: 6.6s; }
+.tech-flow-card-right { stroke: url(#cyberMix3); animation-duration: 8.6s; }
 
 
 .services-item.visible {
@@ -233,4 +250,25 @@ body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .switcher-compact {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .switcher-compact .switcher-logo {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .switcher-compact .switcher-brand {
+    font-size: 0.9375rem;
+  }
+  .switcher-compact .switcher-gap {
+    gap: 0.5rem;
+  }
+  .switcher-compact .switcher-btn {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
 }
