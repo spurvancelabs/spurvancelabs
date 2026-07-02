@@ -16,7 +16,7 @@ const products = [
     name: 'CloudSync Enterprise',
     category: 'Infrastructure',
     description: 'Secure cloud storage and synchronization solution for businesses with military-grade encryption.',
-    image: 'https://images.unsplash.com/photo-1548613260-8bbf6fe5c8e1?w=600&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1690627931320-16ac56eb2588?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2xvdWQlMjBjb21wdXRpbmd8ZW58MHx8MHx8fDA%3D',
     features: ['Secure Storage', 'Auto-sync', 'File Sharing', 'Backup'],
   },
   {
@@ -40,7 +40,7 @@ const products = [
     name: 'ChatBot Builder',
     category: 'AI',
     description: 'No-code platform for creating intelligent chatbots for customer service and automation.',
-    image: 'https://images.unsplash.com/photo-1587582224793-0820d7a3d031?w=600&h=400&fit=crop&crop=center',
+    image: 'https://plus.unsplash.com/premium_photo-1677094310919-d0361465d3be?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2hhdGJvdCUyMGJ1aWxkZXJ8ZW58MHx8MHx8fDA%3D',
     features: ['No-code Builder', 'AI Responses', 'Multi-channel', 'Analytics'],
   },
   {
@@ -48,7 +48,7 @@ const products = [
     name: 'Security Shield',
     category: 'Cybersecurity',
     description: 'Comprehensive security monitoring and threat detection platform for modern applications.',
-    image: 'https://images.unsplash.com/photo-1563013534281-512a7a0b1e32?w=600&h=400&fit=crop&crop=center',
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y3liZXIlMjBzZWN1cml0eXxlbnwwfHwwfHx8MA%3D%3D',
     features: ['Threat Detection', 'Vulnerability Scan', 'Real-time Alerts', 'Compliance'],
   },
 ];

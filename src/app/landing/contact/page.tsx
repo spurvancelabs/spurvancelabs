@@ -10,13 +10,18 @@ import GetStarted from '@/components/landing/Internships/GetStarted'
 
 function ContactPage() {
   return (
-    <section className=''>
+    <section>
         <Header/>
         <HeroContact/>
         <MapContact/>
-        <GetStarted/>
+        <div className="mb-20">       
+           <GetStarted />
+        </div>
+
         <Footer/>
     </section>
+
+    
   )
 }
 
