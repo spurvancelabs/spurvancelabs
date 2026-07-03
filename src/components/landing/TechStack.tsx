@@ -170,8 +170,9 @@ export default function TechStack() {
                 React
               </h3>
               <p className="m-0 text-[0.9rem] text-[#a1a1aa] leading-[1.6] font-normal">
-                The library for web and native user interfaces. Next.js is built on the latest React features.
-              </p>
+We build fast, interactive user interfaces using React — the same library 
+trusted by companies at massive scale, giving your product a stable, well-supported 
+foundation.              </p>
             </div>
           </div>
 
@@ -184,8 +185,8 @@ export default function TechStack() {
                 Turbopack
               </h3>
               <p className="m-0 text-[0.9rem] text-[#a1a1aa] leading-[1.6] font-normal">
-                An incremental bundler optimized for JavaScript and TypeScript, written in Rust.
-              </p>
+Our builds run on Turbopack, a next-generation bundler that keeps 
+development and deployment fast even as your codebase grows.              </p>
             </div>
           </div>
 
@@ -198,8 +199,9 @@ export default function TechStack() {
                 Speedy Web Compiler
               </h3>
               <p className="m-0 text-[0.9rem] text-[#a1a1aa] leading-[1.6] font-normal">
-                An extensible Rust-based platform for the next generation of fast developer tools.
-              </p>
+We compile with SWC, a Rust-based toolchain that speeds up builds 
+significantly compared to older JavaScript tooling — meaning faster iteration for 
+your project.              </p>
             </div>
           </div>
         </div>

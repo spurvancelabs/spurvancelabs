@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
+
 export default function WhyChooseUs() {
   const featuresRef = useRef<(HTMLDivElement | null)[]>([]);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -48,7 +49,7 @@ export default function WhyChooseUs() {
           
           <div className="flex flex-col gap-[0.2rem] lg:max-w-[600px] lg:mx-0 mx-auto">
             <div 
-              className="flex items-center gap-5 py-[0.1rem] px-[0.1rem] rounded-[10px] border border-transparent transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] bg-transparent opacity-0 -translate-x-[60px] [&.visible]:opacity-100 [&.visible]:translate-x-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:translate-x-[10px] lg:hover:!translate-x-[10px] lg:flex-row flex-col items-center text-center lg:text-left"
+              className="flex items-center gap-5 py-[1rem] px-[1rem] rounded-[10px] border border-transparent transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] bg-transparent opacity-0 -translate-x-[60px] [&.visible]:opacity-100 [&.visible]:translate-x-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:translate-x-[10px] lg:hover:!translate-x-[10px] lg:flex-row flex-col items-center text-center lg:text-left"
               data-delay="0" 
               ref={(el) => { featuresRef.current[0] = el; }}
             >
@@ -62,7 +63,7 @@ export default function WhyChooseUs() {
             </div>
 
             <div 
-              className="flex items-center gap-5 py-[0.1rem] px-[0.1rem] rounded-[10px] border border-transparent transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] bg-transparent opacity-0 -translate-x-[60px] [&.visible]:opacity-100 [&.visible]:translate-x-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:translate-x-[10px] lg:hover:!translate-x-[10px] lg:flex-row flex-col items-center text-center lg:text-left"
+              className="flex items-center gap-5 py-[1rem] px-[1rem] rounded-[10px] border border-transparent transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] bg-transparent opacity-0 -translate-x-[60px] [&.visible]:opacity-100 [&.visible]:translate-x-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:translate-x-[10px] lg:hover:!translate-x-[10px] lg:flex-row flex-col items-center text-center lg:text-left"
               data-delay="100" 
               ref={(el) => { featuresRef.current[1] = el; }}
             >
@@ -76,7 +77,7 @@ export default function WhyChooseUs() {
             </div>
 
             <div 
-              className="flex items-center gap-5 py-[0.1rem] px-[0.1rem] rounded-[10px] border border-transparent transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] bg-transparent opacity-0 -translate-x-[60px] [&.visible]:opacity-100 [&.visible]:translate-x-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:translate-x-[10px] lg:hover:!translate-x-[10px] lg:flex-row flex-col items-center text-center lg:text-left"
+              className="flex items-center gap-5 py-[1rem] px-[1rem] rounded-[10px] border border-transparent transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] bg-transparent opacity-0 -translate-x-[60px] [&.visible]:opacity-100 [&.visible]:translate-x-0 hover:border-[#2a2a2a] hover:bg-[#0a0a0a] hover:translate-x-[10px] lg:hover:!translate-x-[10px] lg:flex-row flex-col items-center text-center lg:text-left"
               data-delay="200" 
               ref={(el) => { featuresRef.current[2] = el; }}
             >
