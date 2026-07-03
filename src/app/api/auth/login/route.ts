@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
@@ -51,31 +50,46 @@ export async function POST(request: Request) {
     rateLimiter.reset(ip)
 
     // JWT (your custom tokens if needed)
-    const accessToken = generateAccessToken({
+    const accessToken = await generateAccessToken({
       userId: user.id,
       email: user.email!,
     })
 
-    const refreshToken = generateRefreshToken({
+    const refreshToken = await generateRefreshToken({
       userId: user.id,
       email: user.email!,
     })
 
-    // cookies
-    const cookieStore = await cookies()
+    const { data: userRecord } = await supabaseAdmin()
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
 
-    cookieStore.set('token', accessToken, {
+    const response = NextResponse.json(
+      {
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          email: user.email,
+          role: userRecord?.role || 'USER',
+        },
+      },
+      { status: 200 }
+    )
+
+    response.cookies.set('token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 15 * 60,
       path: '/',
     })
 
-    cookieStore.set('refreshToken', refreshToken, {
+    response.cookies.set('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60,
       path: '/',
     })
@@ -92,23 +106,7 @@ export async function POST(request: Request) {
       console.error('Failed to create notification:', notificationError);
     }
 
-    const { data: userRecord } = await supabaseAdmin()
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    return NextResponse.json(
-      {
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          email: user.email,
-          role: userRecord?.role || 'USER',
-        },
-      },
-      { status: 200 }
-    )
+    return response
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

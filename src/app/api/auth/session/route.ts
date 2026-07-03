@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 
@@ -26,35 +25,17 @@ export async function POST(request: Request) {
 
     const user = data.user
 
-    const accessToken = generateAccessToken({
+    const accessToken = await generateAccessToken({
       userId: user.id,
       email: user.email!,
     })
 
-    const refreshToken = generateRefreshToken({
+    const refreshToken = await generateRefreshToken({
       userId: user.id,
       email: user.email!,
     })
 
-    const cookieStore = await cookies()
-
-    cookieStore.set('token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60,
-      path: '/',
-    })
-
-    cookieStore.set('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/',
-    })
-
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         message: 'Session created',
         user: {
@@ -64,6 +45,24 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     )
+
+    response.cookies.set('token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60,
+      path: '/',
+    })
+
+    response.cookies.set('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/',
+    })
+
+    return response
   } catch (error) {
     console.error('Session creation error:', error)
     return NextResponse.json(

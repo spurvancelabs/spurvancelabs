@@ -3,7 +3,7 @@ import { z, ZodError } from 'zod'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { generateAccessToken, generateRefreshToken, verifyToken } from '@/lib/auth'
+import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
 import { NotificationTrigger } from '@/lib/notification/trigger'
 
