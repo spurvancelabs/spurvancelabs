@@ -7,6 +7,7 @@ import InternshipListings from '@/components/landing/Internships/InternshipListi
 import InternshipBenefits from '@/components/landing/Internships/InternshipBenefits';
 import '../../../global.css';
 import GetStarted from '@/components/landing/Internships/GetStarted';
+import InternshipPricing from '@/components/landing/Internships/InternshipPricing';
 
 export default function InternshipsPage() {
   return (
@@ -15,9 +16,12 @@ export default function InternshipsPage() {
       <section className="w-full">
         <InternshipHero />
       </section>
-      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16" id="internship-listings">
         <InternshipListings />
       </section>
+        <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-20" >
+               <InternshipPricing/>
+            </section>
       <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
         <InternshipBenefits />
       </section>
