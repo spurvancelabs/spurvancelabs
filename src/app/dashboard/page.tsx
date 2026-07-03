@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const decoded = verifyToken(token);
+  const decoded = await verifyToken(token);
   const userId = decoded?.userId ?? null;
 
   if (!userId) {

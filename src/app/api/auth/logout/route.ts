@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     
     if (token) {
       try {
-        const decoded = verifyToken(token)
+        const decoded = await verifyToken(token)
         if (decoded?.userId) {
           await supabaseAdmin().auth.admin.updateUserById(decoded.userId, {
             user_metadata: {

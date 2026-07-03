@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   const token = req.cookies.get("token")?.value;
-  const payload = token ? verifyToken(token) : null;
+  const payload = token ? await verifyToken(token) : null;
 
   const isProtected =
     req.nextUrl.pathname.startsWith("/dashboard") ||

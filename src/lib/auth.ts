@@ -1,6 +1,6 @@
-import jwt from "jsonwebtoken";
+import { SignJWT, jwtVerify } from 'jose';
 
-export function getJwtSecret(): string {
+export function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("JWT_SECRET environment variable is not set");
@@ -8,25 +8,33 @@ export function getJwtSecret(): string {
   if (secret.length < 32) {
     throw new Error("JWT_SECRET must be least 32 characters long");
   }
-  return secret;
+  return new TextEncoder().encode(secret);
 }
 
 export const ACCESS_TOKEN_EXPIRATION = "15m";
 export const REFRESH_TOKEN_EXPIRATION = "7d";
 
-export function verifyToken(token: string) {
+export async function verifyToken(token: string) {
   try {
-    return jwt.verify(token, getJwtSecret()) as { userId: string; email: string };
-  } catch (error) {
+    const { payload } = await jwtVerify(token, getJwtSecret());
+    return payload as unknown as { userId: string; email: string };
+  } catch {
     return null;
   }
 }
 
-
-export function generateAccessToken(payload: { userId: string; email: string }) {
-  return jwt.sign(payload, getJwtSecret(), { expiresIn: ACCESS_TOKEN_EXPIRATION });
+export async function generateAccessToken(payload: { userId: string; email: string }) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(ACCESS_TOKEN_EXPIRATION)
+    .sign(getJwtSecret());
 }
 
-export function generateRefreshToken(payload: { userId: string; email: string }) {
-  return jwt.sign(payload, getJwtSecret(), { expiresIn: REFRESH_TOKEN_EXPIRATION });
+export async function generateRefreshToken(payload: { userId: string; email: string }) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(REFRESH_TOKEN_EXPIRATION)
+    .sign(getJwtSecret());
 }
