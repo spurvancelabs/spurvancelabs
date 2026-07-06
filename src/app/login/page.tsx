@@ -55,7 +55,7 @@ const handleSubmit = (e: React.FormEvent) => {
         <LoginSignupSwitcher />
 
         {/* Login Form */}
-        <div className="flex flex-1 flex-col items-center justify-center   max-sm:mt-25 sm:gap-4 sm:px-6 sm:py-8 md:gap-5 md:px-8">
+        <div className="flex flex-1 flex-col items-center justify-center   max-sm:mt-25  sm:px-6 sm:py-8 md:gap-5 md:px-8">
           <div className="text-center max-sm:px-2">
             <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">Login to your account</h1>
             <p className="mt-1 text-[10px] text-gray-300 sm:mt-2 sm:text-xs md:text-sm">Enter your detail to login</p>
@@ -144,7 +144,7 @@ const handleSubmit = (e: React.FormEvent) => {
           </form>
           
         </div>
- <div className="absolute bottom-0 max-sm:-bottom-100  0 flex w-full items-center justify-between px-5 py-3 text-[9px] font-semibold text-gray-400 sm:px-6 sm:py-4 sm:text-[10px] md:px-8 md:text-xs mt-5">
+ <div className="absolute bottom-0 max-sm:-bottom-145 0 flex w-full items-center justify-between px-5 py-3 text-[9px] font-semibold text-gray-400 sm:px-6 sm:py-4 sm:text-[10px] md:px-8 md:text-xs mt-5">
           <span>© 2026 Spurvancelab</span>
           <LanguageSelector />
         </div>

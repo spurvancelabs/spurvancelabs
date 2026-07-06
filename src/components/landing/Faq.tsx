@@ -7,37 +7,37 @@ const faqData = [
     id: 1,
     number: '01',
     question: 'What services do you offer?',
-    answer: 'We offer a comprehensive range of digital services including web development, mobile app development, UI/UX design, cloud solutions, AI & machine learning, cybersecurity, and data analytics. Our team specializes in creating custom solutions tailored to your specific business needs.',
+    answer: 'We offer end-to-end custom software development services for startups, including web development, mobile app development, cloud solutions, AI software development, cybersecurity, and data analytics — all under one team.',
   },
   {
     id: 2,
     number: '02',
     question: 'How long does a typical project take?',
-    answer: 'Project timelines vary depending on complexity and scope. A simple website can take 4-6 weeks, while a complex web application or mobile app may take 3-6 months. We work with you to establish clear milestones and timelines during the planning phase.',
+    answer: 'Timelines depend on scope. A focused MVP typically takes 8–12 weeks; larger projects with multiple integrations can run 4–6 months. Our custom software development process for startups includes a detailed timeline after discovery.',
   },
   {
     id: 3,
     number: '03',
     question: 'What is your development process?',
-    answer: 'Our development process follows six key phases: Discovery & Research, Planning & Strategy, Design & Prototyping, Development & Coding, Testing & QA, and Deployment & Launch. We use agile methodology to ensure transparency and flexibility throughout the project.',
+    answer: 'We follow a proven software development process for startups — discovery and research, planning and strategy, design and development, and deployment and launch — with regular check-ins along the way',
   },
   {
     id: 4,
     number: '04',
     question: 'Do you provide ongoing support?',
-    answer: 'Yes, we offer comprehensive ongoing support and maintenance packages. This includes bug fixes, security updates, performance optimization, and feature enhancements. Our support team is available 24/7 to ensure your systems run smoothly.',
+    answer: 'Yes. Every engagement includes our post-launch software support services, with ongoing maintenance and monitoring plans available for long-term partnerships.',
   },
   {
     id: 5,
     number: '05',
     question: 'How much does it cost?',
-    answer: 'Costs vary based on project requirements, complexity, and scope. We provide transparent pricing with detailed quotes after understanding your needs. We offer flexible payment plans and can work within your budget to deliver the best possible solution.',
+    answer: 'Custom software development cost for startups depends on scope, complexity, and timeline. We provide a detailed quote after understanding your specific requirements during discovery.',
   },
   {
     id: 6,
     number: '06',
     question: 'Can you work with our existing team?',
-    answer: 'Absolutely! We collaborate seamlessly with in-house teams. Whether you need full project delivery, team augmentation, or specific expertise, we integrate with your existing workflows and tools to ensure smooth collaboration.',
+    answer: 'Yes. We regularly work as an outsourced software development team for startups, either augmenting capacity or owning specific modules such as mobile app development or cloud infrastructure.',
   },
 ];
 

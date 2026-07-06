@@ -1,4 +1,4 @@
-const SIGNUPS_CLOSED = true
+const SIGNUPS_CLOSED = false
 const CLOSED_TITLE = 'Registrations Closed'
 const CLOSED_DESCRIPTION = 'No more signups are expected at this time. Please check back later.'
 
