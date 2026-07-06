@@ -115,8 +115,7 @@ export default function Contact() {
           Let's <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">connect</span>
         </h2>
         <p className="text-[#666] text-[0.85rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
-          Have a project in mind? Let's discuss how we can bring your vision to life
-        </p>
+Have a project in mind? Our software development company for remote teams is ready to bring your vision to life        </p>
       </div>
 
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6 sm:gap-12 items-start">

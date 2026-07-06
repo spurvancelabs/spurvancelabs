@@ -158,7 +158,7 @@ function Interective() {
             See it in <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">action</span>
           </h2>
           <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
-            Explore our platform&apos;s key features through this interactive demo
+           A sample of the custom dashboards and business intelligence and data analytics consulting work we deliver for clients
           </p>
         </div>
 
@@ -200,7 +200,7 @@ function Interective() {
             ))}
           </div>
 
-          <div className="p-3 sm:p-4 overflow-hidden lg:max-h-[600px] relative min-h-[400px]">
+          <div className="p-3 sm:p-4 overflow-hidden lg:max-h-[700px] relative min-h-[700px]">
             {tabs.map((tabName) => (
               <div 
                 key={tabName}
