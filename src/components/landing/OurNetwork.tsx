@@ -62,8 +62,7 @@ function OurNetwork() {
               Connected <span className="bg-gradient-to-br from-[#7c3aed] to-[#22d3ee] bg-clip-text text-transparent">ecosystem</span>
             </h2>
             <p className="text-[#666] text-sm xs:text-base sm:text-lg md:text-[1.05rem] leading-[1.6] sm:leading-[1.7] md:leading-[1.8] mb-6 sm:mb-7 md:mb-8 max-w-full lg:max-w-[450px] mx-auto lg:mx-0 px-2 sm:px-0">
-              Our infrastructure spans across multiple platforms and technologies, creating a seamless experience for your business.
-            </p>
+Our full-stack software development services for startups span across multiple platforms and technologies, creating a seamless experience for your business.            </p>
             
             <div className="flex flex-col gap-3 sm:gap-4 md:gap-5 max-w-full lg:max-w-[500px] mx-auto lg:mx-0">
               {/* Feature 1 */}

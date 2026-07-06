@@ -48,8 +48,7 @@ export default function Cta() {
             Ready to build something <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">amazing</span>?
           </h2>
           <p className="text-[#666] text-[1.15rem] font-light max-w-[550px] mx-auto mb-8 leading-[1.8] sm:text-[1rem] max-sm:text-[0.9rem]">
-            Let's collaborate and turn your vision into reality. We're here to help you succeed.
-          </p>
+Let's collaborate and turn your vision into reality — our software development company for remote teams and startups is here to help you succeed.          </p>
           
           <div className="flex justify-center items-center gap-4 flex-wrap mb-12 flex-col sm:flex-row w-full sm:w-auto">
             <Link

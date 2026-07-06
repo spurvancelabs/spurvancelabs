@@ -70,8 +70,8 @@ const mutation = useMutation({
       <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
         {/* Left Section - Black */}
         <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
-          {/* Header */}
           <LoginSignupSwitcher />
+          {/* Header */}
 
           {/* Signup Form */}
           <div className="flex flex-1 flex-col items-center justify-center  sm:gap-4 sm:px-6 sm:py-8 md:gap-5 md:px-8">
@@ -180,14 +180,12 @@ const mutation = useMutation({
               </button>
             </form>
 
-
-          </div>
-
-         <div className="absolute bottom-0 max-sm:-bottom-100  0 flex w-full items-center justify-between px-5 py-3 text-[9px] font-semibold text-gray-400 sm:px-6 sm:py-4 sm:text-[10px] md:px-8 md:text-xs mt-5">
+         <div className="absolute bottom-0 max-sm:-bottom-100 mt-20 flex w-full items-center justify-between px-5 py-3 text-[9px] font-semibold text-gray-400 sm:px-6 sm:py-4 sm:text-[10px] md:px-8 md:text-xs">
                   <span>© 2026 Spurvancelab</span>
                   <LanguageSelector />
                 </div>
-               
+
+          </div>
               </div>
 
         {/* Right Section - White with Gradients (IDENTICAL to login page) */}

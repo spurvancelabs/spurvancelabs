@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 function ProductHero() {
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden mt-10">
-      <div className="relative z-10 max-w-6xl mx-auto px-8">
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
+      <div className="relative z-10 max-w-6xl mx-auto px-8 mt-20">
         <div className="text-center mb-16">
           <span className="inline-block bg-[#1a1a1a] text-[#888] text-[0.75rem] uppercase tracking-[0.1em] px-5 py-[0.3rem] rounded-[20px] mb-5 border border-[#2a2a2a]">
             Our Products

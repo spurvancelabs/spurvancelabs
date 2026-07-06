@@ -2,7 +2,7 @@ import React from 'react'
 
 function AIServices() {
   return (
-    <div className='w-full overflow-x-hidden px-4 sm:px-0 ml-20'>
+    <div className='w-full overflow-x-hidden px-4 sm:px-0 '>
         <div className='ml-4 sm:ml-10 mt-5 p-4 sm:p-10 flex  flex-col lg:flex-row gap-6 justify-center items-center w-full max-w-[1200px] mx-auto h-auto lg:h-[450px] bg-gradient-to-br from-black via-gray-900 to-black border er-white/20 rounded-2xl'>
             <div className='flex-1 h-full flex mt-10 md:mt-20'>
                 <div className=' p-4 md:p-5'>
