@@ -1,37 +1,38 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
 const services = [
   {
     icon: 'https://img.icons8.com/3d-fluency/94/programming.png',
     title: 'Web Development',
-    description: 'Custom websites, web applications, and responsive designs built with modern technologies.',
+    description: 'Custom websites, web applications, and responsive designs built with modern technologies. As a custom web application development company, we help startups and remote teams launch fast, scalable products',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/smartphone.png',
     title: 'Mobile Apps',
-    description: 'Native and cross-platform mobile applications for iOS and Android with seamless UX.',
+    description: 'Native and cross-platform mobile applications for iOS and Android with seamless UXAs a cross-platform mobile app development company, we help startups and remote teams bring ideas to the App Store and Play Store faster.',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/cloud.png',
     title: 'Cloud Solutions',
-    description: 'Scalable cloud infrastructure, migration services, and DevOps implementation.',
+    description: 'Scalable cloud infrastructure, migration services, and DevOps implementation. Our cloud migration and DevOps services give startups and remote teams the infrastructure to scale without slowing down',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/robot.png',
     title: 'AI & Machine Learning',
-    description: 'Intelligent automation, predictive analytics, and custom ML models for your data.',
+    description: 'Intelligent automation, predictive analytics, and custom ML models for your data. Our custom AI software development for startups turns raw data into real product features.',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/shield.png',
     title: 'Cybersecurity',
-    description: 'Comprehensive security audits, penetration testing, and compliance solutions.',
+    description: 'Comprehensive security audits, penetration testing, and compliance solutions. Our secure software development and code audit services keep startups and remote teams protected as they scale',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/analytics.png',
     title: 'Data Analytics',
-    description: 'Business intelligence, data visualization, and actionable insights from your data.',
+    description: 'Business intelligence, data visualization, and actionable insights from your data. Our business intelligence and data analytics consulting turns scattered information into clear, actionable decisions for growing teams',
   },
 ];
 
@@ -90,12 +91,12 @@ export default function Services() {
             <p className="text-[#666] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] mb-5 max-w-[280px]">
               {service.description}
             </p>
-            <a 
-              href="#" 
+            <Link
+              href="/services" 
               className="text-[#888] text-[0.85rem] font-medium no-underline transition-[0.3s_ease] inline-flex items-center gap-[0.3rem] border-b border-transparent pb-[2px] hover:text-white hover:border-b-white hover:gap-[0.6rem]"
             >
               Learn More →
-            </a>
+            </Link>
           </div>
         ))}
       </div>

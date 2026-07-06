@@ -190,7 +190,7 @@ export default function CaseStudies() {
           Success <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">stories</span>
         </h2>
         <p className="text-[#666] text-sm sm:text-base md:text-lg font-light max-w-[500px] mx-auto px-4">
-          Real results from real clients who trusted us with their vision
+         Real results from our custom software development case studies — see how we've helped clients like you
         </p>
       </div>
 
