@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 
 const internshipPrograms = [
@@ -193,9 +194,9 @@ export default function InternshipPricing() {
                   </div>
 
                        {isActive && (
-                      <button className="w-full py-2 max-sm:py-2 rounded-xl font-medium transition-all duration-300 max-sm:text-sm bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
+                      <Link href="#internship-listings" className="w-full text-center py-2 max-sm:py-2 rounded-xl font-medium transition-all duration-300 max-sm:text-sm bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
                         Apply Now
-                      </button>
+                      </Link>
                     )}
                   </div>
               );

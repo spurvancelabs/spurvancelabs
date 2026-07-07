@@ -4,7 +4,6 @@ import HeroService from '@/components/landing/Services/HeroService'
 import Header from '@/components/landing/Header'
 import Footer from '@/components/landing/Footer'
 import AIServices from '@/components/landing/Services/AIServices'
-import InternshipPricing from '@/components/landing/Services/InternshipPricing'
 import ServiceGrid from '@/components/landing/Services/ServiceGrid'
 import ServiceProcess from '@/components/landing/Services/ServiceProcess'
 import GetStarted from '@/components/landing/Internships/GetStarted'
@@ -22,9 +21,7 @@ function ServicePage() {
       <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
     <AIServices/>
       </section>
-      <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-20">
-         <InternshipPricing/>
-      </section>
+    
       <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 mb-20">
        <GetStarted/>
       </section>

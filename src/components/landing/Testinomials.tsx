@@ -124,8 +124,7 @@ export default function Testimonials() {
           What our <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">clients say</span>
         </h2>
         <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
-          Real feedback from real people who trusted us with their vision
-        </p>
+Real software development company client testimonials from people who trusted us with their vision        </p>
       </div>
 
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

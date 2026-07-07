@@ -83,10 +83,10 @@ export default function Process() {
     <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
       <div className="text-center mb-10 sm:mb-16">
         <h2 className="text-white text-[2rem] sm:text-[2.4rem] md:text-[2.8rem] font-bold tracking-[-0.03em] mb-2">
-          Our <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent">development process</span>
+          Our <span className="bg-gradient-to-br from-[#f0f0f0] to-[#888] bg-clip-text text-transparent">Software Development Process</span>
         </h2>
         <p className="text-[#666] text-[0.9rem] sm:text-[1.05rem] font-light max-w-[500px] mx-auto">
-          A streamlined approach to turn your ideas into reality
+         Our proven software development process turns your ideas into reality — from discovery to launch.
         </p>
       </div>
 
