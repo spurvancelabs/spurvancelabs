@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: 'Validation failed',
-          issues: z.flattenError(error).fieldErrors,
+          issues: error.flatten().fieldErrors,
         },
         { status: 400 }
       )
