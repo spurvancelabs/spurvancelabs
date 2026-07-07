@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { rateLimiter } from '@/lib/rate-limit'
 import { supabase } from '@/lib/supabase'
+import { ROLES } from '@/lib/lms/roles'
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
       options: {
         data: {
           name,
-          role: 'USER',
+          role: ROLES.USER,
         },
 emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/verify-email`,
       },
