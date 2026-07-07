@@ -1,39 +1,49 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-
   const token = req.cookies.get("token")?.value;
   const payload = token ? await verifyToken(token) : null;
 
-  const isProtected =
-    req.nextUrl.pathname.startsWith("/dashboard") ||
-    req.nextUrl.pathname.startsWith("/profile") ||
-    req.nextUrl.pathname.startsWith("/admin");
+  // ─── LMS pages: 404 if not authenticated ─────────────────
+  const lmsAuthRoutes = [
+    "/lms/my-courses",
+    "/lms/learn",
+    "/lms/wishlist",
+    "/lms/certificates",
+    "/lms/profile",
+    "/lms/instructor",
+    "/lms/admin",
+  ];
 
-  const isAuthPage =
-    req.nextUrl.pathname.startsWith("/login") ||
-    req.nextUrl.pathname.startsWith("/signup");
+  if (lmsAuthRoutes.some((p) => req.nextUrl.pathname.startsWith(p)) && !payload) {
+    return new NextResponse(null, { status: 404, statusText: "Not Found" });
+  }
 
-  const isVerifyPage = req.nextUrl.pathname.startsWith("/verify-email");
+  // ─── General app pages: redirect to login if not authenticated ──
+  const generalProtected = [
+    "/dashboard",
+    "/profile",
+    "/admin",
+  ];
 
-  if (isProtected && !payload) {
+  if (generalProtected.some((p) => req.nextUrl.pathname.startsWith(p)) && !payload) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (isAuthPage && payload) {
+  // ─── Auth pages: redirect to dashboard if already logged in ──
+  const authPages = ["/login", "/signup"];
+  if (authPages.some((p) => req.nextUrl.pathname.startsWith(p)) && payload) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (isVerifyPage && payload) {
+  // ─── Verify email page: redirect if already logged in ──
+  if (req.nextUrl.pathname.startsWith("/verify-email") && payload) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {
@@ -41,6 +51,13 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*",
     "/admin/:path*",
+    "/lms/admin/:path*",
+    "/lms/instructor/:path*",
+    "/lms/my-courses",
+    "/lms/learn/:path*",
+    "/lms/wishlist",
+    "/lms/certificates",
+    "/lms/profile",
     "/login",
     "/signup",
     "/verify-email",
