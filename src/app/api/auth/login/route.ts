@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
 import { NotificationTrigger } from '@/lib/notification/trigger'
+import { ROLES } from '@/lib/lms/roles'
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
         user: {
           id: user.id,
           email: user.email,
-          role: userRecord?.role || 'USER',
+          role: userRecord?.role || ROLES.USER,
         },
       },
       { status: 200 }
