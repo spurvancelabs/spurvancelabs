@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 const projects = [
@@ -42,12 +43,13 @@ const projects = [
 ];
 
 export default function Portfolio() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(Math.ceil(3.5) - 1);
   const [visibleSlides, setVisibleSlides] = useState(3.5);
-  const [noTransition, setNoTransition] = useState(false);
+  const [noTransition, setNoTransition] = useState(false);    
   const [step, setStep] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const wrapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const getVisibleSlides = () => {
     if (window.innerWidth > 1024) return 3.5;
@@ -58,7 +60,8 @@ export default function Portfolio() {
 
   const totalSlides = projects.length;
   const cloneCount = Math.ceil(visibleSlides);
-  const extendedProjects = [...projects, ...projects.slice(0, cloneCount)];
+  const offset = cloneCount;
+  const extendedProjects = [...projects.slice(-cloneCount), ...projects, ...projects.slice(0, cloneCount)];
 
   useEffect(() => {
     const handleResize = () => {
@@ -87,32 +90,40 @@ export default function Portfolio() {
   }, [visibleSlides, updateStep]);
 
   const nextSlide = useCallback(() => {
+    if (wrapTimeoutRef.current) clearTimeout(wrapTimeoutRef.current);
     setCurrentIndex(prev => {
       const next = prev + 1;
-      if (next >= totalSlides) {
-        setTimeout(() => {
+      if (next >= offset + totalSlides) {
+        wrapTimeoutRef.current = setTimeout(() => {
           setNoTransition(true);
-          setCurrentIndex(0);
+          requestAnimationFrame(() => {
+            setCurrentIndex(offset);
+            setTimeout(() => {
+              setNoTransition(false);
+            }, 20);
+          });
         }, 800);
         return next;
       }
       return next;
     });
-  }, [totalSlides]);
+  }, [totalSlides, offset]);
 
   const prevSlide = useCallback(() => {
+    if (wrapTimeoutRef.current) clearTimeout(wrapTimeoutRef.current);
     setCurrentIndex(prev => {
       if (prev <= 0) {
+        const jumpTo = offset + totalSlides - cloneCount + prev;
         setNoTransition(true);
         setTimeout(() => {
           setNoTransition(false);
-          setCurrentIndex(totalSlides - 1);
-        }, 50);
-        return totalSlides;
+          setCurrentIndex(jumpTo - 1);
+        }, 20);
+        return jumpTo;
       }
       return prev - 1;
     });
-  }, [totalSlides]);
+  }, [totalSlides, offset, cloneCount]);
 
   const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
@@ -128,7 +139,7 @@ export default function Portfolio() {
 
   const resetAutoPlay = useCallback(() => {
     stopAutoPlay();
-    setTimeout(startAutoPlay, 3000);
+    startAutoPlay();
   }, [startAutoPlay, stopAutoPlay]);
 
   useEffect(() => {
@@ -136,55 +147,49 @@ export default function Portfolio() {
     return () => stopAutoPlay();
   }, [currentIndex, startAutoPlay, stopAutoPlay]);
 
-  useEffect(() => {
-    if (noTransition) {
-      requestAnimationFrame(() => {
-        setNoTransition(false);
-      });
-    }
-  }, [noTransition]);
-
   return (
-    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
+    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 ">
       <div className="text-center mb-12">
         <h2 className="text-white text-[2rem] sm:text-[2.6rem] md:text-[3.2rem] font-bold tracking-[-0.03em] mb-2">
           Featured <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">projects</span>
         </h2>
         <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto tracking-[0.02em]">
-          Handcrafted digital experiences that deliver results
-        </p>
+Handcrafted digital experiences — explore our custom software development portfolio</p>
       </div>
 
-      <div className="relative max-w-[1200px] mx-auto overflow-hidden px-10 md:px-[40px]">
+      <div className="relative max-w-[1200px] mx-auto px-10 md:px-[40px]">
         <div 
-          className={`flex gap-6 ${noTransition ? '' : 'transition-transform duration-[0.8s] ease-[cubic-bezier(0.25,0.46,0.45,0.94)]'}`}
+          className="flex gap-6"
           ref={trackRef}
-          style={{ transform: step ? `translateX(-${currentIndex * step}px)` : 'none' }}
+          style={{ 
+            transform: step ? `translateX(-${currentIndex * step}px)` : 'none',
+            transition: noTransition ? 'none' : 'transform 0.8s cubic-bezier(0.25,0.46,0.45,0.94)'
+          }}
         >
           {extendedProjects.map((project, index) => (
             <div key={`${project.id}-${index}`} className="shrink-0 px-[5px]" style={{ minWidth: `${100 / visibleSlides}%` }}>
               <div className="group bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl overflow-hidden transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] relative h-[450px] md:h-[400px] sm:h-[350px] max-sm:h-[300px] hover:border-[#2a2a2a] hover:shadow-[0_30px_60px_rgba(0,0,0,0.6)] hover:-translate-y-2">
                 <div className="absolute -top-px -left-px -right-px -bottom-px rounded-2xl bg-gradient-to-br from-transparent via-transparent to-[rgba(255,255,255,0.03)] z-0 pointer-events-none"></div>
-                <div className="relative w-full h-full overflow-hidden bg-[#1a1a1a]">
+                <div className="relative w-full h-full  bg-[#1a1a1a]">
                   <img 
                     src={project.image} 
                     alt={project.title} 
                     className="w-full h-full object-cover transition-[0.7s_cubic-bezier(0.25,0.46,0.45,0.94)] group-hover:scale-[1.08]"
                   />
-                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-end justify-center opacity-0 transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] p-8 group-hover:opacity-100">
+                  <div className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex items-end justify-center opacity-0 transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] p-8 group-hover:opacity-100 max-sm:opacity-100 md:opacity-100   ">
                     <div className="text-center translate-y-[30px] transition-[0.5s_cubic-bezier(0.25,0.46,0.45,0.94)] w-full group-hover:translate-y-0">
-                      <span className="inline-block text-[#888] text-[0.6rem] uppercase tracking-[0.15em] bg-black/80 px-4 py-[0.25rem] rounded-[20px] border border-white/5 backdrop-blur-[10px] mb-[0.6rem]">
+                      <span className="inline-block text-[#888] text-[0.6rem] uppercase tracking-[0.15em] bg-black/80 px-4 py-[0.25rem] rounded-[20px] border border-white/5 backdrop-blur-[10px] mb-[0.6rem] ">
                         {project.category}
                       </span>
                       <h3 className="text-white text-[1.1rem] sm:text-[1.4rem] font-semibold mb-3 tracking-[-0.02em] max-sm:text-[1rem]">
                         {project.title}
                       </h3>
-                      <a 
-                        href="#" 
-                        className="inline-flex items-center gap-[0.4rem] sm:gap-[0.6rem] text-white text-[0.75rem] sm:text-[0.85rem] font-medium no-underline px-4 sm:px-6 py-1.5 sm:py-2 border border-white/15 rounded-[30px] transition-[0.4s_ease] tracking-[0.02em] bg-white/5 backdrop-blur-[10px] hover:bg-white/10 hover:border-white/30 hover:gap-4"
+                      <Link
+                        href="/products" 
+                        className="inline-flex items-center gap-[0.4rem] md:mb-5 max-sm:mb-5 sm:gap-[0.6rem] text-white text-[0.75rem] sm:text-[0.85rem] font-medium no-underline px-4 sm:px-6 py-1.5 sm:py-2 border border-white/15 rounded-[30px] transition-[0.4s_ease] tracking-[0.02em] bg-white/5 backdrop-blur-[10px] hover:bg-white/10 hover:border-white/30 hover:gap-4"
                       >
                         View Project <i className="fas fa-arrow-right text-[0.7rem] transition-[0.3s_ease] group-hover:translate-x-1"></i>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

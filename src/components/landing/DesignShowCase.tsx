@@ -12,8 +12,7 @@ function DesignShowCase() {
             Where <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">vision</span> meets <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">craft</span>
           </h2>
           <p className="text-[#666] text-[0.9rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
-            From wireframes to polished interfaces — our design process in action
-          </p>
+From wireframes to polished interfaces — see our UI/UX design services for startups in action          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-[500px] md:max-w-none mx-auto md:mx-0">

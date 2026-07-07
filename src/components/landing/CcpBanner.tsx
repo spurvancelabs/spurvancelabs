@@ -56,7 +56,7 @@ export default function CcpBanner() {
             </p>
 
             <a
-              href="https://ccp.spurvancelabs.com/"
+              href="https://cybercommunity.com.pk/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 px-8 py-3 bg-white text-black rounded-full text-[0.95rem] font-semibold no-underline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] group/btn"

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
 export default function Cta() {
@@ -47,25 +48,24 @@ export default function Cta() {
             Ready to build something <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">amazing</span>?
           </h2>
           <p className="text-[#666] text-[1.15rem] font-light max-w-[550px] mx-auto mb-8 leading-[1.8] sm:text-[1rem] max-sm:text-[0.9rem]">
-            Let's collaborate and turn your vision into reality. We're here to help you succeed.
-          </p>
+Let's collaborate and turn your vision into reality — our software development company for remote teams and startups is here to help you succeed.          </p>
           
           <div className="flex justify-center items-center gap-4 flex-wrap mb-12 flex-col sm:flex-row w-full sm:w-auto">
-            <a 
-              href="#" 
+            <Link
+              href="/contact" 
               className="inline-flex items-center gap-3 px-10 py-[0.9rem] bg-white text-black rounded-[50px] text-[1rem] font-semibold no-underline transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] relative overflow-hidden hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(255,255,255,0.15)] hover:gap-5 w-full sm:w-auto justify-center sm:justify-start"
             >
               <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-[0.6s_ease] hover:left-full"></span>
               Start Your Project
               <i className="fas fa-arrow-right text-[0.9rem] transition-[0.3s_ease] hover:translate-x-1"></i>
-            </a>
-            <a 
-              href="#" 
+            </Link>
+            <Link 
+              href="/contact" 
               className="inline-flex items-center gap-[0.6rem] px-8 py-[0.9rem] bg-transparent text-white border border-[#2a2a2a] rounded-[50px] text-[1rem] font-medium no-underline transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] hover:bg-[#1a1a1a] hover:border-[#444] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] w-full sm:w-auto justify-center sm:justify-start"
             >
               <i className="fas fa-phone text-[0.9rem]"></i>
               Book a Call
-            </a>
+            </Link>
           </div>
           
           <div className="flex justify-center items-center gap-6 sm:gap-8 pt-8 border-t border-[#1a1a1a] flex-col sm:flex-row">

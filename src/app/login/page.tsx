@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import "../../global.css";
 import LoginSignupSwitcher from "@/components/loginSignupSwitcher";
 import LanguageSelector from "@/components/languageSelector";
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
 const mutation = useMutation({
   mutationFn: loginUser,
@@ -47,14 +48,14 @@ const handleSubmit = (e: React.FormEvent) => {
 };
 
   return (
-    <div className="flex min-h-screen w-full flex-col md:flex-row bg-black">
+    <div className="flex min-h-screen w-full flex-col md:flex-row bg-black ">
       {/* Left Section - Black */}
       <div className="relative z-10 flex w-full flex-col bg-black text-white md:w-1/2 md:min-h-screen">
         {/* Header */}
         <LoginSignupSwitcher />
 
         {/* Login Form */}
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-5 py-6 sm:gap-4 sm:px-6 sm:py-8 md:gap-5 md:px-8">
+        <div className="flex flex-1 flex-col items-center justify-center   max-sm:mt-25  sm:px-6 sm:py-8 md:gap-5 md:px-8">
           <div className="text-center max-sm:px-2">
             <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">Login to your account</h1>
             <p className="mt-1 text-[10px] text-gray-300 sm:mt-2 sm:text-xs md:text-sm">Enter your detail to login</p>
@@ -97,13 +98,24 @@ const handleSubmit = (e: React.FormEvent) => {
               <div className="relative">
                 <LockClosedIcon className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-300 sm:left-3 sm:h-4 sm:w-4 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)]" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-9 w-full rounded-lg border-none bg-[#181818] pl-8 pr-3 text-[10px] text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:h-10 sm:pl-9 sm:text-xs md:h-11 md:pl-10 md:text-sm"
+                  className="h-9 w-full rounded-lg border-none bg-[#181818] pl-8 pr-10 text-[10px] text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:h-10 sm:pl-9 sm:text-xs md:h-11 md:pl-10 md:text-sm"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white cursor-pointer sm:right-3"
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  ) : (
+                    <EyeIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -132,7 +144,7 @@ const handleSubmit = (e: React.FormEvent) => {
           </form>
           
         </div>
- <div className="absolute bottom-0 flex w-full items-center justify-between px-5 py-3 text-[9px] font-semibold text-gray-400 sm:px-6 sm:py-4 sm:text-[10px] md:px-8 md:text-xs mt-5">
+ <div className="absolute bottom-0 max-sm:-bottom-145 0 flex w-full items-center justify-between px-5 py-3 text-[9px] font-semibold text-gray-400 sm:px-6 sm:py-4 sm:text-[10px] md:px-8 md:text-xs mt-5">
           <span>© 2026 Spurvancelab</span>
           <LanguageSelector />
         </div>
