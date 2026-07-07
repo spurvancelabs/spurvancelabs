@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { ROLES } from '@/lib/lms/roles';
 import Sidebar from '@/components/admin/Sidebar';
 import Header from '@/components/admin/Header';
 import "@/global.css";
@@ -29,7 +30,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .eq('id', decoded.userId)
     .single();
 
-  if (user?.role !== 'ADMIN') {
+  if (user?.role !== ROLES.ADMIN) {
     redirect('/dashboard');
   }
 

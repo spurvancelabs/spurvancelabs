@@ -204,6 +204,242 @@ model Interviewer {
   @@map("interviewers")
 }
 
+// ─── LMS Models ─────────────────────────────────────────────
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  courses     Course[]
+
+  @@map("categories")
+  @@schema("public")
+}
+
+model Course {
+  id            String       @id @default(uuid()) @db.Uuid
+  title         String       @db.VarChar(300)
+  slug          String       @unique @db.VarChar(300)
+  description   String?      @db.Text
+  thumbnail     String?      @db.VarChar(500)
+  categoryId    String?      @map("category_id") @db.Uuid
+  level         String?      @db.VarChar(50)
+  duration      Int?
+  instructorId  String       @map("instructor_id") @db.Uuid
+  price         Decimal?     @db.Decimal(10, 2)
+  isFree        Boolean?     @default(false) @map("is_free")
+  status        CourseStatus @default(DRAFT)
+  isComplete    Boolean      @default(false) @map("is_complete")
+  publishedAt   DateTime?    @map("published_at") @db.Timestamptz(6)
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  modules       Module[]
+  enrollments   Enrollment[]
+  certificates  Certificate[]
+  reviews       Review[]
+  wishlists     Wishlist[]
+  instructor    users      @relation("course_instructor", fields: [instructorId], references: [id])
+  category      Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([slug])
+  @@index([status])
+  @@index([instructorId])
+  @@map("courses")
+  @@schema("public")
+}
+
+model Module {
+  id        String   @id @default(uuid()) @db.Uuid
+  courseId   String   @map("course_id") @db.Uuid
+  title     String   @db.VarChar(300)
+  sortOrder Int      @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+
+  @@index([courseId, sortOrder])
+  @@map("modules")
+  @@schema("public")
+}
+
+model Lesson {
+  id          String     @id @default(uuid()) @db.Uuid
+  moduleId     String     @map("module_id") @db.Uuid
+  title       String     @db.VarChar(300)
+  description String?    @db.Text
+  type        LessonType @default(TEXT)
+  content     Json?
+  videoUrl    String?    @map("video_url") @db.VarChar(500)
+  attachments Json?      @default("[]")
+  duration    Int?
+  sortOrder   Int        @map("sort_order")
+  isPublished Boolean    @default(false) @map("is_published")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress    Progress[]
+  quizzes     Quiz[]
+
+  @@index([moduleId, sortOrder])
+  @@map("lessons")
+  @@schema("public")
+}
+
+model Enrollment {
+  id          String           @id @default(uuid()) @db.Uuid
+  courseId      String         @map("course_id") @db.Uuid
+  studentId     String         @map("student_id") @db.Uuid
+  status      EnrollmentStatus @default(ACTIVE)
+  progress    Float            @default(0)
+  enrolledAt  DateTime         @default(now()) @map("enrolled_at")
+  completedAt DateTime?        @map("completed_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student     users            @relation(fields: [studentId], references: [id])
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+  @@index([status])
+  @@map("enrollments")
+  @@schema("public")
+}
+
+model Progress {
+  id          String   @id @default(uuid()) @db.Uuid
+  studentId    String   @map("student_id") @db.Uuid
+  lessonId     String   @map("lesson_id") @db.Uuid
+  completed   Boolean  @default(false)
+  score       Float?
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  student     users    @relation(fields: [studentId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, lessonId])
+  @@index([studentId])
+  @@map("progress")
+  @@schema("public")
+}
+
+model Quiz {
+  id                String   @id @default(uuid()) @db.Uuid
+  lessonId           String   @map("lesson_id") @db.Uuid
+  title             String   @db.VarChar(300)
+  description       String?  @db.Text
+  passingScore      Int      @default(70) @map("passing_score")
+  timeLimit         Int?     @map("time_limit")
+  maxAttempts       Int      @default(1) @map("max_attempts")
+  shuffleQuestions  Boolean  @default(false) @map("shuffle_questions")
+  showResults       Boolean  @default(true) @map("show_results")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  lesson            Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions         Question[]
+  attempts          QuizAttempt[]
+
+  @@index([lessonId])
+  @@map("quizzes")
+  @@schema("public")
+}
+
+model Question {
+  id            String   @id @default(uuid()) @db.Uuid
+  quizId         String   @map("quiz_id") @db.Uuid
+  type          String   @db.VarChar(50)
+  question      String   @db.Text
+  options       Json?    @default("[]")
+  correctAnswer Json     @map("correct_answer")
+  points        Int      @default(1)
+  sortOrder     Int      @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId, sortOrder])
+  @@map("questions")
+  @@schema("public")
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid()) @db.Uuid
+  quizId       String   @map("quiz_id") @db.Uuid
+  studentId    String   @map("student_id") @db.Uuid
+  score       Float?
+  passed      Boolean?
+  answers     Json?    @default("[]")
+  startedAt   DateTime @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  student     users    @relation(fields: [studentId], references: [id])
+
+  @@index([quizId, studentId])
+  @@map("quiz_attempts")
+  @@schema("public")
+}
+
+model Certificate {
+  id              String   @id @default(uuid()) @db.Uuid
+  courseId          String   @map("course_id") @db.Uuid
+  studentId         String   @map("student_id") @db.Uuid
+  certificateUrl   String?  @map("certificate_url") @db.VarChar(500)
+  issuedAt         DateTime @default(now()) @map("issued_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  course           Course   @relation(fields: [courseId], references: [id])
+  student          users    @relation(fields: [studentId], references: [id])
+
+  @@unique([courseId, studentId])
+  @@map("certificates")
+  @@schema("public")
+}
+
+model Review {
+  id        String   @id @default(uuid()) @db.Uuid
+  courseId    String   @map("course_id") @db.Uuid
+  studentId   String   @map("student_id") @db.Uuid
+  rating    Int      @db.SmallInt
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student   users    @relation(fields: [studentId], references: [id])
+
+  @@unique([courseId, studentId])
+  @@index([courseId])
+  @@map("reviews")
+  @@schema("public")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid()) @db.Uuid
+  studentId   String   @map("student_id") @db.Uuid
+  courseId    String   @map("course_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  student   users    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@map("wishlists")
+  @@schema("public")
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model audit_log_entries {
@@ -651,6 +887,13 @@ model users {
   notifications_notifications_sender_idTousers Notification[]          @relation("notifications_sender_idTousers")
   notifications                                Notification[]
   users                                        User?
+  coursesTaught                                Course[]                 @relation("course_instructor")
+  enrollments                                  Enrollment[]
+  progress                                     Progress[]
+  quizAttempts                                 QuizAttempt[]
+  certificates                                 Certificate[]
+  reviews                                      Review[]
+  wishlists                                    Wishlist[]
 
   @@index([created_at(sort: Desc)], map: "idx_users_created_at_desc")
   @@index([email], map: "idx_users_email")
@@ -733,6 +976,31 @@ enum ApplicationStatus {
   SHORTLISTED
   REJECTED
   ACCEPTED
+
+  @@schema("public")
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@schema("public")
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  QUIZ
+  ASSIGNMENT
+
+  @@schema("public")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
 
   @@schema("public")
 }
