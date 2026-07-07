@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 
 export function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET;
