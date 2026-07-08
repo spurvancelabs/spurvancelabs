@@ -29,7 +29,7 @@ export async function GET() {
       take: 10,
     })
 
-    const courseIds = enrollmentsByCourse.map((e: { courseId: string }) => e.courseId)
+    const courseIds = enrollmentsByCourse.map((e: any) => e.courseId)
     const courses = await prisma.course.findMany({
       where: { id: { in: courseIds } },
       select: { id: true, title: true },
