@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { ROLES } from '@/lib/lms/roles'
 
 export async function GET(request: Request) {
   try {
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
           provider: 'google',
           provider_id: googleUser.sub,
           email_verified: true,
+          role: ROLES.USER,
         })
         .select()
         .single()
