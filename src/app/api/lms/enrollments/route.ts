@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
       orderBy: { enrolledAt: 'desc' },
       include: {
         course: { select: { id: true, title: true, slug: true, thumbnail: true } },
-        student: { select: { id: true, email: true } },
       },
     })
     return NextResponse.json(enrollments)

@@ -1,12 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { canCreateContent, canDeleteContent } from '@/lib/lms/permissions';
 
 export default function AdminInterviewersPage() {
   const queryClient = useQueryClient();
   const [newName, setNewName] = useState('');
+  const [myRole, setMyRole] = useState<string>('');
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => r.json()).then(d => { if (d?.role) setMyRole(d.role); }).catch(() => {});
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-interviewers'],
@@ -58,26 +63,28 @@ export default function AdminInterviewersPage() {
         </div>
       </div>
 
-      <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6">
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && newName.trim()) addMutation.mutate(newName.trim()); }}
-            placeholder="Enter interviewer name..."
-            className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
-          />
-          <button
-            onClick={() => { if (newName.trim()) addMutation.mutate(newName.trim()); }}
-            disabled={!newName.trim() || addMutation.isPending}
-            className="bg-blue-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-600 transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>
-            Add Interviewer
-          </button>
+      {canCreateContent(myRole) && (
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6">
+          <div className="flex items-center gap-3">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && newName.trim()) addMutation.mutate(newName.trim()); }}
+              placeholder="Enter interviewer name..."
+              className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500"
+            />
+            <button
+              onClick={() => { if (newName.trim()) addMutation.mutate(newName.trim()); }}
+              disabled={!newName.trim() || addMutation.isPending}
+              className="bg-blue-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-600 transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>
+              Add Interviewer
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
         {isLoading ? (
@@ -107,12 +114,14 @@ export default function AdminInterviewersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end">
-                        <button
-                          onClick={() => deleteMutation.mutate(interviewer.id)}
-                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
+                        {canDeleteContent(myRole) && (
+                          <button
+                            onClick={() => deleteMutation.mutate(interviewer.id)}
+                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

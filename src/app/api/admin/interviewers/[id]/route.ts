@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/lms/utils';
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   try {
     const { id } = await params;
     const supabase = getSupabaseAdminClient();

@@ -7,7 +7,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const course = await prisma.course.findUnique({
       where: { slug },
       include: {
-        instructor: { select: { id: true, email: true } },
         category: { select: { id: true, name: true, slug: true } },
         modules: {
           orderBy: { sortOrder: 'asc' },

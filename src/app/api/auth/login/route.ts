@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { z } from 'zod'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { z, ZodError } from 'zod'
+import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
 import { NotificationTrigger } from '@/lib/notification/trigger'
@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     const { email, password } = loginSchema.parse(body)
 
     // ✅ Supabase login (ONLY AUTH LOGIC)
-    const { data, error } = await supabaseAdmin()
-      .auth.signInWithPassword({
+    const supabase = getSupabaseServerClient()
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -61,9 +61,9 @@ export async function POST(request: Request) {
       email: user.email!,
     })
 
-    const { data: userRecord } = await supabaseAdmin()
+    const { data: userRecord } = await supabase
       .from('users')
-      .select('role')
+      .select('type')
       .eq('id', user.id)
       .single();
 
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         user: {
           id: user.id,
           email: user.email,
-          role: userRecord?.role || ROLES.USER,
+          role: userRecord?.type || ROLES.USER,
         },
       },
       { status: 200 }
@@ -109,9 +109,9 @@ export async function POST(request: Request) {
 
     return response
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
+        { error: 'Validation failed', issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

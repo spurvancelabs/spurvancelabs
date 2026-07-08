@@ -1,10 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ApplicationStatusBadge from '@/components/admin/ApplicationStatusBadge';
+import { canEditContent, canDeleteContent } from '@/lib/lms/permissions';
 
 const statusOptions = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 
@@ -15,6 +17,10 @@ export default function ApplicationDetailPage() {
   const queryClient = useQueryClient();
   const id = params.id as string;
   const type = searchParams.get('type') || 'job';
+  const [myRole, setMyRole] = useState<string>('');
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => r.json()).then(d => { if (d?.role) setMyRole(d.role); }).catch(() => {});
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-application-detail', id, type],
@@ -171,19 +177,23 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={navigateEdit}
-            className="px-4 py-2 text-sm text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-all cursor-pointer flex items-center gap-1.5"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-            Edit
-          </button>
-          <button
-            onClick={() => { if (confirm('Delete this application?')) deleteMutation.mutate(); }}
-            className="px-3 py-2 text-sm text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all cursor-pointer"
-          >
-            Delete
-          </button>
+          {canEditContent(myRole) && (
+            <button
+              onClick={navigateEdit}
+              className="px-4 py-2 text-sm text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              Edit
+            </button>
+          )}
+          {canDeleteContent(myRole) && (
+            <button
+              onClick={() => { if (confirm('Delete this application?')) deleteMutation.mutate(); }}
+              className="px-3 py-2 text-sm text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all cursor-pointer"
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
@@ -304,56 +314,66 @@ export default function ApplicationDetailPage() {
                 <div className="mb-2">
                   <ApplicationStatusBadge status={app.status} />
                 </div>
-                <select
-                  value={app.status}
-                  onChange={(e) => statusMutation.mutate({ status: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
-                >
-                  {statusOptions.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                {canEditContent(myRole) ? (
+                  <select
+                    value={app.status}
+                    onChange={(e) => statusMutation.mutate({ status: e.target.value })}
+                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
+                  >
+                    {statusOptions.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <span className="text-gray-400 text-sm">{app.status}</span>
+                )}
               </div>
 
-              <div className="border-t border-white/[0.06] pt-4">
-                <label className="text-xs text-gray-400 block mb-1.5">Interviewer</label>
-                <select
-                  value={app.interviewer_name || ''}
-                  onChange={(e) => interviewMutation.mutate({ interviewer_name: e.target.value || undefined })}
-                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
-                >
-                  <option value="">—</option>
-                  {interviewers.map((iv: any) => (
-                    <option key={iv.id} value={iv.name}>{iv.name}</option>
-                  ))}
-                </select>
-              </div>
+              {canEditContent(myRole) && (
+                <div className="border-t border-white/[0.06] pt-4">
+                  <label className="text-xs text-gray-400 block mb-1.5">Interviewer</label>
+                  <select
+                    value={app.interviewer_name || ''}
+                    onChange={(e) => interviewMutation.mutate({ interviewer_name: e.target.value || undefined })}
+                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 cursor-pointer"
+                  >
+                    <option value="">—</option>
+                    {interviewers.map((iv: any) => (
+                      <option key={iv.id} value={iv.name}>{iv.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-              <div className="border-t border-white/[0.06] pt-4">
-                <label className="text-xs text-gray-400 block mb-1.5">Schedule Interview Date</label>
-                <input
-                  type="date"
-                  value={app.interview_date ? app.interview_date.split('T')[0] : ''}
-                  onChange={(e) => interviewMutation.mutate({ interview_date: e.target.value || undefined })}
-                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              {canEditContent(myRole) && (
+                <div className="border-t border-white/[0.06] pt-4">
+                  <label className="text-xs text-gray-400 block mb-1.5">Schedule Interview Date</label>
+                  <input
+                    type="date"
+                    value={app.interview_date ? app.interview_date.split('T')[0] : ''}
+                    onChange={(e) => interviewMutation.mutate({ interview_date: e.target.value || undefined })}
+                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              )}
+
+              {canEditContent(myRole) && (
+                <div className="border-t border-white/[0.06] pt-4">
+                  <label className="text-xs text-gray-400 block mb-1.5">Interviewer Feedback</label>
+                  <textarea
+                    rows={3}
+                    defaultValue={app.interviewer_feedback || ''}
+                    placeholder="Enter feedback, rejection reason, or notes..."
+                    onBlur={(e) => {
+                      const val = e.target.value.trim();
+                      if (val !== (app.interviewer_feedback || '')) {
+                        feedbackMutation.mutate({ interviewer_feedback: val });
+                      }
+                    }}
+                    className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
                 />
               </div>
-
-              <div className="border-t border-white/[0.06] pt-4">
-                <label className="text-xs text-gray-400 block mb-1.5">Interviewer Feedback</label>
-                <textarea
-                  rows={3}
-                  defaultValue={app.interviewer_feedback || ''}
-                  placeholder="Enter feedback, rejection reason, or notes..."
-                  onBlur={(e) => {
-                    const val = e.target.value.trim();
-                    if (val !== (app.interviewer_feedback || '')) {
-                      feedbackMutation.mutate({ interviewer_feedback: val });
-                    }
-                  }}
-                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 resize-none"
-                />
-              </div>
+              )}
             </div>
           </div>
 

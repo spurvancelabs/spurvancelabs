@@ -7,6 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import InternshipFormModal from '@/components/admin/InternshipFormModal';
 import ConfirmDeleteModal from '@/components/admin/ConfirmDeleteModal';
+import { canCreateContent, canEditContent, canDeleteContent } from '@/lib/lms/permissions';
 
 export default function AdminInternshipsPage() {
   const queryClient = useQueryClient();
@@ -14,6 +15,10 @@ export default function AdminInternshipsPage() {
   const [showForm, setShowForm] = useState(searchParams.get('add') === 'true');
   const [editingInternship, setEditingInternship] = useState<any>(null);
   const [deletingInternship, setDeletingInternship] = useState<any>(null);
+  const [myRole, setMyRole] = useState<string>('');
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => r.json()).then(d => { if (d?.role) setMyRole(d.role); }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (searchParams.get('add') === 'true') {
@@ -127,13 +132,15 @@ export default function AdminInternshipsPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-white">Internships</h1>
           <p className="text-gray-400 text-sm mt-1">Manage internship listings</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-600 transition-all cursor-pointer w-full sm:w-auto"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>
-          Add Internship
-        </button>
+        {canCreateContent(myRole) && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-600 transition-all cursor-pointer w-full sm:w-auto"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            Add Internship
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -205,18 +212,22 @@ export default function AdminInternshipsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(internship)}
-                          className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all cursor-pointer"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                        </button>
-                        <button
-                          onClick={() => setDeletingInternship(internship)}
-                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
+                        {canEditContent(myRole) && (
+                          <button
+                            onClick={() => handleEdit(internship)}
+                            className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all cursor-pointer"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                          </button>
+                        )}
+                        {canDeleteContent(myRole) && (
+                          <button
+                            onClick={() => setDeletingInternship(internship)}
+                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all cursor-pointer"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
