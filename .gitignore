@@ -49,3 +49,8 @@ next-env.d.ts
 .vscode/
 .idea/
 
+create_tables.cjs
+
+# uploads
+/public/uploads/*
+!/public/uploads/.gitkeep

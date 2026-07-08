@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { ROLES } from '@/lib/lms/roles';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,12 +18,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existing) {
-      if (existing.role === 'ADMIN') {
+      if (existing.role === ROLES.ADMIN) {
         return NextResponse.json({ message: 'Admin user already exists. Login at /login' });
       }
       const { error: updateError } = await supabase
         .from('users')
-        .update({ role: 'ADMIN' })
+        .update({ role: ROLES.ADMIN })
         .eq('id', existing.id);
       if (updateError) throw updateError;
       return NextResponse.json({ message: 'Admin role granted. Login at /login' });
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, role: 'ADMIN' },
+      user_metadata: { name, role: ROLES.ADMIN },
     });
 
     if (createError) throw createError;
