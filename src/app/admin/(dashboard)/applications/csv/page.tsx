@@ -1,10 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { canCreateContent } from '@/lib/lms/permissions';
 
 export default function CsvManagementPage() {
+  const [myRole, setMyRole] = useState<string>('');
+  useEffect(() => {
+    fetch('/api/auth/me').then(r => r.json()).then(d => { if (d?.role) setMyRole(d.role); }).catch(() => {});
+  }, []);
   const queryClient = useQueryClient();
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number; errors: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -91,6 +97,16 @@ export default function CsvManagementPage() {
       toast.error('Please upload a CSV file');
     }
   };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!canCreateContent(myRole) && myRole) {
+      router.push('/admin/dashboard');
+    }
+  }, [myRole, router]);
+
+  if (!canCreateContent(myRole) && myRole) return null;
 
   return (
     <div className="space-y-6 px-4 sm:px-6 md:px-8">

@@ -12,13 +12,10 @@ export async function GET(req: NextRequest) {
 
     const reviews = await prisma.review.findMany({
       where,
-      include: {
-        student: { select: { id: true, email: true } },
-      },
       orderBy: { createdAt: 'desc' },
     })
 
-    const studentIds = [...new Set(reviews.map(r => r.student.id))]
+    const studentIds = [...new Set(reviews.map(r => r.studentId))]
     const publicUsers = await prisma.user.findMany({
       where: { id: { in: studentIds } },
       select: { id: true, name: true },
@@ -32,8 +29,8 @@ export async function GET(req: NextRequest) {
       comment: r.comment,
       createdAt: r.createdAt,
       student: {
-        id: r.student.id,
-        name: userMap[r.student.id] || r.student.email?.split('@')[0] || 'Anonymous',
+        id: r.studentId,
+        name: userMap[r.studentId] || r.studentId || 'Anonymous',
       },
     }))
 

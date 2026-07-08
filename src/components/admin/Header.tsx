@@ -24,9 +24,19 @@ export default function Header() {
   const [showResults, setShowResults] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [profile, setProfile] = useState({ name: '', email: '' });
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>(undefined);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.email) setProfile({ name: data.name || data.email.split('@')[0], email: data.email });
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -85,7 +95,7 @@ export default function Header() {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       toast.success('Logged out successfully');
-      router.push('/login');
+      router.push('/admin/login');
     } catch {
       toast.error('Logout failed');
     }
@@ -174,12 +184,12 @@ export default function Header() {
               onClick={() => setShowProfile(!showProfile)}
               className="flex items-center cursor-pointer gap-2 p-1.5 rounded-lg hover:bg-white/5 transition-all"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
-                A
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold uppercase">
+                {(profile.name || profile.email).charAt(0) || 'A'}
               </div>
               <div className="hidden sm:block text-left ">
-                <p className="text-white text-xs font-medium leading-tight">Admin</p>
-                <p className="text-gray-500 text-[10px] leading-tight">admin@spurvance.com</p>
+                <p className="text-white text-xs font-medium leading-tight">{profile.name || 'Admin'}</p>
+                <p className="text-gray-500 text-[10px] leading-tight">{profile.email || 'admin@spurvance.com'}</p>
               </div>
             </button>
 
@@ -188,8 +198,8 @@ export default function Header() {
                 <div className="fixed inset-0 z-40" onClick={() => setShowProfile(false)} />
                 <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-900 border border-white/[0.08] rounded-xl shadow-xl z-50 py-1.5">
                   <div className="px-4 py-2 border-b border-white/[0.06] mb-1">
-                    <p className="text-white text-sm font-medium">Admin</p>
-                    <p className="text-gray-500 text-xs">admin@spurvance.com</p>
+                    <p className="text-white text-sm font-medium">{profile.name || 'Admin'}</p>
+                    <p className="text-gray-500 text-xs">{profile.email || 'admin@spurvance.com'}</p>
                   </div>
                   <button
                     onClick={handleLogout}

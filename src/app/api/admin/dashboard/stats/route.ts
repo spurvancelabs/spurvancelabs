@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { requireViewer } from '@/lib/lms/utils';
 
 export async function GET(request: NextRequest) {
+  await requireViewer();
   try {
     const supabase = getSupabaseAdminClient();
     const period = request.nextUrl.searchParams.get('period') || 'monthly';
@@ -12,11 +14,15 @@ export async function GET(request: NextRequest) {
       supabase.from('jobs').select('id, title, department, status'),
     ]);
 
-    const { data: authData, error: authErr } = await supabase.auth.admin.listUsers({ perPage: 10000 });
+    let totalUsers = 0;
+    const { data: authData, error: authErr } = await supabase.auth.admin.listUsers({ page: 1, perPage: 10000 });
     if (authErr) {
       console.error('Failed to fetch auth users:', authErr);
+      const { count } = await supabase.from('users').select('*', { count: 'exact', head: true });
+      totalUsers = count || 0;
+    } else {
+      totalUsers = authData?.users?.length || 0;
     }
-    const totalUsers = authData?.users?.length || 0;
 
     const { data: jobApps, error: jaErr } = await supabase
       .from('job_applications')

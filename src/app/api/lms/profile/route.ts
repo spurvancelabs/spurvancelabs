@@ -8,7 +8,7 @@ export async function GET() {
 
     const publicUser = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      select: { id: true, email: true, name: true, type: true, createdAt: true },
     })
 
     const [enrollments, certificates, reviews, wishlistCount] = await Promise.all([

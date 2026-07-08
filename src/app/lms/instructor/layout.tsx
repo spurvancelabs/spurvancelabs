@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
-import { ROLES } from '@/lib/lms/roles';
+import { ROLES, hasMinRole } from '@/lib/lms/roles';
 import InstructorSidebar from '@/components/lms/InstructorSidebar';
 
 export const dynamic = 'force-dynamic';
@@ -17,14 +17,25 @@ export default async function InstructorLayout({ children }: { children: React.R
   if (!decoded?.userId) notFound();
 
   const supabase = getSupabaseAdminClient();
-  const { data: user } = await supabase
-    .from('users')
+
+  const { data: adminUser } = await supabase
+    .from('admin_users')
     .select('role')
-    .eq('id', decoded.userId)
+    .eq('user_id', decoded.userId)
     .single();
 
-  if (user?.role !== ROLES.ADMIN && user?.role !== ROLES.INSTRUCTOR) {
-    notFound();
+  if (adminUser?.role && hasMinRole(adminUser.role, ROLES.ADMIN)) {
+    // SUPER_ADMIN or ADMIN — allowed
+  } else {
+    const { data: user } = await supabase
+      .from('users')
+      .select('type')
+      .eq('id', decoded.userId)
+      .single();
+
+    if (user?.type !== ROLES.INSTRUCTOR) {
+      notFound();
+    }
   }
 
   return (
