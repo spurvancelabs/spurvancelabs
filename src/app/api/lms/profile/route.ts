@@ -24,6 +24,7 @@ export async function GET() {
 
     return NextResponse.json({
       ...publicUser,
+      role: user.role,
       stats: {
         enrollments,
         completedEnrollments,

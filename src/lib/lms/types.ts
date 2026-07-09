@@ -70,6 +70,23 @@ export interface EnrollmentData {
   student?: { id: string; name: string | null; email: string | null }
 }
 
+export interface SubmissionData {
+  id: string
+  lessonId: string
+  studentId: string
+  content: string | null
+  status: string
+  grade: number | null
+  feedback: string | null
+  gradedBy: string | null
+  submittedAt: string
+  gradedAt: string | null
+  createdAt: string
+  updatedAt: string
+  lesson?: LessonData
+  student?: { id: string; name: string | null; email: string | null }
+}
+
 export interface ProgressData {
   id: string
   studentId: string
