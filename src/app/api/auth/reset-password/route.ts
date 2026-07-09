@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import bcrypt from 'bcryptjs'
-import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
@@ -107,7 +106,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', issues: z.flattenError(error).fieldErrors },
+        { error: 'Validation failed', issues: error.flatten().fieldErrors },
         { status: 400 }
       )
     }

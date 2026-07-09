@@ -16,6 +16,8 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
   const [quizAnswers, setQuizAnswers] = useState<Record<string, any>>({})
   const [quizSubmitted, setQuizSubmitted] = useState(false)
   const [quizResult, setQuizResult] = useState<any>(null)
+  const [assignmentContent, setAssignmentContent] = useState('')
+  const [submittingAssignment, setSubmittingAssignment] = useState(false)
 
   const { data: course } = useQuery({
     queryKey: ['lms-course-detail', courseId],
@@ -261,10 +263,94 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
             </div>
           )}
 
+          {/* Assignment Section */}
+          {lesson.type === 'ASSIGNMENT' && (
+            <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-6 mb-8">
+              <h3 className="text-white font-semibold mb-3">Assignment</h3>
+              {lesson.content && (
+                <div className="text-sm text-gray-300 mb-4 whitespace-pre-wrap bg-zinc-800/50 rounded-xl p-4 border border-white/[0.06]">
+                  {typeof lesson.content === 'string' ? lesson.content : ''}
+                </div>
+              )}
+
+              {lesson.submission?.status === 'GRADED' ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-400">Grade:</span>
+                    <span className={`text-lg font-bold ${(lesson.submission.grade ?? 0) >= 50 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {lesson.submission.grade}%
+                    </span>
+                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Graded</span>
+                  </div>
+                  {lesson.submission.feedback && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-1">Feedback:</p>
+                      <p className="text-sm text-gray-300 bg-zinc-800/50 rounded-xl p-3 border border-white/[0.06]">{lesson.submission.feedback}</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">Your submission:</p>
+                  <p className="text-sm text-gray-400 bg-zinc-800/50 rounded-xl p-3 border border-white/[0.06] whitespace-pre-wrap">{lesson.submission.content}</p>
+                </div>
+              ) : lesson.submission?.status === 'SUBMITTED' ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">Submitted</span>
+                    <span className="text-xs text-gray-500">Waiting for grading</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-1">Your submission:</p>
+                  <p className="text-sm text-gray-400 bg-zinc-800/50 rounded-xl p-3 border border-white/[0.06] whitespace-pre-wrap">{lesson.submission.content}</p>
+                </div>
+              ) : (
+                <div>
+                  <textarea
+                    value={assignmentContent}
+                    onChange={e => setAssignmentContent(e.target.value)}
+                    rows={6}
+                    placeholder="Write your assignment response here..."
+                    className="w-full bg-zinc-800 border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 resize-y"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!assignmentContent.trim()) return
+                      setSubmittingAssignment(true)
+                      try {
+                        const res = await fetch('/api/lms/submissions', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ lessonId, content: assignmentContent.trim() }),
+                        })
+                        if (!res.ok) throw new Error('Failed to submit')
+                        toast.success('Assignment submitted!')
+                        setAssignmentContent('')
+                      } catch {
+                        toast.error('Failed to submit assignment')
+                      } finally {
+                        setSubmittingAssignment(false)
+                      }
+                    }}
+                    disabled={submittingAssignment || !assignmentContent.trim()}
+                    className="mt-3 px-6 py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-medium rounded-xl text-sm transition-all"
+                  >
+                    {submittingAssignment ? 'Submitting...' : 'Submit Assignment'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Mark Complete & Navigation */}
           <div className="flex items-center justify-between border-t border-white/[0.06] pt-6">
             <div>
-              {!isCompleted && !quiz && (
+              {!isCompleted && !quiz && lesson.type !== 'ASSIGNMENT' && (
+                <button
+                  onClick={() => completeMutation.mutate()}
+                  disabled={completeMutation.isPending}
+                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium rounded-xl text-sm transition-all"
+                >
+                  {completeMutation.isPending ? 'Saving...' : 'Mark as Complete'}
+                </button>
+              )}
+              {!isCompleted && lesson.type === 'ASSIGNMENT' && lesson.submission?.status === 'GRADED' && (
                 <button
                   onClick={() => completeMutation.mutate()}
                   disabled={completeMutation.isPending}

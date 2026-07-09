@@ -13,32 +13,47 @@ export async function POST(request: NextRequest) {
 
     const { data: existing } = await supabase
       .from('users')
-      .select('id, role')
+      .select('id, type')
       .eq('email', email)
       .single();
 
     if (existing) {
-      if (existing.role === ROLES.ADMIN) {
-        return NextResponse.json({ message: 'Admin user already exists. Login at /login' });
+      const { data: existingAdmin } = await supabase
+        .from('admin_users')
+        .select('role')
+        .eq('user_id', existing.id)
+        .single();
+
+      if (existingAdmin) {
+        return NextResponse.json({ message: 'Admin user already exists. Login at /admin/login' });
       }
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ role: ROLES.ADMIN })
-        .eq('id', existing.id);
-      if (updateError) throw updateError;
-      return NextResponse.json({ message: 'Admin role granted. Login at /login' });
+
+      await supabase.from('admin_users').insert({
+        user_id: existing.id,
+        role: ROLES.SUPER_ADMIN,
+      });
+
+      return NextResponse.json({ message: 'Super Admin role granted. Login at /admin/login' });
     }
 
     const { data: authUser, error: createError } = await supabase.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, role: ROLES.ADMIN },
+      user_metadata: { name, type: ROLES.USER },
     });
 
     if (createError) throw createError;
 
-    return NextResponse.json({ message: 'Admin user created successfully. Login at /login' });
+    if (authUser?.user) {
+      await supabase.from('admin_users').insert({
+        user_id: authUser.user.id,
+        role: ROLES.SUPER_ADMIN,
+        created_by: authUser.user.id,
+      });
+    }
+
+    return NextResponse.json({ message: 'Super Admin user created successfully. Login at /admin/login' });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
   }

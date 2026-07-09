@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { requireViewer } from '@/lib/lms/utils';
 
 export async function GET(request: NextRequest) {
+  await requireViewer();
   try {
     const supabase = getSupabaseAdminClient();
     const searchParams = request.nextUrl.searchParams;

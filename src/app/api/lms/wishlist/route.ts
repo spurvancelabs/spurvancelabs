@@ -11,7 +11,6 @@ export async function GET() {
         course: {
           include: {
             category: { select: { name: true, slug: true } },
-            instructor: { select: { id: true, email: true } },
             _count: { select: { modules: true, enrollments: true } },
           },
         },
