@@ -25,7 +25,7 @@ export async function GET() {
 
     const { data: user } = await supabase
       .from('users')
-      .select('id,name,email,type')
+      .select('id,name,email,image,type')
       .eq('id', payload.userId)
       .single()
 
@@ -49,6 +49,7 @@ export async function GET() {
       id: user.id,
       name: user.name,
       email: user.email,
+      image: user.image,
       role,
     })
   } catch (error) {

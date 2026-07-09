@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import "../../global.css";
@@ -18,14 +18,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const toastShown = useRef(false)
 
 const mutation = useMutation({
   mutationFn: loginUser,
 
   onSuccess: (data) => {
+    if (toastShown.current) return
+    toastShown.current = true
     toast.success('Logged in successfully');
     if (data?.user?.role && hasMinRole(data.user.role, ROLES.VIEWER) && data.user.role !== ROLES.USER && data.user.role !== ROLES.INSTRUCTOR) {
       router.push('/admin/dashboard');
+    } else if (data?.user?.role === ROLES.INSTRUCTOR) {
+      router.push('/lms/instructor/dashboard');
     } else {
       router.push('/dashboard');
     }

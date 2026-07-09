@@ -35,14 +35,7 @@ export default function LMSCatalogPage() {
         <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
           Expand Your Skills
         </h1>
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-            New
-          </span>
-          <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-            Updated
-          </span>
-        </div>
+
         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
           Explore our curated courses and take your expertise to the next level.
         </p>

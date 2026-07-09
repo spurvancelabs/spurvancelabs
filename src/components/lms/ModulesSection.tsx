@@ -224,7 +224,7 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
       description: editorForm.description.trim() || null,
       duration: editorForm.duration ? parseInt(editorForm.duration, 10) : null,
     }
-    if (editorForm.type === 'TEXT') data.content = editorForm.content
+    if (editorForm.type === 'TEXT' || editorForm.type === 'ASSIGNMENT') data.content = editorForm.content
     if (editorForm.type === 'VIDEO') data.videoUrl = editorForm.videoUrl || null
     updateLesson.mutate({ id: editorLessonId, data })
     setEditorLessonId(null)

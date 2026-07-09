@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ROLES, type Role } from '@/lib/lms/roles'
+import ProfileDropdown from '@/components/dasboard/ProfileDropdown'
+import NotificationBell from '@/components/NotificationBell'
 import "@/global.css"
 
 type NavVisibility = 'guest' | Role
@@ -20,14 +22,14 @@ const navItems: NavItem[] = [
   { href: '/lms/wishlist', label: 'Wishlist', roles: [ROLES.USER, ROLES.ADMIN] },
   { href: '/lms/certificates', label: 'Certificates', roles: [ROLES.USER, ROLES.ADMIN] },
   { href: '/lms/instructor/dashboard', label: 'Instructor', roles: [ROLES.INSTRUCTOR, ROLES.ADMIN] },
-  { href: '/lms/profile', label: 'Profile', roles: [ROLES.USER, ROLES.INSTRUCTOR, ROLES.ADMIN] },
-  { href: '/dashboard', label: 'Dashboard', roles: [ROLES.USER, ROLES.INSTRUCTOR, ROLES.ADMIN] },
+  { href: '/lms/profile', label: 'Profile', roles: [ROLES.USER, ROLES.ADMIN] },
 ]
 
 export default function LMSLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [role, setRole] = useState<NavVisibility>('guest')
+const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -42,6 +44,7 @@ export default function LMSLayout({ children }: { children: React.ReactNode }) {
         if (res.ok) {
           const user = await res.json()
           setRole(user?.role || ROLES.USER)
+          setIsLoggedIn(true)
         } else {
           setRole('guest')
         }
@@ -53,9 +56,10 @@ export default function LMSLayout({ children }: { children: React.ReactNode }) {
   }, [])
 
   const isAdmin = pathname.startsWith('/lms/admin')
+  const isInstructor = pathname.startsWith('/lms/instructor')
   const visibleNav = navItems.filter(item => item.roles.includes(role))
 
-  if (isAdmin) {
+  if (isAdmin || isInstructor) {
     return <>{children}</>
   }
 
@@ -79,6 +83,21 @@ export default function LMSLayout({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
             </nav>
+            <div className="flex items-center gap-3">
+              {isLoggedIn ? (
+                <>
+                  <NotificationBell />
+                  <ProfileDropdown />
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </header>
