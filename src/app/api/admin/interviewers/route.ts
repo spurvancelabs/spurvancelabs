@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { requireViewer, requireEditor } from '@/lib/lms/utils';
 
 export async function GET() {
+  await requireViewer();
   try {
     const supabase = getSupabaseAdminClient();
     const { data: interviewers, error } = await supabase
@@ -17,6 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  await requireEditor();
   try {
     const supabase = getSupabaseAdminClient();
     const body = await request.json();

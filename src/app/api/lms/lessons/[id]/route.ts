@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireInstructor } from '@/lib/lms/utils'
+import { requireInstructor, getAuthUser } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -10,7 +10,20 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       include: { quizzes: { include: { questions: { orderBy: { sortOrder: 'asc' } }, _count: { select: { attempts: true } } } } },
     })
     if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
-    return NextResponse.json(lesson)
+
+    let data: any = { ...lesson }
+
+    if (lesson.type === 'ASSIGNMENT') {
+      const user = await getAuthUser()
+      if (user) {
+        const submission = await prisma.submission.findUnique({
+          where: { lessonId_studentId: { lessonId: id, studentId: user.id } },
+        })
+        data.submission = submission
+      }
+    }
+
+    return NextResponse.json(data)
   } catch {
     return NextResponse.json({ error: 'Failed to fetch lesson' }, { status: 500 })
   }

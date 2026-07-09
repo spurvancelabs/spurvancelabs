@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { requireNanoEditor, requireAdmin } from '@/lib/lms/utils';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await requireNanoEditor();
   try {
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
@@ -36,6 +38,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   try {
     const { id } = await params;
     const supabase = getSupabaseAdminClient();

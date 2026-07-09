@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { getSupabaseAdminClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { ROLES } from '@/lib/lms/roles'
+import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 
 export async function GET(request: Request) {
   try {
@@ -33,14 +34,18 @@ export async function GET(request: Request) {
 
     const googleUser = await userRes.json()
 
-    const { data: existingUser } = await supabaseAdmin()
+    const supabase = getSupabaseAdminClient()
+
+    const { data: existingUser } = await supabase
       .from('users')
       .select('*')
       .eq('email', googleUser.email)
       .single()
 
+    let userId = existingUser?.id
+
     if (!existingUser) {
-      const { data: newUser } = await supabaseAdmin()
+      const { data: newUser } = await supabase
         .from('users')
         .insert({
           email: googleUser.email,
@@ -49,7 +54,7 @@ export async function GET(request: Request) {
           provider: 'google',
           provider_id: googleUser.sub,
           email_verified: true,
-          role: ROLES.USER,
+          type: ROLES.USER,
         })
         .select()
         .single()
@@ -57,9 +62,38 @@ export async function GET(request: Request) {
       if (!newUser) {
         return NextResponse.redirect('/login?error=signup_failed')
       }
+      userId = newUser.id
     }
 
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
+    const accessToken = await generateAccessToken({
+      userId: userId!,
+      email: googleUser.email,
+    })
+
+    const refreshToken = await generateRefreshToken({
+      userId: userId!,
+      email: googleUser.email,
+    })
+
+    const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
+
+    response.cookies.set('token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60,
+      path: '/',
+    })
+
+    response.cookies.set('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/',
+    })
+
+    return response
   } catch (error) {
     console.error('Google callback error:', error)
     return NextResponse.redirect('/login?error=server_error')

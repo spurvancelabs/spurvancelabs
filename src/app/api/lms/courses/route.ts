@@ -34,7 +34,6 @@ export async function GET(req: NextRequest) {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          instructor: { select: { id: true, email: true } },
           category: { select: { id: true, name: true, slug: true } },
           _count: { select: { modules: true, enrollments: true } },
         },
@@ -74,7 +73,6 @@ export async function POST(req: NextRequest) {
         instructorId: user.id,
       },
       include: {
-        instructor: { select: { id: true, email: true } },
         category: { select: { id: true, name: true, slug: true } },
       },
     })

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { requireViewer, requireNanoEditor, requireAdmin } from '@/lib/lms/utils';
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await requireViewer();
   try {
     const { id } = await params;
     const { searchParams } = new URL(_request.url);
@@ -34,6 +36,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await requireNanoEditor();
   try {
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
@@ -91,6 +94,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   try {
     const { id } = await params;
     const { searchParams } = new URL(_request.url);
