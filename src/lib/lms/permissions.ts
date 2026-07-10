@@ -73,10 +73,10 @@ export function canAccessLMSInstructor(role: string | null | undefined): boolean
 export function getAssignableRoles(actorRole: string | null | undefined): string[] {
   if (!actorRole) return [];
   if (actorRole === ROLES.SUPER_ADMIN) {
-    return [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER];
+    return [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.INSTRUCTOR, ROLES.USER];
   }
   if (actorRole === ROLES.ADMIN) {
-    return [ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER];
+    return [ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.INSTRUCTOR, ROLES.USER];
   }
   return [];
 }
