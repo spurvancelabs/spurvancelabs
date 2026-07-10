@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer } from '@/lib/lms/utils';
 
 export async function GET(request: NextRequest) {
-  await requireViewer();
   try {
+    await requireViewer();
     const supabase = getSupabaseAdminClient();
     const period = request.nextUrl.searchParams.get('period') || 'monthly';
 

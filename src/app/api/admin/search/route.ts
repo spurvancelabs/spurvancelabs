@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer } from '@/lib/lms/utils';
 
 export async function GET(request: NextRequest) {
-  await requireViewer();
   try {
+    await requireViewer();
     const q = request.nextUrl.searchParams.get('q');
     if (!q) {
       return NextResponse.json({ results: [] });
