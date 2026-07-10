@@ -7,7 +7,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     const course = await prisma.course.findUnique({
       where: { slug },
       include: {
-        instructor: { select: { id: true, email: true } },
         category: { select: { id: true, name: true, slug: true } },
         modules: {
           orderBy: { sortOrder: 'asc' },
@@ -25,7 +24,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       },
     })
     if (!course) return NextResponse.json({ error: 'Course not found' }, { status: 404 })
-    return NextResponse.json(course)
+
+    const instructor = await prisma.user.findUnique({
+      where: { id: course.instructorId },
+      select: { id: true, name: true, image: true, email: true },
+    })
+
+    return NextResponse.json({ ...course, instructor, studentCount: course._count.enrollments })
   } catch {
     return NextResponse.json({ error: 'Failed to fetch course' }, { status: 500 })
   }

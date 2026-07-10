@@ -15,6 +15,7 @@ export default function ProfileDropdown() {
 const [user, setUser] = useState({
   name: '',
   email: '',
+  image: '',
 })
 
 useEffect(() => {
@@ -29,6 +30,7 @@ useEffect(() => {
       setUser({
         name: data.name,
         email: data.email,
+        image: data.image || '',
       })
     } catch (error) {
       toast.error("Failed to load user data");
@@ -65,12 +67,23 @@ useEffect(() => {
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Profile Image - Click to toggle dropdown */}
-      <Image
-        src= "" // Add your default profile image URL
-        alt="Profile"
-        className={`w-8 h-8 rounded-full border border-white/20 cursor-pointer hover:border-blue-400 transition-colors`}
-        onClick={() => setIsOpen(!isOpen)}
-      />
+      {user.image ? (
+        <Image
+          src={user.image}
+          alt="Profile"
+          width={32}
+          height={32}
+          className="w-8 h-8 rounded-full border border-white/20 cursor-pointer hover:border-blue-400 transition-colors object-cover"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      ) : (
+        <div
+          className="w-8 h-8 rounded-full border border-white/20 cursor-pointer hover:border-blue-400 transition-colors bg-zinc-800 flex items-center justify-center text-sm font-semibold text-white"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {(user.name || user.email || '?')[0].toUpperCase()}
+        </div>
+      )}
 
       {/* Dropdown Menu */}
       {isOpen && (
@@ -81,16 +94,15 @@ useEffect(() => {
           </div>
           
           <Link
-            href="/profile"
+            href="/lms/profile"
             className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
             onClick={() => setIsOpen(false)}
           >
             <UserIcon className="w-5 h-5 text-gray-400" />
             Profile
           </Link>
-          
           <Link
-            href="/settings"
+            href="/lms/settings"
             className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors"
             onClick={() => setIsOpen(false)}
           >

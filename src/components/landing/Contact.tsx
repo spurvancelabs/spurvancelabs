@@ -200,7 +200,7 @@ Have a project in mind? Our software development company for remote teams is rea
                   type="text"
                   id="fullName"
                   name="fullName"
-                  placeholder="John Doe"
+                  placeholder="Your full name"
                   value={formData.fullName}
                   onChange={handleChange}
                   onBlur={handleBlur}

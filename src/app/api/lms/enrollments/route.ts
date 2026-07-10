@@ -19,10 +19,24 @@ export async function GET(req: NextRequest) {
       orderBy: { enrolledAt: 'desc' },
       include: {
         course: { select: { id: true, title: true, slug: true, thumbnail: true } },
-        student: { select: { id: true, email: true } },
       },
     })
-    return NextResponse.json(enrollments)
+
+    const studentIds = [...new Set(enrollments.map(e => e.studentId))]
+    const students = studentIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: studentIds } },
+          select: { id: true, name: true, email: true },
+        })
+      : []
+    const studentMap = new Map(students.map(s => [s.id, s]))
+
+    const data = enrollments.map(e => ({
+      ...e,
+      student: studentMap.get(e.studentId) ?? null,
+    }))
+
+    return NextResponse.json(data)
   } catch {
     return NextResponse.json({ error: 'Failed to fetch enrollments' }, { status: 500 })
   }

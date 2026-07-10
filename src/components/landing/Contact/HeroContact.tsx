@@ -7,9 +7,12 @@ function HeroContact() {
   return (
       <div className='flex flex-col lg:flex-row items-center justify-center w-full h-auto lg:h-screen mt-20 mb-10 px-4 sm:px-0 relative'>
         <div className='flex-1 p-5 md:p-10'>
-            <h3 className='font-bold text-white text-lg sm:text-xl'>Do, you want to contact us</h3>
-            <h1 className='font-bold text-xl sm:text-2xl md:text-4xl text-white'>Hello, Everyone From Spurvancelab Meeting Team</h1>
-            <p className='text-sm text-gray-500 mt-6 sm:mt-10'>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repudiandae rem, error quas assumenda deserunt nisi tenetur aperiam, vero facilis at voluptates dolorum, aliquam eligendi nesciunt. Repudiandae aperiam inventore omnis accusamus.</p>
+            <h3 className='font-bold text-white text-lg sm:text-xl'>Do, you want to <span className='text-blue-500'>contact us</span></h3>
+            <h1 className='font-bold text-xl sm:text-2xl md:text-5xl text-white'>Let's Talk About Your Project</h1>
+            <p className='text-sm text-gray-500 mt-6 sm:mt-8'>Whether you're exploring a new idea or ready to scale, our software
+development company for remote teams and startups is here to help.
+Schedule a meeting or send us a message, and we'll get back to you
+within one business day</p>
             <div className='flex flex-col sm:flex-row gap-3 sm:gap-5 mt-5'>
             <button className='relative bg-white font-semibold text-black py-2 px-4 rounded-full hover:bg-gray-300 cursor-pointer text-sm sm:text-base'>Schedule Meeting</button>
             <button className='hover:text-gray-300 cursor-pointer border border-white py-2 px-4 rounded-full text-white text-sm sm:text-base'>Schedule Call</button>
@@ -25,7 +28,7 @@ function HeroContact() {
           type="text"
           id="fullName"
           name="fullName"
-          placeholder="John Doe"
+          placeholder="Your full name"
           className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-[10px] px-4 sm:px-5 py-[0.75rem] sm:py-[0.9rem] text-white text-[0.85rem] sm:text-[0.95rem] transition-[0.3s_ease] w-full focus:outline-none focus:border-[#2a2a2a] focus:bg-[#111] focus:shadow-[0_0_30px_rgba(255,255,255,0.02)] placeholder:text-[#444]"
         />
       </div>

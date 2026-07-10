@@ -14,16 +14,23 @@ export function getJwtSecret(): Uint8Array {
 export const ACCESS_TOKEN_EXPIRATION = "15m";
 export const REFRESH_TOKEN_EXPIRATION = "7d";
 
+export interface JwtPayload {
+  userId: string;
+  email: string;
+  role?: string;
+  [key: string]: unknown;
+}
+
 export async function verifyToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, getJwtSecret());
-    return payload as unknown as { userId: string; email: string };
+    return payload as unknown as JwtPayload;
   } catch {
     return null;
   }
 }
 
-export async function generateAccessToken(payload: { userId: string; email: string }) {
+export async function generateAccessToken(payload: JwtPayload) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -31,7 +38,7 @@ export async function generateAccessToken(payload: { userId: string; email: stri
     .sign(getJwtSecret());
 }
 
-export async function generateRefreshToken(payload: { userId: string; email: string }) {
+export async function generateRefreshToken(payload: JwtPayload) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
