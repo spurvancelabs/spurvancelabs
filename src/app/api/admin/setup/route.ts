@@ -11,26 +11,26 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdminClient();
 
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id, type')
-      .eq('email', email)
-      .single();
+    const { data: { users: authUsers }, error: listError } = await supabase.auth.admin.listUsers();
+    const existingAuthUser = authUsers?.find(u => u.email === email);
 
-    if (existing) {
+    if (existingAuthUser) {
       const { data: existingAdmin } = await supabase
         .from('admin_users')
         .select('role')
-        .eq('user_id', existing.id)
+        .eq('user_id', existingAuthUser.id)
         .single();
 
       if (existingAdmin) {
         return NextResponse.json({ message: 'Admin user already exists. Login at /admin/login' });
       }
 
+      const now = new Date().toISOString();
       await supabase.from('admin_users').insert({
-        user_id: existing.id,
+        user_id: existingAuthUser.id,
         role: ROLES.SUPER_ADMIN,
+        created_at: now,
+        updated_at: now,
       });
 
       return NextResponse.json({ message: 'Super Admin role granted. Login at /admin/login' });
@@ -40,16 +40,19 @@ export async function POST(request: NextRequest) {
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, type: ROLES.USER },
+      user_metadata: { name, skip_users_table: true },
     });
 
     if (createError) throw createError;
 
     if (authUser?.user) {
+      const now = new Date().toISOString();
       await supabase.from('admin_users').insert({
         user_id: authUser.user.id,
         role: ROLES.SUPER_ADMIN,
         created_by: authUser.user.id,
+        created_at: now,
+        updated_at: now,
       });
     }
 
