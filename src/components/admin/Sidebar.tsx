@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { ROLES } from '@/lib/lms/roles';
-import { canManageUsers, canCreateContent, canManageAdmins } from '@/lib/lms/permissions';
+import { canManageUsers, canCreateContent, canManageAdmins, canAccessLMSAdmin } from '@/lib/lms/permissions';
 
 const icons: Record<string, ReactNode> = {
   dashboard: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>,
@@ -84,12 +84,14 @@ function getNavItems(role: string): SidebarItem[] {
     { type: 'section', label: 'Management' },
     {
       type: 'group', label: 'Jobs', icon: 'jobs', href: '/admin/jobs', children: [
+        { href: '/admin/jobs', label: 'All Jobs', icon: 'list' },
         { href: '/admin/jobs/new', label: 'Add Job', icon: 'add' },
         { href: '/admin/applications?type=job', label: 'Job Applications', icon: 'applications' },
       ]
     },
     {
       type: 'group', label: 'Internships', icon: 'internships', href: '/admin/internships', children: [
+        { href: '/admin/internships', label: 'All Internships', icon: 'list' },
         { href: '/admin/internships/new', label: 'Add Internship', icon: 'add' },
         { href: '/admin/applications?type=internship', label: 'Internship Applications', icon: 'applications' },
       ]
@@ -111,14 +113,23 @@ function getNavItems(role: string): SidebarItem[] {
     { type: 'link', href: '/admin/admins', label: 'Admin Management', icon: 'shield' },
   ];
 
+  const lmsAdminItems: SidebarItem[] = [
+    { type: 'link', href: '/lms/admin', label: 'LMS Admin', icon: 'shield' },
+  ];
+
   const settingsItem: SidebarItem[] = [
     { type: 'section', label: 'Settings' },
     { type: 'link', href: '/admin/settings', label: 'Settings', icon: 'settings' },
   ];
 
-  const allItems = canManageAdmins(role)
-    ? [...baseItems, ...adminManagementItems, ...settingsItem]
-    : [...baseItems, ...settingsItem];
+  const middleItems: SidebarItem[] = [];
+  if (canManageAdmins(role)) {
+    middleItems.push(...adminManagementItems);
+  }
+  if (canAccessLMSAdmin(role)) {
+    middleItems.push(...lmsAdminItems);
+  }
+  const allItems = [...baseItems, ...middleItems, ...settingsItem];
   return filterNavItems(allItems, role);
 }
 

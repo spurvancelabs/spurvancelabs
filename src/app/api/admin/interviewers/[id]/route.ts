@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/lms/utils';
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
     const { error } = await supabase
