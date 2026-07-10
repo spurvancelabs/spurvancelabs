@@ -29,17 +29,27 @@ export async function GET() {
       .eq('id', payload.userId)
       .single()
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    let role = user.type ?? ROLES.USER
-
     const { data: adminUser } = await supabase
       .from('admin_users')
       .select('role')
       .eq('user_id', payload.userId)
       .single()
+
+    if (!user && !adminUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!user) {
+      return NextResponse.json({
+        id: payload.userId,
+        name: null,
+        email: payload.email,
+        image: null,
+        role: adminUser!.role,
+      })
+    }
+
+    let role = user.type ?? ROLES.USER
 
     if (adminUser?.role) {
       role = adminUser.role

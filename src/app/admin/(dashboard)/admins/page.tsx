@@ -230,13 +230,13 @@ export default function AdminManagementPage() {
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 group">
+                          <div className="flex items-center gap-2">
                           <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getRoleColor(admin.role)}`}>
                             {getRoleLabel(admin.role)}
                           </span>
                           <button
                             onClick={() => { setEditingId(admin.id); setEditRole(admin.role); }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer"
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer"
                           >
                             Change
                           </button>
@@ -267,7 +267,7 @@ export default function AdminManagementPage() {
                       ) : (
                         <button
                           onClick={() => setConfirmDeleteId(admin.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 cursor-pointer"
+                          className="text-[10px] px-2 py-1 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 cursor-pointer"
                         >
                           Remove
                         </button>
