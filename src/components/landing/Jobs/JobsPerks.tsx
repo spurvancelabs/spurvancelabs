@@ -43,7 +43,8 @@ export default function JobsPerks() {
             Why Work <span className="text-[#888] font-light">With Us</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
-            We offer more than just a job - we offer a lifestyle focused on your success
+            We offer more than just a job — join our software development team for a 
+lifestyle focused on your success
           </p>
         </div>
 

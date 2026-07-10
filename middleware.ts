@@ -6,6 +6,21 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
   const payload = token ? await verifyToken(token) : null;
 
+  // ─── Admin login page: always accessible ─────────────────
+  if (req.nextUrl.pathname.startsWith("/admin/login")) {
+    return NextResponse.next();
+  }
+
+  // ─── Admin pages: require admin role ─────────────────
+  if (req.nextUrl.pathname.startsWith("/admin")) {
+    if (!payload) {
+      return NextResponse.redirect(new URL("/admin/login", req.url));
+    }
+    if (!payload.role || !["SUPER_ADMIN", "ADMIN", "EDITOR", "NANO_EDITOR", "VIEWER"].includes(payload.role)) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
+
   // ─── LMS pages: 404 if not authenticated ─────────────────
   const lmsAuthRoutes = [
     "/lms/my-courses",
@@ -25,7 +40,6 @@ export async function middleware(req: NextRequest) {
   const generalProtected = [
     "/dashboard",
     "/profile",
-    "/admin",
   ];
 
   if (generalProtected.some((p) => req.nextUrl.pathname.startsWith(p)) && !payload) {

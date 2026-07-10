@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/lms/utils'
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const enrollment = await prisma.enrollment.findUnique({ where: { id }, include: { course: true, student: { select: { id: true, email: true } } } })
+    const enrollment = await prisma.enrollment.findUnique({ where: { id }, include: { course: true } })
     if (!enrollment) return NextResponse.json({ error: 'Enrollment not found' }, { status: 404 })
     return NextResponse.json(enrollment)
   } catch {

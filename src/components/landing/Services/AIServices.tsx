@@ -11,16 +11,23 @@ function AIServices() {
                         <br />
                         AI Services
                     </h1>
-                    <p className='text-gray-500 mt-5 text-sm w-full max-w-[500px]'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi recusandae tempore iusto officiis, voluptates quisquam ea qui omnis laudantium reiciendis odio rem minus tempora suscipit non explicabo earum perferendis repudiandae!</p>
+                    <p className='text-gray-500 mt-5 text-sm w-full max-w-[500px]'>As a provider of custom AI software development for
+startups, we help you automate workflows, personalize user experiences,
+and turn raw data into real product features — from custom-trained
+machine learning models to LLM-powered capabilities built directly into
+your product.</p>
                 </div>
             </div>
-            <div className=' flex-1 text-white h-full mt-10 md:mt-20'>
+            <div className=' flex-1 text-white h-full mt-10 md:mt-20 mr-1'>
                 <div className='bg-linear-to-t from-black to-white/20 p-4 md:p-8 rounded-2xl border-t border-white/50 '>
                    <h1 className='text-2xl md:text-3xl  font-bold'> AI Strategy <br/>
                      & Mapping</h1>
-                    <p className='text-sm text-gray-500 mt-5 '>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+                    <p className='text-sm text-gray-500 mt-5 '>We start by mapping where AI can realistically create
+value in your product — then build a roadmap from strategy to shipped
+feature.</p>
                 <div className='flex flex-wrap gap-2 sm:gap-5 text-center mt-5 text-md font-semibold'>
-                    <span className='bg-white pl-3 pr-2 text-black rounded-2xl '>service</span><span className='bg-white pl-3 pr-2 text-black rounded-2xl sm:ml-3'>consectetur</span><span className='bg-white pl-3 pr-2 text-black rounded-2xl'>adipisicing</span>
+                    <span className='bg-white pl-3 pr-2 text-black rounded-2xl '>AI
+Strategy</span><span className='bg-white pl-3 pr-2 text-black rounded-2xl sm:ml-3'>Machine Learning</span><span className='bg-white pl-3 pr-2 text-black rounded-2xl'>LLM Integration</span>
                 </div>
                 </div>
             </div>

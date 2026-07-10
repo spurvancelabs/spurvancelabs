@@ -1,9 +1,8 @@
-// app/api/auth/me/route.ts
-
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { getSupabaseAdminClient } from '@/lib/supabase/server'
+import { ROLES } from '@/lib/lms/roles'
 
 export async function GET() {
   try {
@@ -22,13 +21,37 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: user } = await supabaseAdmin()
+    const supabase = getSupabaseAdminClient()
+
+    const { data: user } = await supabase
       .from('users')
-      .select('id,name,email,role')
+      .select('id,name,email,image,type')
       .eq('id', payload.userId)
       .single()
 
-    return NextResponse.json(user)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    let role = user.type ?? ROLES.USER
+
+    const { data: adminUser } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('user_id', payload.userId)
+      .single()
+
+    if (adminUser?.role) {
+      role = adminUser.role
+    }
+
+    return NextResponse.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      role,
+    })
   } catch (error) {
     return NextResponse.json(
       { error: 'Unauthorized' },

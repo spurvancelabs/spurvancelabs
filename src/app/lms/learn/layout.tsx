@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
-import { ROLES } from '@/lib/lms/roles';
+import { ROLES, hasMinRole } from '@/lib/lms/roles';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,11 +17,23 @@ export default async function StudentLayout({ children }: { children: React.Reac
   const supabase = getSupabaseAdminClient();
   const { data: user } = await supabase
     .from('users')
-    .select('role')
+    .select('type')
     .eq('id', decoded.userId)
     .single();
 
-  if (user?.role !== ROLES.USER && user?.role !== ROLES.ADMIN) notFound();
+  if (!user) notFound();
+
+  const { data: adminUser } = await supabase
+    .from('admin_users')
+    .select('role')
+    .eq('user_id', decoded.userId)
+    .single();
+
+  const effectiveRole = adminUser?.role || user.type || ROLES.USER;
+
+  if (effectiveRole !== ROLES.USER && effectiveRole !== ROLES.INSTRUCTOR && !hasMinRole(effectiveRole, ROLES.VIEWER)) {
+    notFound();
+  }
 
   return <>{children}</>;
 }

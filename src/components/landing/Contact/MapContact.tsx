@@ -37,8 +37,9 @@ function MapContact() {
         </div>
         
         <p className="text-gray-400 text-base sm:text-lg leading-relaxed max-w-md">
-          We'd love to hear from you! Feel free to reach out to us with any questions,
-          feedback, or inquiries.
+          We'd love to hear from you! As a software development company for
+remote teams and startups, we're happy to answer any questions,
+feedback, or inquiries.
         </p>
         
         <div className="space-y-3 sm:space-y-4 pt-2">

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth';
-import { ROLES, isValidRole } from '@/lib/lms/roles';
+import { verifyToken, generateAccessToken, generateRefreshToken } from '@/lib/auth';
+import { ROLES, isValidRole, isAdminRole, roleLevel } from '@/lib/lms/roles';
+import { getAssignableRoles, canManageUsers, canManageAdmins } from '@/lib/lms/permissions';
 
 export async function PATCH(
   request: NextRequest,
@@ -18,49 +19,91 @@ export async function PATCH(
 
     const supabase = getSupabaseAdminClient();
 
-    const { data: requester } = await supabase
-      .from('users')
+    const { data: requesterAdmin } = await supabase
+      .from('admin_users')
       .select('role')
-      .eq('id', decoded.userId)
+      .eq('user_id', decoded.userId)
       .single();
 
-    if (requester?.role !== ROLES.ADMIN) {
+    const requesterRole = requesterAdmin?.role;
+
+    if (!canManageUsers(requesterRole)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { id } = await params;
-
     const { role } = await request.json();
+
     if (!role || !isValidRole(role)) {
-      return NextResponse.json({ error: 'Invalid role. Must be USER, INSTRUCTOR, or ADMIN' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid role' },
+        { status: 400 }
+      );
     }
 
     if (id === decoded.userId) {
-      return NextResponse.json({ error: 'Cannot change your own role. Ask another admin.' }, { status: 400 });
+      return NextResponse.json({ error: 'Cannot change your own role.' }, { status: 400 });
     }
 
-    const { data: targetUser } = await supabase
-      .from('users')
-      .select('id, email, role')
-      .eq('id', id)
-      .single();
-
-    if (!targetUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    const assignableRoles = getAssignableRoles(requesterRole);
+    if (!assignableRoles.includes(role)) {
+      return NextResponse.json(
+        { error: `You can only assign roles: ${assignableRoles.join(', ')}` },
+        { status: 403 }
+      );
     }
 
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ role })
-      .eq('id', id);
+    const isNewAdmin = isAdminRole(role);
 
-    if (updateError) throw updateError;
+    if (isNewAdmin) {
+      const { data: existingAdmin } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('user_id', id)
+        .single();
+
+      if (existingAdmin) {
+        const { error: updateError } = await supabase
+          .from('admin_users')
+          .update({ role, updated_at: new Date().toISOString() })
+          .eq('user_id', id);
+
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('admin_users')
+          .insert({
+            user_id: id,
+            role,
+            created_by: decoded.userId,
+          });
+
+        if (insertError) throw insertError;
+      }
+    } else {
+      await supabase
+        .from('admin_users')
+        .delete()
+        .eq('user_id', id);
+    }
+
+    if (!isNewAdmin) {
+      const { error: updateUserError } = await supabase
+        .from('users')
+        .update({ type: role })
+        .eq('id', id);
+
+      if (updateUserError) throw updateUserError;
+    }
 
     return NextResponse.json({
       message: `Role updated to ${role}`,
-      user: { id: targetUser.id, email: targetUser.email, role },
+      user: { id, role },
     });
   } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
     return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
   }
 }

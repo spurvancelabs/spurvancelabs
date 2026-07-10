@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { parse } from 'csv-parse/sync';
+import { requireEditor } from '@/lib/lms/utils';
 
 const VALID_STATUSES = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 
 export async function POST(request: NextRequest) {
+  await requireEditor();
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;

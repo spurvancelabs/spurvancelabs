@@ -12,11 +12,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       where: { id },
       include: {
         course: { select: { title: true } },
-        student: { select: { email: true } },
       },
     })
     if (!cert) return NextResponse.json({ error: 'Not found' }, { status: 404 })
     if (cert.studentId !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    const certStudent = await prisma.user.findUnique({
+      where: { id: cert.studentId },
+      select: { email: true },
+    })
 
     const doc = await PDFDocument.create()
     const page = doc.addPage([842, 595])
@@ -40,7 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       font: fontRegular, color: rgb(0.4, 0.4, 0.4),
     })
 
-    page.drawText(cert.student.email || 'Student', {
+    page.drawText(certStudent?.email || 'Student', {
       x: width / 2 - 120, y: height - 250, size: 24,
       font, color: rgb(0.1, 0.1, 0.2),
     })

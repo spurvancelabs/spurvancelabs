@@ -17,7 +17,6 @@ export async function GET() {
         orderBy: { enrolledAt: 'desc' },
         include: {
           course: { select: { id: true, title: true, slug: true } },
-          student: { select: { id: true, email: true } },
         },
       }),
     ])

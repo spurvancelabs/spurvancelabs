@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { ROLES } from '@/lib/lms/roles';
+import { canManageUsers, canCreateContent, canManageAdmins } from '@/lib/lms/permissions';
 
 const icons: Record<string, ReactNode> = {
   dashboard: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>,
@@ -20,6 +21,7 @@ const icons: Record<string, ReactNode> = {
   add: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>,
   list: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>,
   csv: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" /></svg>,
+  shield: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>,
 };
 
 interface NavItem {
@@ -41,36 +43,84 @@ type SidebarItem =
   | { type: 'group'; label: string; icon: keyof typeof icons; href: string; children: NavItem[] }
   | { type: 'section'; label: string };
 
-const navItems: SidebarItem[] = [
-  { type: 'section', label: 'Overview' },
-  { type: 'link', href: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { type: 'link', href: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
-  { type: 'section', label: 'Management' },
-  {
-    type: 'group', label: 'Jobs', icon: 'jobs', href: '/admin/jobs', children: [
-      { href: '/admin/jobs/new', label: 'Add Job', icon: 'add' },
-      { href: '/admin/applications?type=job', label: 'Job Applications', icon: 'applications' },
-    ]
-  },
-  {
-    type: 'group', label: 'Internships', icon: 'internships', href: '/admin/internships', children: [
-      { href: '/admin/internships/new', label: 'Add Internship', icon: 'add' },
-      { href: '/admin/applications?type=internship', label: 'Internship Applications', icon: 'applications' },
-    ]
-  },
-  {
-    type: 'group', label: 'Applications', icon: 'applications', href: '/admin/applications', children: [
-      { href: '/admin/applications', label: 'All Applications', icon: 'list' },
-      { href: '/admin/applications/status', label: 'Status Overview', icon: 'analytics' },
-      { href: '/admin/applications/new', label: 'Add Application', icon: 'add' },
-      { href: '/admin/applications/csv', label: 'CSV Import/Export', icon: 'csv' },
-    ]
-  },
-  { type: 'link', href: '/admin/interviewers', label: 'Interviewers', icon: 'interviewers' },
-  { type: 'link', href: '/admin/users', label: 'Users', icon: 'users' },
-  { type: 'section', label: 'Settings' },
-  { type: 'link', href: '/admin/settings', label: 'Settings', icon: 'settings' },
-];
+function filterNavItems(items: SidebarItem[], role: string): SidebarItem[] {
+  const canManage = canManageUsers(role);
+  const canCreate = canCreateContent(role);
+  const isSuperAdmin = role === ROLES.SUPER_ADMIN;
+  const isViewer = role === ROLES.VIEWER;
+  const isNanoEditor = role === ROLES.NANO_EDITOR;
+
+  return items.filter((item) => {
+    if (item.type === 'section') return true;
+
+    if (item.type === 'link') {
+      if (item.href === '/admin/users' && !canManage) return false;
+      return true;
+    }
+
+    if (item.type === 'group') {
+      if (item.label === 'Admin Management' && !isSuperAdmin) return false;
+      if (isViewer || isNanoEditor) {
+        if (['Jobs', 'Internships'].includes(item.label)) {
+          return isNanoEditor;
+        }
+      }
+      if (!canCreate) {
+        item.children = item.children.filter((c) => c.icon !== 'add' && c.icon !== 'csv');
+        return item.children.length > 0;
+      }
+      return true;
+    }
+
+    return true;
+  });
+}
+
+function getNavItems(role: string): SidebarItem[] {
+  const baseItems: SidebarItem[] = [
+    { type: 'section', label: 'Overview' },
+    { type: 'link', href: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { type: 'link', href: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
+    { type: 'section', label: 'Management' },
+    {
+      type: 'group', label: 'Jobs', icon: 'jobs', href: '/admin/jobs', children: [
+        { href: '/admin/jobs/new', label: 'Add Job', icon: 'add' },
+        { href: '/admin/applications?type=job', label: 'Job Applications', icon: 'applications' },
+      ]
+    },
+    {
+      type: 'group', label: 'Internships', icon: 'internships', href: '/admin/internships', children: [
+        { href: '/admin/internships/new', label: 'Add Internship', icon: 'add' },
+        { href: '/admin/applications?type=internship', label: 'Internship Applications', icon: 'applications' },
+      ]
+    },
+    {
+      type: 'group', label: 'Applications', icon: 'applications', href: '/admin/applications', children: [
+        { href: '/admin/applications', label: 'All Applications', icon: 'list' },
+        { href: '/admin/applications/status', label: 'Status Overview', icon: 'analytics' },
+        { href: '/admin/applications/new', label: 'Add Application', icon: 'add' },
+        { href: '/admin/applications/csv', label: 'CSV Import/Export', icon: 'csv' },
+      ]
+    },
+    { type: 'link', href: '/admin/interviewers', label: 'Interviewers', icon: 'interviewers' },
+    { type: 'link', href: '/admin/users', label: 'Users', icon: 'users' },
+  ];
+
+  const adminManagementItems: SidebarItem[] = [
+    { type: 'section', label: 'Admin' },
+    { type: 'link', href: '/admin/admins', label: 'Admin Management', icon: 'shield' },
+  ];
+
+  const settingsItem: SidebarItem[] = [
+    { type: 'section', label: 'Settings' },
+    { type: 'link', href: '/admin/settings', label: 'Settings', icon: 'settings' },
+  ];
+
+  const allItems = canManageAdmins(role)
+    ? [...baseItems, ...adminManagementItems, ...settingsItem]
+    : [...baseItems, ...settingsItem];
+  return filterNavItems(allItems, role);
+}
 
 function NavLink({ href, label, icon, badge, onClick }: NavItem & { onClick?: () => void }) {
   const pathname = usePathname();
@@ -111,12 +161,26 @@ export default function Sidebar() {
   const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [userRole, setUserRole] = useState<string>(ROLES.VIEWER);
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.role) setUserRole(data.role);
+        if (data?.email) setUserEmail(data.email);
+      })
+      .catch(() => {});
+  }, []);
+
+  const navItems = getNavItems(userRole);
 
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       toast.success('Logged out successfully');
-      router.push('/login');
+      router.push('/admin/login');
     } catch {
       toast.error('Logout failed');
     }

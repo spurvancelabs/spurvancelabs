@@ -68,59 +68,72 @@ export default function InternshipListings() {
             Current <span className="text-[#888] font-light">Internships</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
-            Join our team and start building the future of technology
+           Join our software development internship program and
+start building the future of technology
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {internships.map((internship, index) => (
-            <div
-              key={internship.id}
-              className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-6 transition-[0.3s_ease] opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col h-full"
-              ref={(el) => { itemsRef.current[index] = el; }}
-            >
-              <div className="w-14 h-14 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mb-4">
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : internships.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {internships.map((internship, index) => (
+              <div
+                key={internship.id}
+                className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl p-6 transition-[0.3s_ease] opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:bg-[#111] hover:-translate-y-1.5 flex flex-col h-full"
+                ref={(el) => { itemsRef.current[index] = el; }}
+              >
+                <div className="w-14 h-14 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center mb-4">
         <img src={internship.icon ?? ''} alt={internship.title} className="w-10 h-10 object-contain" />
 
+                </div>
+
+                <h3 className="text-white text-[1.3rem] font-semibold mb-2">
+                  {internship.title}
+                </h3>
+
+                <span className="text-blue-500 text-[0.75rem] uppercase tracking-[0.1em] font-medium mb-3">
+                  {internship.department}
+                </span>
+
+                <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-4 flex-1">
+                  {internship.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {internship.skills.map((skill, i) => (
+                    <span key={i} className="text-[0.7rem] text-[#888] bg-[#1a1a1a] px-3 py-[0.2rem] rounded-full border border-[#2a2a2a]">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex justify-between items-center text-[0.8rem] text-[#666] mb-5 pt-4 border-t border-[#1a1a1a]">
+                  <span><i className="fas fa-clock mr-1"></i> {internship.duration}</span>
+                  <span><i className="fas fa-map-marker-alt mr-1"></i> {internship.location}</span>
+                </div>
+
+                <div className="flex justify-between items-center mb-5">
+                  <span className="text-white font-semibold">{internship.stipend}</span>
+                  <button
+                    onClick={() => { setSelectedInternship(internship); setShowModal(true); }}
+                    className="bg-blue-500 text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5"
+                  >
+                    Apply Now
+                  </button>
+                </div>
               </div>
-
-              <h3 className="text-white text-[1.3rem] font-semibold mb-2">
-                {internship.title}
-              </h3>
-
-              <span className="text-blue-500 text-[0.75rem] uppercase tracking-[0.1em] font-medium mb-3">
-                {internship.department}
-              </span>
-
-              <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-4 flex-1">
-                {internship.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {internship.skills.map((skill, i) => (
-                  <span key={i} className="text-[0.7rem] text-[#888] bg-[#1a1a1a] px-3 py-[0.2rem] rounded-full border border-[#2a2a2a]">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex justify-between items-center text-[0.8rem] text-[#666] mb-5 pt-4 border-t border-[#1a1a1a]">
-                <span><i className="fas fa-clock mr-1"></i> {internship.duration}</span>
-                <span><i className="fas fa-map-marker-alt mr-1"></i> {internship.location}</span>
-              </div>
-
-              <div className="flex justify-between items-center mb-5">
-                <span className="text-white font-semibold">{internship.stipend}</span>
-                <button
-                  onClick={() => { setSelectedInternship(internship); setShowModal(true); }}
-                  className="bg-blue-500 text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5"
-                >
-                  Apply Now
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-[#888] text-[1.1rem] font-light">
+              No internship positions available right now — check back soon, or submit a general application.
+            </p>
+          </div>
+        )}
       </div>
       {showModal && (
         <InternshipApplicationModal
