@@ -24,7 +24,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     })
 
-    const courseIds = courses.map(c => c.id)
+    const courseIds = courses.map((c: { id: string }) => c.id)
 
     const totalEnrollments = await prisma.enrollment.count({
       where: { courseId: { in: courseIds } },
@@ -38,15 +38,11 @@ export async function GET() {
       where: { courseId: { in: courseIds }, status: 'ACTIVE' },
     })
 
-    const pendingCourses = courses.filter(c => c.status === 'DRAFT').length
+    const totalRevenue = courses.reduce((sum: number, c: { price: string | number; _count: { enrollments: number } }) => sum + Number(c.price ?? 0) * c._count.enrollments, 0)
 
-    const completionRate = totalEnrollments > 0
-      ? Math.round((completedEnrollments / totalEnrollments) * 100)
-      : 0
-
-    const avgRatings = courses.map(c => {
-      const ratings = c.reviews.map(r => r.rating)
-      const avg = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length) : 0
+    const avgRatings = courses.map((c: { id: string; reviews: { rating: number }[] }) => {
+      const ratings = c.reviews.map((r: { rating: number }) => r.rating)
+      const avg = ratings.length ? (ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length) : 0
       return { courseId: c.id, avgRating: Math.round(avg * 10) / 10, count: ratings.length }
     })
 
@@ -141,7 +137,7 @@ export async function GET() {
 
     return NextResponse.json({
       totalCourses: courses.length,
-      publishedCourses: courses.filter(c => c.status === 'PUBLISHED').length,
+      publishedCourses: courses.filter((c: { status: string }) => c.status === 'PUBLISHED').length,
       totalEnrollments,
       activeEnrollments,
       completedEnrollments,
