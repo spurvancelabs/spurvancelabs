@@ -19,21 +19,28 @@ export async function GET() {
       .eq('id', decoded!.userId)
       .single();
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
     const { data: adminUser } = await supabase
       .from('admin_users')
       .select('role')
       .eq('user_id', decoded!.userId)
       .single();
 
+    if (user) {
+      return NextResponse.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: adminUser?.role || user.type,
+      });
+    }
+
+    const { data: authUser } = await supabase.auth.admin.getUserById(decoded!.userId);
+
     return NextResponse.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: adminUser?.role || user.type,
+      id: decoded!.userId,
+      name: authUser?.user?.user_metadata?.name || null,
+      email: authUser?.user?.email || '',
+      role: adminUser?.role || 'ADMIN',
     });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
@@ -57,12 +64,24 @@ export async function PATCH(request: NextRequest) {
     const supabase = getSupabaseAdminClient();
 
     if (name) {
-      const { error: updateError } = await supabase
+      const { data: existingUser } = await supabase
         .from('users')
-        .update({ name })
-        .eq('id', decoded!.userId);
+        .select('id')
+        .eq('id', decoded!.userId)
+        .single();
 
-      if (updateError) throw updateError;
+      if (existingUser) {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ name })
+          .eq('id', decoded!.userId);
+        if (updateError) throw updateError;
+      } else {
+        const { error: updateError } = await supabase.auth.admin.updateUserById(decoded!.userId, {
+          user_metadata: { name },
+        });
+        if (updateError) throw updateError;
+      }
     }
 
     if (newPassword) {

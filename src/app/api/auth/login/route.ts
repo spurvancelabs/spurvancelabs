@@ -67,13 +67,29 @@ export async function POST(request: Request) {
       .eq('id', user.id)
       .single();
 
+    const { data: adminRecord } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (adminRecord?.role) {
+      rateLimiter.increment(ip);
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
+    }
+
+    const role = userRecord?.type || ROLES.USER;
+
     const response = NextResponse.json(
       {
         message: 'Login successful',
         user: {
           id: user.id,
           email: user.email,
-          role: userRecord?.type || ROLES.USER,
+          role,
         },
       },
       { status: 200 }

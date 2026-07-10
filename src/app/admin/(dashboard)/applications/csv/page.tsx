@@ -12,7 +12,7 @@ export default function CsvManagementPage() {
     fetch('/api/auth/me').then(r => r.json()).then(d => { if (d?.role) setMyRole(d.role); }).catch(() => {});
   }, []);
   const queryClient = useQueryClient();
-  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; errors: number } | null>(null);
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number; errors: number; errorDetails?: string[] } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -47,10 +47,16 @@ export default function CsvManagementPage() {
       setImportResult({ 
         imported: json.imported || 0, 
         skipped: json.skipped || 0, 
-        errors: json.errors || 0 
+        errors: json.errors || 0,
+        errorDetails: json.results?.filter((r: any) => r.status === 'error').slice(0, 5).map((r: any) => `${r.name}: ${r.error}`) || [],
       });
       
-      toast.success(`Imported: ${json.imported || 0}, Skipped: ${json.skipped || 0}, Errors: ${json.errors || 0}`);
+      if (json.errors > 0 && json.results) {
+        const firstErrors = json.results.filter((r: any) => r.status === 'error').slice(0, 3).map((r: any) => r.error).join('\n');
+        toast.error(`Errors (${json.errors}):\n${firstErrors}`, { duration: 8000 });
+      } else {
+        toast.success(`Imported: ${json.imported || 0}, Skipped: ${json.skipped || 0}`);
+      }
       queryClient.invalidateQueries();
     } catch (err: any) {
       toast.error(err.message || 'Failed to import');
@@ -205,19 +211,31 @@ export default function CsvManagementPage() {
 
           {/* Results */}
           {importResult && (
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
-                <p className="text-lg font-medium text-white">{importResult.imported}</p>
-                <p className="text-xs text-gray-500">Imported</p>
+            <div className="mt-4 space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
+                  <p className="text-lg font-medium text-green-400">{importResult.imported}</p>
+                  <p className="text-xs text-gray-500">Imported</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
+                  <p className="text-lg font-medium text-yellow-400">{importResult.skipped}</p>
+                  <p className="text-xs text-gray-500">Skipped</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
+                  <p className="text-lg font-medium text-red-400">{importResult.errors}</p>
+                  <p className="text-xs text-gray-500">Errors</p>
+                </div>
               </div>
-              <div className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
-                <p className="text-lg font-medium text-white">{importResult.skipped}</p>
-                <p className="text-xs text-gray-500">Skipped</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-white/5 border border-white/10">
-                <p className="text-lg font-medium text-white">{importResult.errors}</p>
-                <p className="text-xs text-gray-500">Errors</p>
-              </div>
+              {importResult.errorDetails && importResult.errorDetails.length > 0 && (
+                <div className="rounded-lg bg-red-500/5 border border-red-500/20 p-3">
+                  <p className="text-xs font-medium text-red-400 mb-2">Error Details:</p>
+                  <div className="space-y-1">
+                    {importResult.errorDetails.map((detail, i) => (
+                      <p key={i} className="text-xs text-red-300/70 font-mono">{detail}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
