@@ -139,7 +139,8 @@ export default function InternshipPricing() {
             Internship <span className="text-[#888] font-light">Programs</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] max-sm:text-[0.9rem] font-light max-w-[500px] mx-auto max-sm:px-4">
-            Choose from our specialized tracks and kickstart your career
+            Choose from our specialized software development
+internship tracks and kickstart your career
           </p>
         </div>
 

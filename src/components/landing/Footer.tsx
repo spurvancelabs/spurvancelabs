@@ -43,7 +43,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-[#666] text-[0.95rem] leading-[1.8] max-w-[350px] max-sm:text-[0.85rem]">
-              We craft digital experiences that transform businesses and drive growth through innovative technology solutions.
+              We're a software development company for remote teams and startups, 
+crafting digital experiences that transform businesses and drive growth.
             </p>
           </div>
           <div className="flex gap-3 mt-2">
