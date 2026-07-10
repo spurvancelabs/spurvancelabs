@@ -14,9 +14,6 @@ function ContactPage() {
         <Header/>
         <HeroContact/>
         <MapContact/>
-        <div className="mb-20">       
-           <GetStarted />
-        </div>
 
         <Footer/>
     </section>

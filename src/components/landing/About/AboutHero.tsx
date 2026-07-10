@@ -9,8 +9,10 @@ function AboutHero() {
           About <span className="text-blue-500">Spurvancelab</span>
         </h1>
         <p className="text-[#666] text-lg max-w-3xl mx-auto mb-12">
-          We are a technology-driven company passionate about creating innovative solutions 
-          that transform businesses and empower people through cutting-edge software development.
+          We're a software development company for remote teams
+and startups, passionate about creating innovative solutions that
+transform businesses and empower people through cutting-edge software
+development.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">

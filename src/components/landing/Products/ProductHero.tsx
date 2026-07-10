@@ -14,8 +14,9 @@ function ProductHero() {
             Innovative <span className="text-blue-500">Solutions</span>
           </h1>
           <p className="text-[#666] text-lg max-w-3xl mx-auto mb-12">
-            Discover our suite of products designed to solve complex problems with elegant, 
-            user-friendly solutions built using cutting-edge technology.
+            Discover our suite of software products for startups and remote 
+teams — built to solve complex problems with elegant, user-friendly 
+design.
           </p>
         </div>
 

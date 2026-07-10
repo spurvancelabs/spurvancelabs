@@ -204,7 +204,7 @@ export default function NewApplicationPage() {
       <div className="bg-zinc-900/50 border border-white/[0.06] rounded-2xl p-4 sm:p-6">
         <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Personal Information</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {renderField('Name', 'name', { required: true, placeholder: 'John Doe' })}
+          {renderField('Name', 'name', { required: true, placeholder: 'Your full name' })}
           {renderField('Email', 'email', { type: 'email', required: true, placeholder: 'john@example.com' })}
           {renderField('Phone', 'phone', { placeholder: '+1 (555) 123-4567' })}
           {renderField('LinkedIn URL', 'linkedin_url', { placeholder: 'https://linkedin.com/in/username' })}

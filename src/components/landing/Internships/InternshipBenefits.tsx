@@ -45,8 +45,8 @@ export default function InternshipBenefits() {
             Internship <span className="text-[#888] font-light">Benefits</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
-            We invest in your growth with comprehensive support and real-world experience
-          </p>
+As a paid software engineering internship, we invest in
+your growth with comprehensive support and real-world experience          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

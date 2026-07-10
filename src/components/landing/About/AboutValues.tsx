@@ -46,7 +46,9 @@ export default function AboutValues() {
             What We <span className="text-[#888] font-light">Stand For</span>
           </h2>
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
-            Our values drive everything we do, from code to client relationships
+            Our values drive everything we do — as a software
+development company for remote teams and startups, from code to client
+relationships
           </p>
         </div>
 

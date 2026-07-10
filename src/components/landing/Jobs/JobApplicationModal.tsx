@@ -114,7 +114,7 @@ export default function JobApplicationModal({ job, onClose }: JobApplicationModa
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-[0.3s_ease]"
-                placeholder="John Doe"
+                placeholder="Your full name"
               />
             </div>
             <div>

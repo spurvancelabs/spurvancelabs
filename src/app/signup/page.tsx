@@ -103,7 +103,7 @@ const mutation = useMutation({
                   <UserIcon className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-300 sm:left-3 sm:h-4 sm:w-4 md:h-5 md:w-5 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)] " />
                   <input
                     type="text"
-                    placeholder="John Doe"
+                    placeholder="Your full name"
                     value={form.name}
                     onChange={(e) => {
                       setForm({ ...form, name: e.target.value });
