@@ -28,12 +28,12 @@ export async function GET() {
       take: 10,
     })
 
-    const courseIds = enrollmentsByCourse.map(e => e.courseId)
+    const courseIds = enrollmentsByCourse.map((e: { courseId: string }) => e.courseId)
     const courses = await prisma.course.findMany({
       where: { id: { in: courseIds } },
       select: { id: true, title: true },
     })
-    const courseMap = new Map(courses.map(c => [c.id, c.title]))
+    const courseMap = new Map(courses.map((c: { id: string, title: string }) => [c.id, c.title]))
 
     const avgProgress = await prisma.enrollment.aggregate({
       _avg: { progress: true },
@@ -47,7 +47,7 @@ export async function GET() {
       completedEnrollments,
       avgProgress: Math.round(avgProgress._avg.progress ?? 0),
       recentEnrollments,
-      enrollmentsByCourse: enrollmentsByCourse.map(e => ({
+      enrollmentsByCourse: enrollmentsByCourse.map((e: { courseId: string, _count: number }) => ({
         courseId: e.courseId,
         courseTitle: courseMap.get(e.courseId) || 'Unknown',
         count: e._count,
