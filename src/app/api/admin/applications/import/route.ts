@@ -6,8 +6,8 @@ import { requireEditor } from '@/lib/lms/utils';
 const VALID_STATUSES = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 
 export async function POST(request: NextRequest) {
-  await requireEditor();
   try {
+    await requireEditor();
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     if (!file) {
@@ -38,12 +38,21 @@ export async function POST(request: NextRequest) {
       let postingId: string | null = null;
       if (titleValue) {
         const foreignTable = type === 'job' ? 'jobs' : 'internships';
-        const { data: posting } = await supabase
+        const trimmed = titleValue.trim();
+        const { data: posting, error: fetchErr } = await supabase
           .from(foreignTable)
-          .select('id')
-          .ilike('title', titleValue.trim())
+          .select('id, title')
+          .ilike('title', trimmed)
           .maybeSingle();
-        if (posting) postingId = posting.id;
+        if (fetchErr) {
+          console.error('Fetch posting error:', JSON.stringify(fetchErr, null, 2));
+        }
+        if (posting) {
+          postingId = posting.id;
+        } else {
+          const { data: allPostings } = await supabase.from(foreignTable).select('id, title');
+          console.error(`No match for "${trimmed}". Available ${foreignTable}:`, JSON.stringify(allPostings?.map((p: any) => p.title)));
+        }
       }
 
       const idField = type === 'job' ? 'job_id' : 'internship_id';
@@ -57,13 +66,25 @@ export async function POST(request: NextRequest) {
         updated_at: now,
       };
 
-      if (postingId) insertData[idField] = postingId;
+      if (postingId) {
+        insertData[idField] = postingId;
+      } else {
+        results.push({ name: record.Name, email: record.Email, status: 'error', error: `Could not find matching ${type === 'job' ? 'job' : 'internship'}: "${titleValue || '(none)'}"` });
+        continue;
+      }
       if (record.Phone) insertData.phone = record.Phone;
       if (record.Interviewer) insertData.interviewer_name = record.Interviewer;
       if (record['Interview Date']) insertData.interview_date = record['Interview Date'];
 
+      if (type === 'internship') {
+        insertData.university = record.University || record.university || 'Not specified';
+        insertData.major = record.Major || record.major || 'Not specified';
+        insertData.year_of_study = record['Year of Study'] || record.year_of_study || 'Not specified';
+      }
+
       const { error } = await supabase.from(table).insert([insertData]);
       if (error) {
+        console.error('Import insert error:', JSON.stringify(error, null, 2));
         results.push({ name: record.Name, email: record.Email, status: 'error', error: error.message });
       } else {
         results.push({ name: record.Name, email: record.Email, status: 'imported' });

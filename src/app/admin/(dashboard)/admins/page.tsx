@@ -100,6 +100,22 @@ export default function AdminManagementPage() {
 
   const admins: Admin[] = data?.admins || [];
 
+  const total = admins.length;
+  const superAdmins = admins.filter((a) => a.role === ROLES.SUPER_ADMIN).length;
+  const adminCount = admins.filter((a) => a.role === ROLES.ADMIN).length;
+  const editors = admins.filter((a) => a.role === ROLES.EDITOR).length;
+  const nanoEditors = admins.filter((a) => a.role === ROLES.NANO_EDITOR).length;
+  const viewers = admins.filter((a) => a.role === ROLES.VIEWER).length;
+
+  const stats = [
+    { label: 'Total Admins', value: total, color: 'text-blue-400' },
+    { label: 'Super Admins', value: superAdmins, color: 'text-red-400' },
+    { label: 'Admins', value: adminCount, color: 'text-blue-400' },
+    { label: 'Editors', value: editors, color: 'text-amber-400' },
+    { label: 'Nano Editors', value: nanoEditors, color: 'text-purple-400' },
+    { label: 'Viewers', value: viewers, color: 'text-gray-400' },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -116,6 +132,15 @@ export default function AdminManagementPage() {
           </svg>
           Add Admin
         </button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-zinc-900/80 border border-white/[0.06] rounded-2xl p-4">
+            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{stat.label}</p>
+            <p className={`text-xl sm:text-2xl font-bold tracking-tight mt-1 ${stat.color}`}>{stat.value}</p>
+          </div>
+        ))}
       </div>
 
       {showAddForm && (
