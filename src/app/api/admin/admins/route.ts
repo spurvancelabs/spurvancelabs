@@ -23,8 +23,12 @@ export async function GET() {
 
     const userMap = new Map((usersData || []).map((u: any) => [u.id, u]));
 
+    const { data: { users: authUsers } } = await supabase.auth.admin.listUsers();
+    const authUserMap = new Map((authUsers || []).map((u: any) => [u.id, u]));
+
     const admins = (adminData || []).map((a: any) => {
       const user = userMap.get(a.user_id) || {};
+      const authUser = authUserMap.get(a.user_id) || {};
       return {
         id: a.id,
         user_id: a.user_id,
@@ -32,7 +36,7 @@ export async function GET() {
         created_by: a.created_by,
         created_at: a.created_at,
         updated_at: a.updated_at,
-        email: user.email || '',
+        email: user.email || authUser.email || '',
         name: user.name || null,
       };
     });
@@ -62,15 +66,14 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdminClient();
 
-    const { data: existingUser, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single();
+    const { data: { users: authUsers }, error: listError } = await supabase.auth.admin.listUsers();
+    const existingAuthUser = authUsers?.find(u => u.email === email);
 
     let userId: string;
 
-    if (!existingUser) {
+    if (existingAuthUser) {
+      userId = existingAuthUser.id;
+    } else {
       if (!password || password.length < 6) {
         return NextResponse.json({ error: 'Password required (min 6 chars) for new users' }, { status: 400 });
       }
@@ -79,15 +82,13 @@ export async function POST(request: NextRequest) {
         email,
         password,
         email_confirm: true,
-        user_metadata: { name: email.split('@')[0], type: 'USER' },
+        user_metadata: { name: email.split('@')[0], skip_users_table: true },
       });
 
       if (createError) throw createError;
       if (!authUser?.user) throw new Error('Failed to create user');
 
       userId = authUser.user.id;
-    } else {
-      userId = existingUser.id;
     }
 
     const { data: existingAdmin } = await supabase
@@ -100,15 +101,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User is already an admin' }, { status: 409 });
     }
 
+    const now = new Date().toISOString();
     const { error: insertError } = await supabase.from('admin_users').insert({
       user_id: userId,
       role: newRole,
+      created_at: now,
+      updated_at: now,
     });
 
     if (insertError) throw insertError;
 
     return NextResponse.json({
-      message: `${email} added as ${newRole}${!existingUser ? ' — password set' : ''}`,
+      message: `${email} added as ${newRole}${!existingAuthUser ? ' — password set' : ''}`,
     }, { status: 201 });
   } catch (error: any) {
     if (error.message === 'Unauthorized' || error.message === 'Forbidden') {

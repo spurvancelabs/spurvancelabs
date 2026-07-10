@@ -20,21 +20,17 @@ model User {
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  adminUser AdminUser?
-
   @@map("users")
   @@schema("public")
 }
 
 model AdminUser {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @unique @map("user_id") @db.Uuid
   role      String   @default("VIEWER")
   createdBy String?  @map("created_by") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([role])
   @@map("admin_users")
@@ -141,7 +137,7 @@ model Internship {
 }
 
 model JobApplication {
-  id          String            @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   jobId       String            @map("job_id") @db.Uuid
   userId      String?           @map("user_id") @db.Uuid
   name        String            @db.VarChar(200)
