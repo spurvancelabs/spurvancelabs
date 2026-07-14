@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
-import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
 import { rateLimiter } from '@/lib/rate-limit'
 import { NotificationTrigger } from '@/lib/notification/trigger'
 
@@ -60,13 +58,10 @@ export async function POST(request: Request) {
 
     rateLimiter.reset(ip)
 
-    const hashedPassword = await bcrypt.hash(password, 12)
-
     await supabaseAdmin().auth.admin.updateUserById(user.id, {
       password,
       user_metadata: {
         ...user.user_metadata,
-        password: hashedPassword,
         resetToken: null,
         resetTokenExpiry: null,
       }
@@ -97,10 +92,6 @@ export async function POST(request: Request) {
       { message: 'Password reset successful' },
       { status: 200 }
     )
-    
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('X-Frame-Options', 'DENY')
-    response.headers.set('X-XSS-Protection', '1; mode=block')
     
     return response
   } catch (error) {

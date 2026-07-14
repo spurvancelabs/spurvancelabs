@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireAuth } from '@/lib/lms/utils'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import QRCode from 'qrcode'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const certStudent = await prisma.user.findUnique({
       where: { id: cert.studentId },
-      select: { email: true },
+      select: { name: true, email: true },
     })
 
     const doc = await PDFDocument.create()
@@ -44,8 +45,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       font: fontRegular, color: rgb(0.4, 0.4, 0.4),
     })
 
-    page.drawText(certStudent?.email || 'Student', {
-      x: width / 2 - 120, y: height - 250, size: 24,
+    const studentName = certStudent?.name || certStudent?.email || 'Student'
+    page.drawText(studentName, {
+      x: width / 2 - studentName.length * 6, y: height - 250, size: 24,
       font, color: rgb(0.1, 0.1, 0.2),
     })
 
@@ -54,14 +56,37 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       font: fontRegular, color: rgb(0.4, 0.4, 0.4),
     })
 
-    page.drawText(cert.course.title, {
-      x: width / 2 - 140, y: height - 350, size: 22,
+    const courseTitle = cert.course.title
+    page.drawText(courseTitle, {
+      x: width / 2 - courseTitle.length * 5.5, y: height - 350, size: 22,
       font, color: rgb(0.2, 0.4, 0.8),
     })
 
     const dateStr = cert.createdAt instanceof Date ? cert.createdAt.toLocaleDateString() : new Date(cert.createdAt).toLocaleDateString()
     page.drawText(`Date: ${dateStr}`, {
       x: width / 2 - 60, y: height - 440, size: 12,
+      font: fontRegular, color: rgb(0.5, 0.5, 0.5),
+    })
+
+    const verifyUrl = `${req.nextUrl.origin}/verify/${cert.id}`
+    const qrDataUrl = await QRCode.toDataURL(verifyUrl, { width: 200, margin: 1 })
+    const qrPngBytes = Buffer.from(qrDataUrl.split(',')[1], 'base64')
+    const qrImage = await doc.embedPng(qrPngBytes)
+    page.drawImage(qrImage, {
+      x: width - 160, y: 70, width: 90, height: 90,
+    })
+
+    page.drawText('Verify online:', {
+      x: width - 175, y: 165, size: 7,
+      font: fontRegular, color: rgb(0.5, 0.5, 0.5),
+    })
+    page.drawText(verifyUrl, {
+      x: width - 175, y: 155, size: 6,
+      font: fontRegular, color: rgb(0.4, 0.4, 0.8),
+    })
+
+    page.drawText(`Code: ${cert.id}`, {
+      x: 55, y: 75, size: 8,
       font: fontRegular, color: rgb(0.5, 0.5, 0.5),
     })
 

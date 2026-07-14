@@ -7,9 +7,17 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url)
     const code = url.searchParams.get('code')
+    const state = url.searchParams.get('state')
+
+    const cookies = request.headers.get('cookie') || ''
+    const storedState = cookies.match(/oauth_state=([^;]+)/)?.[1]
+
+    if (!storedState || !state || storedState !== state) {
+      return NextResponse.redirect('/login?error=invalid_state')
+    }
 
     if (!code) {
-      return NextResponse.redirect('/login')
+      return NextResponse.redirect('/login?error=missing_code')
     }
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -92,6 +100,8 @@ export async function GET(request: Request) {
       maxAge: 7 * 24 * 60 * 60,
       path: '/',
     })
+
+    response.cookies.delete('oauth_state')
 
     return response
   } catch (error) {

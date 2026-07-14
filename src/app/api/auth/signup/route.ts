@@ -33,8 +33,6 @@ export async function POST(request: Request) {
     const body = (await request.json()) as SignupBody
     const { email, password, name } = signupSchema.parse(body)
 
-    console.log('Creating user:', { email, name })
-
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -51,15 +49,8 @@ emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/verify-email`,
     if (error) {
       console.error('Supabase auth error:', error)
 
-      if (error.message?.toLowerCase().includes('already')) {
-        return NextResponse.json(
-          { success: false, message: 'Email is already registered' },
-          { status: 400 }
-        )
-      }
-
       return NextResponse.json(
-        { success: false, message: error.message || 'Failed to create account' },
+        { success: false, message: 'Failed to create account. Please try again.' },
         { status: 400 }
       )
     }

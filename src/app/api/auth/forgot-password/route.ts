@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
+import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { rateLimiter } from '@/lib/rate-limit'
 
@@ -9,6 +10,12 @@ const forgotPasswordSchema = z.object({
 
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
+function hashOTP(otp: string): string {
+  const salt = crypto.randomBytes(16).toString('hex')
+  const hash = crypto.scryptSync(otp, salt, 64).toString('hex')
+  return `${salt}:${hash}`
 }
 
 export async function POST(request: Request) {
@@ -29,7 +36,6 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { email } = forgotPasswordSchema.parse(body)
 
-    // ✅ FIX: correct destructuring
     const { data, error } = await supabaseAdmin().auth.admin.listUsers()
 
     if (error) {
@@ -45,7 +51,6 @@ export async function POST(request: Request) {
 
     rateLimiter.reset(ip)
 
-    // ⚠️ Always return same response (security best practice)
     if (!user) {
       return NextResponse.json(
         {
@@ -57,12 +62,13 @@ export async function POST(request: Request) {
     }
 
     const otp = generateOTP()
+    const hashedOTP = hashOTP(otp)
     const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString()
 
     await supabaseAdmin().auth.admin.updateUserById(user.id, {
       user_metadata: {
         ...user.user_metadata,
-        resetOTP: otp,
+        resetOTP: hashedOTP,
         resetOTPExpiry: expiry,
       },
     })
