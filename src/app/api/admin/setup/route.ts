@@ -4,10 +4,34 @@ import { ROLES } from '@/lib/lms/roles';
 
 export async function POST(request: NextRequest) {
   try {
+    const authHeader = request.headers.get('authorization');
+    const setupSecret = process.env.ADMIN_SETUP_SECRET;
+
+    if (!setupSecret) {
+      return NextResponse.json(
+        { error: 'Admin setup is not configured. Set ADMIN_SETUP_SECRET in your environment.' },
+        { status: 503 }
+      );
+    }
+
+    if (!authHeader || authHeader !== `Bearer ${setupSecret}`) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Provide a valid ADMIN_SETUP_SECRET in the Authorization header.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
-    const email = body.email || 'admin@gmail.com';
-    const password = body.password || 'admin123@';
+    const email = body.email;
+    const password = body.password;
     const name = body.name || 'Admin';
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Email and password are required.' },
+        { status: 400 }
+      );
+    }
 
     const supabase = getSupabaseAdminClient();
 
