@@ -1,3 +1,7 @@
+// WARNING: This is an in-memory rate limiter. It works for single-server deployments
+// but resets on cold starts and doesn't share state across serverless instances.
+// For production on Vercel/AWS Lambda, use a Redis-backed rate limiter (e.g., @upstash/ratelimit)
+// or Supabase-based rate limiting with a database table.
 export class RateLimiter {
   protected attempts: Map<string, { count: number; firstAttempt: number }> = new Map();
   protected blocked: Map<string, number> = new Map();

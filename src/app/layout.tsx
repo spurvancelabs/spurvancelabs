@@ -4,6 +4,7 @@ import React from 'react';
 import { Toaster } from "react-hot-toast";
 import QueryProvider from '@/providers/QueryProvider';
 import { useNotificationRealtime } from '@/hooks/useNotificationRealtime';
+import "@/global.css"
 
 const AppContent = ({ children }: { children: React.ReactNode }) => {
   useNotificationRealtime();

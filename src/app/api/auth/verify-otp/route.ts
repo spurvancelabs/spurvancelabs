@@ -11,6 +11,13 @@ const verifyOTPSchema = z.object({
 
 type VerifyOTPBody = z.infer<typeof verifyOTPSchema>
 
+function verifyOTP(otp: string, storedHash: string): boolean {
+  const [salt, hash] = storedHash.split(':')
+  if (!salt || !hash) return false
+  const verifyHash = crypto.scryptSync(otp, salt, 64).toString('hex')
+  return hash === verifyHash
+}
+
 export async function POST(request: Request) {
   try {
     const ip = (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
@@ -43,7 +50,8 @@ export async function POST(request: Request) {
     const storedOTP = (user.user_metadata || {}).resetOTP
     const expiry = (user.user_metadata || {}).resetOTPExpiry
 
-    if (!storedOTP || !expiry || new Date(expiry) < new Date() || storedOTP !== otp) {
+    const otpValid = storedOTP && verifyOTP(otp, storedOTP)
+    if (!otpValid || !expiry || new Date(expiry) < new Date()) {
       rateLimiter.increment(ip)
       return NextResponse.json(
         { error: 'Invalid or expired OTP' },
@@ -67,7 +75,7 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(
-      { message: 'OTP verified successfully', resetToken },
+      { message: 'OTP verified successfully. Check your email for the reset link.' },
       { status: 200 }
     )
   } catch (error) {

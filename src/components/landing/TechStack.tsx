@@ -4,7 +4,7 @@ function TechStack() {
         <section className="flex flex-col items-center justify-center bg-transparent px-4 sm:px-5 pb-10 sm:pb-[60px] pt-8 sm:pt-10 rounded-[40px] relative overflow-hidden">
       <div className="relative flex flex-col items-center ">
    
-<svg  className="max-sm:w-110 max-sm:h-110 w-[999px] h-[867px]" viewBox="0 0 999 867" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg  className="max-sm:w-110 sm:w-150  max-sm:h-110 w-[999px] h-[867px]" viewBox="0 0 999 867" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M522 475L522 690.784C522 701.83 530.954 710.784 542 710.784L688 710.784C699.046 710.784 708 719.738 708 730.784L708 820" stroke="url(#flowGradientDown)" stroke-width="2"/>
 <path d="M483 476L483 691.784C483 702.83 474.046 711.784 463 711.784L317 711.784C305.954 711.784 297 720.738 297 731.784L297 821" stroke="url(#flowGradientDown)" stroke-width="2"/>
 <path d="M504 475.511L503 475.502L501.211 680.342L502.211 680.351L503.211 680.361L505 475.52L504 475.511ZM502.211 680.351L501.211 680.342L500 818.947L501 818.956L502 818.965L503.211 680.361L502.211 680.351Z" fill="url(#flowGradientDown)"/>
