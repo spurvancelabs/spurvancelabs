@@ -14,11 +14,11 @@ function JobsHero({ searchQuery, setSearchQuery, onSearch }: Props) {
 
   return (
     <div className="relative flex items-center justify-center overflow-hidden pt-36 pb-20 md:pt-44 md:pb-24">
-      <div className="relative z-10 max-w-6xl mx-auto px-8 text-center">
-        <h1 className="text-white text-5xl md:text-6xl font-bold tracking-[-0.02em] mb-6">
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 text-center">
+        <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-bold tracking-[-0.02em] mb-4 sm:mb-6">
           Find Your <span className="text-blue-500">Dream Job</span>
         </h1>
-        <p className="text-[#666] text-lg max-w-3xl mx-auto mb-12">
+        <p className="text-[#666] text-sm sm:text-lg max-w-3xl mx-auto mb-8 sm:mb-12">
          Explore remote software engineer jobs in development, design, and 
         technology. We're looking for passionate individuals to join our growing team.
         </p>
@@ -34,7 +34,7 @@ function JobsHero({ searchQuery, setSearchQuery, onSearch }: Props) {
           />
           <button
             onClick={onSearch}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7a7a] text-lg hover:text-blue-500 transition-colors cursor-pointer"
+            className="absolute left-5 top-1/2 -translate-y-1/2 text-[#7a7a7a] text-lg hover:text-blue-500 transition-colors cursor-pointer"
           >
             <i className="fas fa-search"></i>
           </button>

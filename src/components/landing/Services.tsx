@@ -75,7 +75,7 @@ export default function Services() {
           Comprehensive solutions tailored to your business needs
         </p>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[1.5rem_1rem] sm:gap-[2rem_1.5rem] mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-[2rem_1.5rem] mt-4">
         {services.map((service, index) => (
           <div
             key={index}
@@ -92,10 +92,13 @@ export default function Services() {
               {service.description}
             </p>
             <Link
-              href="/services" 
-              className="text-[#888] text-[0.85rem] font-medium no-underline transition-[0.3s_ease] inline-flex items-center gap-[0.3rem] border-b border-transparent pb-[2px] hover:text-white hover:border-b-white hover:gap-[0.6rem]"
+              href="/landing/services" 
+              className="inline-flex items-center justify-center gap-2 px-5 py-2 bg-[#1a1a1a] text-white text-[0.85rem] font-medium no-underline rounded-full transition-[0.3s_ease] border border-[#2a2a2a] hover:bg-[#2a2a2a] hover:border-[#444] hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
             >
-              Learn More →
+              Learn More
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
             </Link>
           </div>
         ))}
