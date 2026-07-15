@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { rateLimiter } from '@/lib/rate-limit'
 import { NotificationTrigger } from '@/lib/notification/trigger'
 
 export async function GET(request: Request) {
   try {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      request.headers.get('cf-connecting-ip') ||
+      'unknown'
+
+    if (rateLimiter.isBlocked(ip)) {
+      return NextResponse.redirect(new URL('/login?error=rate_limited', request.url))
+    }
+
     const searchParams = new URL(request.url).searchParams
     const token = searchParams.get('token')
 
@@ -19,8 +30,11 @@ export async function GET(request: Request) {
     })
 
     if (!user) {
+      rateLimiter.increment(ip)
       return NextResponse.redirect(new URL('/login?error=invalid_or_verified', request.url))
     }
+
+    rateLimiter.reset(ip)
 
     await supabaseAdmin().auth.admin.updateUserById(user.id, {
       email_confirm: true,
