@@ -4,15 +4,13 @@ import Image from 'next/image';
 function InternshipHero() {
   return (
     <div className="min-h-screen relative flex items-center justify-center overflow-hidden ">
-      <div className="relative z-10 max-w-6xl mx-auto px-8 text-center mt-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 text-center mt-20">
         
-        <h1 className="text-white text-5xl md:text-6xl font-bold tracking-[-0.02em] mb-6">
+        <h1 className="text-white text-3xl sm:text-5xl md:text-6xl font-bold tracking-[-0.02em] mb-4 sm:mb-6">
           Launch Your Tech Career With a Software <span className="text-blue-500">Development Internship</span>
         </h1>
-        <p className="text-[#666] text-lg max-w-3xl mx-auto mb-12">
-         Join our software development internship and gain
-hands-on experience working with cutting-edge technologies, expert
-mentors, and real-world projects that shape the future of tech.
+        <p className="text-[#666] text-sm sm:text-lg max-w-3xl mx-auto mb-8 sm:mb-12">
+          Hands-on experience with cutting-edge technologies, expert mentors, and real-world projects.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">

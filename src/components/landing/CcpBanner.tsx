@@ -31,7 +31,7 @@ export default function CcpBanner() {
   }, [])
 
   return (
-    <section className="py-12 px-4 sm:py-20 sm:px-8 overflow-hidden">
+    <section className="py-10 px-5 sm:py-20 sm:px-8 overflow-hidden">
       <div
         ref={sectionRef}
         className="max-w-[1100px] mx-auto"
@@ -51,8 +51,11 @@ export default function CcpBanner() {
               </span>
             </h2>
 
-            <p className="text-[#666] text-[0.9rem] sm:text-[1.05rem] font-light max-w-[550px] mx-auto mb-8 leading-relaxed">
-              A thriving platform built for Pakistan&apos;s cybersecurity community. Connect, learn, and collaborate with like-minded professionals.
+            <p className="text-[#666] text-[0.9rem] sm:text-[1.05rem] font-light max-w-[600px] mx-auto mb-4 leading-relaxed">
+              A thriving platform built for Pakistan&apos;s cybersecurity community by Spurvancelab. Cyber Community Pakistan brings together security professionals, researchers, and enthusiasts to share knowledge, conduct workshops, and strengthen the nation&apos;s cyber defense ecosystem.
+            </p>
+            <p className="text-[#555] text-[0.8rem] sm:text-[0.9rem] font-light max-w-[500px] mx-auto mb-8 leading-relaxed">
+              As an initiative of Spurvancelab, CCP reflects our commitment to building a safer digital future for Pakistan.
             </p>
 
             <a
