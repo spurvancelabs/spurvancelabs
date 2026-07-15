@@ -109,7 +109,7 @@ export default function Contact() {
   };
 
   return (
-    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
+    <section className="py-10 px-5 sm:py-20 sm:px-8 pb-14 sm:pb-24 overflow-hidden">
           <div className="text-center mb-10 sm:mb-14">
         <h2 className="text-white text-[1.8rem] sm:text-[2.4rem] md:text-[3rem] font-bold tracking-[-0.03em] mb-3">
           Let's <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">connect</span>

@@ -33,7 +33,7 @@ export default function WhyChooseUs() {
   }, []);
 
   return (
-    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 overflow-hidden">
+    <section className="py-10 px-5 sm:py-20 sm:px-8 pb-14 sm:pb-24 overflow-hidden">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-start">
         {/* Left Side */}
         <div className="text-left lg:text-left">

@@ -31,7 +31,7 @@ export default function CcpBanner() {
   }, [])
 
   return (
-    <section className="py-12 px-4 sm:py-20 sm:px-8 overflow-hidden">
+    <section className="py-10 px-5 sm:py-20 sm:px-8 overflow-hidden">
       <div
         ref={sectionRef}
         className="max-w-[1100px] mx-auto"

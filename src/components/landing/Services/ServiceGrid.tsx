@@ -73,7 +73,7 @@ export default function ServiceGrid() {
           Comprehensive solutions tailored to your business needs
         </p>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))]  sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[1.5rem_1rem] sm:gap-[2rem_1.5rem] mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-[2rem_1.5rem] mt-4">
         {serviceItems.map((service, index) => (
           <div
             key={index}

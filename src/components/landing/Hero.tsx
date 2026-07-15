@@ -11,27 +11,29 @@ export const Hero: React.FC<HeroProps> = ({
   height = 500,
 }) => {
   return (
-    <section className="relative text-center px-4 sm:px-5 pt-[100px] sm:pt-[120px] pb-[40px] sm:pb-[60px] max-w-full mx-auto -mt-[100px] min-h-screen flex items-center justify-center flex-col overflow-hidden">
+    <section className="relative text-center px-5 sm:px-5 pt-[80px] sm:pt-[100px] md:pt-[120px] pb-[30px] sm:pb-[60px] max-w-full mx-auto -mt-[80px] md:-mt-[100px] min-h-screen flex items-center justify-center flex-col overflow-hidden">
       {/* Content Container */}
         <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 sm:gap-12 top-12 sm:top-20">
         {/* Left Content */}
-          <div className="w-full md:w-1/2 text-left space-y-4 sm:space-y-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white spacing-less">
+          <div className="w-full md:w-[70%] sm:w-[70%] md:ml-10 text-left space-y-4 sm:space-y-6">
+          <h1 className="text-[1.5rem] sm:text-3xl md:text-[2.5rem] lg:text-5xl font-bold tracking-tight text-white spacing-less leading-tight">
             Software Development Company
             for Remote Teams and Startups
           </h1>
-          <p className="text-sm sm:text-base md:text-md text-gray-400 font-light max-w-lg">
+          <p className="text-[0.8rem] sm:text-sm md:text-[0.95rem] lg:text-base text-gray-400 font-light max-w-lg leading-relaxed">
             Spurvancelab is a full-stack custom software development company helping 
               startups and remote teams design, build, and scale software, websites, and mobile 
 apps. From idea to launch, we turn your roadmap into a working product —
 without the overhead of building an in-house engineering team          </p>
-          <Link href="/about" className="px-4 py-1.5 bg-white text-black rounded-full font-medium text-base sm:text-lg hover:bg-gray-300 transition-colors duration-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+          <Link href="/about" className="inline-block px-4 py-1 bg-white text-black rounded-full font-medium text-sm sm:text-base md:text-lg hover:bg-gray-300 transition-colors duration-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
             Learn more
           </Link>
         </div>
 
-        {/* Right Content (optional - can be used for image/illustration) */}
-        <div className="w-full md:w-1/2 flex justify-center absolute left-[25%] bottom-[-20%] scale-120 rotate-45 -z-1 ">
+       
+      </div>
+       {/* Right Content (SVG) */}
+        <div className="w-full md:w-1/2 absolute t-0 left-1/2 -translate-x-1/2 md:left-[25%] md:translate-x-0 scale-120 rotate-45 -z-1 flex justify-center pointer-events-none">
           <svg 
           width={width} 
           height={height} 
@@ -135,9 +137,7 @@ without the overhead of building an in-house engineering team          </p>
 </defs>
 </svg>
         </div>
-      </div>
     </section>
   );
 };
-
 
