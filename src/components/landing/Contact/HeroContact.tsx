@@ -5,10 +5,10 @@ import Image from 'next/image'
 
 function HeroContact() {
   return (
-      <div className='flex flex-col lg:flex-row items-center justify-center w-full h-auto lg:h-screen mt-20 mb-10 px-4 sm:px-0 relative'>
+      <div className='flex flex-col lg:flex-row items-center justify-center w-full h-auto lg:h-screen mt-20 mb-10 px-5 sm:px-8 relative'>
         <div className='flex-1 p-5 md:p-10 pr-4'>
             <h3 className='font-bold text-white text-lg sm:text-xl'>Do, you want to <span className='text-blue-500'>contact us</span></h3>
-            <h1 className='font-bold text-xl sm:text-2xl md:text-5xl text-white'>Let's Talk About Your Project</h1>
+            <h1 className='font-bold text-xl sm:text-3xl md:text-5xl text-white'>Let's Talk About Your Project</h1>
             <p className='text-sm text-gray-500 mt-6 sm:mt-8'>Whether you're exploring a new idea or ready to scale, our software
 development company for remote teams and startups is here to help.
 Schedule a meeting or send us a message, and we'll get back to you

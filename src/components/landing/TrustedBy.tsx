@@ -11,13 +11,13 @@ const trustedCompanies = [
 
 export default function TrustedBy() {
   return (
-    <section className="min-h-[70vh] px-4 sm:px-8 py-12 sm:py-16 max-w-[1100px] mx-auto text-center">
+    <section className="min-h-[50vh] sm:min-h-[50vh] px-5 sm:px-8 py-10 sm:py-16 max-w-[1100px] mx-auto text-center">
       <div className="mb-[0.2rem]">
         <h2 className="text-white text-[1.6rem] sm:text-[2rem] md:text-[2.4rem] font-normal tracking-[-0.02em]">
           Trusted by <span className="text-[#888] font-light">industry leaders</span>
         </h2>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-[1.2rem_0.8rem] sm:gap-[1.8rem_1.2rem] mt-[2.2rem] items-center">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-4 sm:gap-[1.8rem_1.2rem] mt-6 sm:mt-[2.2rem] items-center">
         {trustedCompanies.map((company) => (
           <div 
             key={company.name} 

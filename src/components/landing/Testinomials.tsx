@@ -114,7 +114,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="py-12 px-4 sm:py-20 sm:px-8 pb-16 sm:pb-24 border-t border-[#1a1a1a] overflow-hidden">
+    <section className="py-10 px-5 sm:py-20 sm:px-8 pb-14 sm:pb-24 border-t border-[#1a1a1a] overflow-hidden">
       <div className="text-center mb-10 sm:mb-14">
         <span className="inline-block text-[#888] text-[0.7rem] uppercase tracking-[0.2em] bg-[#1a1a1a] px-6 py-[0.4rem] rounded-[30px] mb-3 border border-[#2a2a2a] relative">
           Testimonials

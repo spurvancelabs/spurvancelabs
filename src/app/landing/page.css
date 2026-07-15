@@ -200,6 +200,41 @@ section {
   }
 }
 
+/* ===== GLOBAL RESPONSIVE FIXES ===== */
+/* Prevent horizontal overflow on all screen sizes */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Mobile centering for all sections */
+@media (max-width: 639px) {
+  section {
+    text-align: center;
+  }
+  
+  section .text-left {
+    text-align: center;
+  }
+}
+
+/* Ensure proper spacing between 640px-768px */
+@media (min-width: 640px) and (max-width: 767px) {
+  .max-w-6xl {
+    max-width: 56rem;
+  }
+}
+
+/* Mobile touch-friendly sizing */
+@media (hover: none) and (pointer: coarse) {
+  button, 
+  a,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 /* ===== SCROLL BEHAVIOR ===== */
 .smooth-scroll {
   scroll-behavior: smooth;

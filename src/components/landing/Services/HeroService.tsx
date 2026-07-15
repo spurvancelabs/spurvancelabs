@@ -5,8 +5,8 @@ function HeroService() {
   return (
     <div className='min-h-screen overflow-hidden relative w-full'> 
         {/* Heading */}
-        <div className='mt-25 z-20 flex justify-center items-center px-4 sm:px-0'>
-            <h1 className='text-white font-bold text-4xl md:text-5xl lg:text-6xl w-full max-w-[1000px] px-4 sm:px-0 text-center leading-tight'>
+        <div className='mt-16 sm:mt-25 z-20 flex justify-center items-center px-4 sm:px-0'>
+            <h1 className='text-white font-bold text-2xl sm:text-4xl md:text-5xl lg:text-6xl w-full max-w-[1000px] px-4 sm:px-0 text-center leading-tight'>
                 Software Development Services for <span className='font-serif text-blue-500 italic font-semibold tracking-wide'>Startups and Remote</span>
  Teams
             </h1>
