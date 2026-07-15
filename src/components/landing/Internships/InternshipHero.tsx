@@ -10,9 +10,7 @@ function InternshipHero() {
           Launch Your Tech Career With a Software <span className="text-blue-500">Development Internship</span>
         </h1>
         <p className="text-[#666] text-lg max-w-3xl mx-auto mb-12">
-         Join our software development internship and gain
-hands-on experience working with cutting-edge technologies, expert
-mentors, and real-world projects that shape the future of tech.
+          Hands-on experience with cutting-edge technologies, expert mentors, and real-world projects.
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">

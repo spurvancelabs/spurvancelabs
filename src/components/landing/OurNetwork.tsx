@@ -40,7 +40,7 @@ function OurNetwork() {
         
         {/* Left Side - Image */}
         <div className="relative z-[1] flex justify-center items-center">
-          <div className="w-full max-w-[250px] xs:max-w-[300px] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[450px] aspect-square mx-auto lg:mx-0">
+          <div className="w-full max-w-[250px] xs:max-w-[300px] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[500px] aspect-square mx-auto lg:mx-0">
             <Image 
               src="https://cdn3d.iconscout.com/3d/premium/thumb/coding-3d-icon-png-download-8049728.png" 
               alt="Coding 3D Icon" 

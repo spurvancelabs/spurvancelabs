@@ -6,31 +6,31 @@ const serviceItems = [
   {
     icon: 'https://img.icons8.com/3d-fluency/94/programming.png',
     title: 'Web Development',
-    description: 'As a custom web application development company, we design and build websites and web applications that are fast, scalable, and built togrow with your business. From marketing sites to complex, data-drivenplatforms, every project is built on modern frameworks with clean,maintainable code. We focus on performance, responsive design, andSEO-friendly architecture from the very first line of code — so your site works as hard as your team does.',
+    description: 'We design and build websites and web apps that are fast, scalable, and SEO-friendly. From marketing sites to complex data-driven platforms, every project is built on modern frameworks with clean code.',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/smartphone.png',
     title: 'Mobile Apps',
-    description: 'Were a cross-platform mobile app development company building native and hybrid apps for iOS and Android that feel fast, intuitive, and reliable. Whether you need a single codebase across both platforms or a fully native experience, our team handles design, development, testing, and App Store or Play Store submission end-to-end. We build with scalability in mind, so your app can grow from your first thousand usersto your first million.',
+    description: 'We build native and hybrid mobile apps for iOS and Android that feel fast, intuitive, and reliable. From design to App Store submission, we handle everything end-to-end.',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/cloud.png',
     title: 'Cloud Solutions',
-    description: 'Our cloud migration and DevOps services help startups and remote teams move to AWS, Azure, or Google Cloud without disrupting the product they ve already built. We handle infrastructure architecture, CI/CD pipeline setup, and automated deployment, so releases become faster and more reliable instead of a manual, risky process. The result is infrastructure that scales with demand and costs you less to maintain.',
+    description: 'We help startups migrate to AWS, Azure, or Google Cloud and set up CI/CD pipelines, so releases are faster, more reliable, and your infrastructure scales with demand.',
   },{
     icon: 'https://img.icons8.com/3d-fluency/94/robot.png',
     title: 'AI & Machine Learning',
-    description: 'We provide custom AI software development for startups looking to automate workflows, personalize user experiences, or extract real insight from their data. From predictive analytics to custom-trained machine learning models to LLM-powered product features, we build AI capabilities that solve real business problems, not just proof-of-concept demos. Every model we build is designed to integrate directly into your existing product.',
+    description: 'We build custom AI solutions — from predictive analytics and ML models to LLM-powered features. Every model is designed to integrate directly into your existing product.',
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/shield.png',
     title: 'Cybersecurity',
-    description: `Our secure software development and code audit services help protect your product and your users from day one. We conduct vulnerability assessments, penetration testing, and secure code reviews, and can build toward compliance frameworks like SOC 2, HIPAA, or GDPR depending on your industry. Security isn't an after thought we bolt on at the end — it's built into how we architect and write code from the start`
+    description: `We conduct vulnerability assessments, penetration testing, and secure code reviews. Security is built into how we architect and write code from the start — not bolted on at the end.`,
   },
   {
     icon: 'https://img.icons8.com/3d-fluency/94/analytics.png',
     title: 'Data Analytics',
-    description: 'Through business intelligence and data analytics consulting, we help you turn scattered, disconnected data into dashboards and reports your teamcan actually act on. We build custom data pipelines, visualization tools,and reporting systems tailored to the metrics that matter most to yourbusiness. The goal is simple: real-time visibility into your businessperformance, without needing a data science team of your own.',
+    description: 'We turn scattered data into dashboards and reports your team can act on. Custom data pipelines, visualization tools, and real-time business intelligence.',
   },
 ];
 

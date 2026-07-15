@@ -6,7 +6,7 @@ import Image from 'next/image'
 function HeroContact() {
   return (
       <div className='flex flex-col lg:flex-row items-center justify-center w-full h-auto lg:h-screen mt-20 mb-10 px-4 sm:px-0 relative'>
-        <div className='flex-1 p-5 md:p-10'>
+        <div className='flex-1 p-5 md:p-10 pr-4'>
             <h3 className='font-bold text-white text-lg sm:text-xl'>Do, you want to <span className='text-blue-500'>contact us</span></h3>
             <h1 className='font-bold text-xl sm:text-2xl md:text-5xl text-white'>Let's Talk About Your Project</h1>
             <p className='text-sm text-gray-500 mt-6 sm:mt-8'>Whether you're exploring a new idea or ready to scale, our software
@@ -86,8 +86,8 @@ within one business day</p>
   </form>
 </div>
 
-<div className='w-40 h-40 sm:w-80 sm:h-80 -z-5 absolute left-0 top-0 bg-linear-to-r from-blue-700 to-slate-50 rounded-full filter blur-3xl animate-blob animation-delay-2000'></div>
-<div className='w-40 h-40 sm:w-80 sm:h-80 -z-5 absolute right-0 bottom-0 bg-linear-to-r from-blue-700 to-slate-50 rounded-full filter blur-3xl animate-blob animation-delay-4000'></div>
+<div className='w-40 h-40 sm:w-80 sm:h-80 -z-5 absolute left-0 top-0 bg-linear-to-r from-blue-700/20 to-slate-50/20 rounded-full filter blur-3xl'></div>
+<div className='w-40 h-40 sm:w-80 sm:h-80 -z-5 absolute right-0 bottom-0 bg-linear-to-r from-blue-700/20 to-slate-50/20 rounded-full filter blur-3xl'></div>
 
 <div className='hidden sm:block absolute top-12 left-[calc(50%+2px)]'>
 <Image src={"/element.svg"} alt="contact" width={50} height={50} />

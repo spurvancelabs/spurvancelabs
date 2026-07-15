@@ -118,7 +118,7 @@ export default function Contact() {
 Have a project in mind? Our software development company for remote teams is ready to bring your vision to life        </p>
       </div>
 
-      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6 sm:gap-12 items-start">
+      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 items-start">
         {/* Contact Info */}
         <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-5 sm:p-10 transition-[0.4s_ease] hover:border-[#2a2a2a] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
           <div className="mb-6 sm:mb-8">
