@@ -15,6 +15,22 @@ transform businesses and empower people through cutting-edge software
 development.
         </p>
         
+        {/* Mission / Vision / Values */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 text-left">
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-1">
+            <h3 className="text-white text-lg font-semibold mb-3">Our Mission</h3>
+            <p className="text-[#666] text-sm leading-relaxed">Empower startups and remote teams with world-class software solutions that drive growth and innovation.</p>
+          </div>
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-1">
+            <h3 className="text-white text-lg font-semibold mb-3">Our Vision</h3>
+            <p className="text-[#666] text-sm leading-relaxed">Be the most trusted technology partner for businesses building the future — from idea to scale.</p>
+          </div>
+          <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-1">
+            <h3 className="text-white text-lg font-semibold mb-3">Our Values</h3>
+            <p className="text-[#666] text-sm leading-relaxed">Transparency, quality, and relentless commitment to delivering results that matter.</p>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           <div className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-[#2a2a2a] hover:-translate-y-2">
             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-5">

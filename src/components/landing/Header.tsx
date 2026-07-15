@@ -26,7 +26,7 @@ export default function Header() {
   return (
     <header className="backdrop-blur-[20px] fixed top-0 left-0 right-0 z-[100] px-4 md:px-8 h-[70px] flex items-center max-md:h-[60px]">
       <div className="flex justify-between items-center w-full max-w-[1300px] mx-auto">
-        <div className="flex items-center gap-2.5 text-[1.1rem] font-semibold tracking-[-0.5px]">
+        <Link href="/landing" className="flex items-center gap-1.5 text-[1.1rem] font-semibold tracking-[-0.5px] no-underline">
           <Image 
             src="/spurvance-logo-removebg-preview.png" 
             alt="Spurvancelab" 
@@ -37,7 +37,7 @@ export default function Header() {
           <h1 className="text-[1.2rem] font-bold bg-gradient-to-r from-[#f0f0f0] to-[#aaa] bg-clip-text text-transparent max-md:text-[1rem]">
             Spurvancelab
           </h1>
-        </div>
+        </Link>
 
         {/* Hamburger */}
         <button 

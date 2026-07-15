@@ -34,7 +34,7 @@ function JobsHero({ searchQuery, setSearchQuery, onSearch }: Props) {
           />
           <button
             onClick={onSearch}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7a7a7a] text-lg hover:text-blue-500 transition-colors cursor-pointer"
+            className="absolute left-5 top-1/2 -translate-y-1/2 text-[#7a7a7a] text-lg hover:text-blue-500 transition-colors cursor-pointer"
           >
             <i className="fas fa-search"></i>
           </button>
