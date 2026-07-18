@@ -101,13 +101,30 @@ export async function PUT(
     if (goal !== undefined) data.goal = goal;
     if (startDate !== undefined) data.startDate = startDate ? new Date(startDate) : null;
     if (endDate !== undefined) data.endDate = endDate ? new Date(endDate) : null;
-    if (status !== undefined) {
-      data.status = status;
-      if (status === 'ACTIVE' && !existing.startDate) {
-        data.startDate = new Date();
-      }
-      if (status === 'COMPLETED' && !existing.endDate) {
-        data.endDate = new Date();
+
+    let movedTickets = 0;
+
+    if (status !== undefined && status !== existing.status) {
+      if (status === 'ACTIVE' && existing.status === 'PLANNING') {
+        data.status = 'ACTIVE';
+        if (!existing.startDate) {
+          data.startDate = new Date();
+        }
+      } else if (status === 'COMPLETED' && existing.status === 'ACTIVE') {
+        data.status = 'COMPLETED';
+        if (!existing.endDate) {
+          data.endDate = new Date();
+        }
+        const result = await prisma.ticket.updateMany({
+          where: {
+            sprintId,
+            status: { notIn: ['DONE'] },
+          },
+          data: { sprintId: null },
+        });
+        movedTickets = result.count;
+      } else {
+        return NextResponse.json({ error: `Cannot transition from ${existing.status} to ${status}` }, { status: 400 });
       }
     }
 
@@ -119,7 +136,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ data: sprint });
+    return NextResponse.json({ data: sprint, movedTickets });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update sprint' }, { status: 500 });
   }

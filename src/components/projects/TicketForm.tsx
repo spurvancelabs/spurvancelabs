@@ -28,6 +28,7 @@ interface TicketFormProps {
     labels?: string[];
     dueDate?: string | null;
   } | null;
+  parentId?: string | null;
 }
 
 export default function TicketForm({
@@ -39,6 +40,7 @@ export default function TicketForm({
   members,
   sprints,
   initialData,
+  parentId,
 }: TicketFormProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -74,6 +76,7 @@ export default function TicketForm({
         .map((l) => l.trim())
         .filter(Boolean),
       dueDate: dueDate || null,
+      parentId: parentId || null,
     };
 
     try {

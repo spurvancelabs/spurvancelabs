@@ -27,6 +27,7 @@ interface TicketDetail {
   attachments: Array<{ id: string; fileName: string; fileUrl: string; fileSize: number; createdAt: string; user: { name: string | null } }>;
   timeLogs: Array<{ id: string; hours: number; description: string | null; date: string; user: { name: string | null } }>;
   activities: Array<{ id: string; action: string; field: string | null; oldValue: string | null; newValue: string | null; createdAt: string; user: { name: string | null } }>;
+  children: Array<{ id: string; key: string; title: string; status: string; priority: string; storyPoints: number | null }>;
   _count: { comments: number; attachments: number; timeLogs: number };
 }
 
@@ -69,6 +70,11 @@ export default function TicketDetailModal({
   const [timeDesc, setTimeDesc] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showSubtaskForm, setShowSubtaskForm] = useState(false);
+  const [subtaskTitle, setSubtaskTitle] = useState('');
+  const [subtaskType, setSubtaskType] = useState('SUB_TASK');
+  const [subtaskPriority, setSubtaskPriority] = useState('MEDIUM');
+  const [creatingSubtask, setCreatingSubtask] = useState(false);
 
   const fetchTicket = useCallback(async () => {
     try {
@@ -127,6 +133,34 @@ export default function TicketDetailModal({
       setTimeDesc('');
       fetchTicket();
     } catch { toast.error('Failed to log time'); }
+  };
+
+  const createSubtask = async () => {
+    if (!subtaskTitle.trim()) return;
+    setCreatingSubtask(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          title: subtaskTitle.trim(),
+          type: subtaskType,
+          priority: subtaskPriority,
+          parentId: ticketId,
+          sprintId: ticket?.sprint?.id || null,
+        }),
+      });
+      if (res.ok) {
+        setSubtaskTitle('');
+        setShowSubtaskForm(false);
+        fetchTicket();
+        onUpdate?.();
+        toast.success('Sub-task created');
+      } else {
+        toast.error('Failed to create sub-task');
+      }
+    } catch { toast.error('Failed to create sub-task'); } finally { setCreatingSubtask(false); }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,6 +411,99 @@ export default function TicketDetailModal({
                 <span className="text-white">{totalHours}h</span>
               </div>
             </div>
+          </div>
+
+          {ticket.parent && (
+            <div className="mb-4 bg-zinc-900 border border-white/[0.06] rounded-xl p-3">
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider">Parent</span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs font-mono text-gray-500">{ticket.parent.key}</span>
+                <span className="text-sm text-white">{ticket.parent.title}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">Sub-tasks ({ticket.children?.length || 0})</span>
+              <button
+                onClick={() => setShowSubtaskForm(!showSubtaskForm)}
+                className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1 cursor-pointer"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add sub-task
+              </button>
+            </div>
+
+            {showSubtaskForm && (
+              <div className="bg-zinc-900 border border-white/[0.06] rounded-xl p-3 mb-2 space-y-2">
+                <input
+                  value={subtaskTitle}
+                  onChange={e => setSubtaskTitle(e.target.value)}
+                  placeholder="Sub-task title..."
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                  autoFocus
+                  onKeyDown={e => e.key === 'Enter' && createSubtask()}
+                />
+                <div className="flex gap-2">
+                  <select
+                    value={subtaskType}
+                    onChange={e => setSubtaskType(e.target.value)}
+                    className="bg-zinc-800 border border-white/[0.06] rounded-lg px-2 py-1 text-white text-xs outline-none"
+                  >
+                    <option value="SUB_TASK">Sub-task</option>
+                    <option value="BUG">Bug</option>
+                    <option value="TASK">Task</option>
+                  </select>
+                  <select
+                    value={subtaskPriority}
+                    onChange={e => setSubtaskPriority(e.target.value)}
+                    className="bg-zinc-800 border border-white/[0.06] rounded-lg px-2 py-1 text-white text-xs outline-none"
+                  >
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="CRITICAL">Critical</option>
+                  </select>
+                  <button
+                    onClick={createSubtask}
+                    disabled={creatingSubtask || !subtaskTitle.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs font-medium disabled:opacity-50 cursor-pointer"
+                  >
+                    {creatingSubtask ? 'Creating...' : 'Create'}
+                  </button>
+                  <button
+                    onClick={() => { setShowSubtaskForm(false); setSubtaskTitle(''); }}
+                    className="text-gray-500 hover:text-white text-xs px-2 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {ticket.children && ticket.children.length > 0 && (
+              <div className="space-y-1">
+                {ticket.children.map(child => (
+                  <button
+                    key={child.id}
+                    onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('openTicket', { detail: { ticketId: child.id } })); }}
+                    className="w-full flex items-center gap-3 bg-zinc-900 border border-white/[0.06] rounded-lg px-3 py-2 hover:border-blue-500/30 transition-colors cursor-pointer text-left"
+                  >
+                    <span className="text-[10px] font-mono text-gray-500">{child.key}</span>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded ${
+                      child.status === 'DONE' ? 'bg-green-500/10 text-green-400' :
+                      child.status === 'IN_PROGRESS' ? 'bg-blue-500/10 text-blue-400' :
+                      'bg-zinc-800 text-gray-400'
+                    }`}>{child.status.replace('_', ' ')}</span>
+                    <span className="text-sm text-white flex-1 truncate">{child.title}</span>
+                    {child.storyPoints && <span className="text-[10px] text-gray-600">{child.storyPoints}sp</span>}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="border-b border-white/[0.06] mb-4 flex gap-4">
