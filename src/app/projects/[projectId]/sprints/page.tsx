@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import ProjectSidebar from '@/components/projects/ProjectSidebar';
 import ProjectHeader from '@/components/projects/ProjectHeader';
 
@@ -74,14 +75,34 @@ export default function SprintsPage({ params }: { params: Promise<{ projectId: s
     } finally { setCreating(false); }
   };
 
-  const updateStatus = async (sprintId: string, status: string) => {
-    await fetch(`/api/projects/${projectId}/sprints/${sprintId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ status }),
-    });
-    fetchSprints();
+  const updateStatus = async (sprintId: string, newStatus: string, sprintName: string) => {
+    const action = newStatus === 'ACTIVE' ? 'start' : 'complete';
+    if (!confirm(`Are you sure you want to ${action} "${sprintName}"?`)) return;
+
+    try {
+      const res = await fetch(`/api/projects/${projectId}/sprints/${sprintId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || 'Failed to update sprint');
+        return;
+      }
+
+      if (newStatus === 'ACTIVE') {
+        toast.success(`Sprint "${sprintName}" started`);
+      } else if (newStatus === 'COMPLETED') {
+        const moved = data.movedTickets || 0;
+        toast.success(`Sprint "${sprintName}" completed${moved > 0 ? ` — ${moved} incomplete ticket${moved > 1 ? 's' : ''} moved to backlog` : ''}`);
+      }
+      fetchSprints();
+    } catch {
+      toast.error('Failed to update sprint');
+    }
   };
 
   if (loading) {
@@ -143,7 +164,7 @@ export default function SprintsPage({ params }: { params: Promise<{ projectId: s
                   <div className="flex items-center gap-2">
                     {sprint.status === 'PLANNING' && (
                       <button
-                        onClick={() => updateStatus(sprint.id, 'ACTIVE')}
+                        onClick={() => updateStatus(sprint.id, 'ACTIVE', sprint.name)}
                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer"
                       >
                         Start
@@ -151,7 +172,7 @@ export default function SprintsPage({ params }: { params: Promise<{ projectId: s
                     )}
                     {sprint.status === 'ACTIVE' && (
                       <button
-                        onClick={() => updateStatus(sprint.id, 'COMPLETED')}
+                        onClick={() => updateStatus(sprint.id, 'COMPLETED', sprint.name)}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer"
                       >
                         Complete

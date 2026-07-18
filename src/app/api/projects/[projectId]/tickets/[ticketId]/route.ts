@@ -44,7 +44,10 @@ export async function GET(
         reporter: { select: { id: true, name: true, email: true, image: true } },
         sprint: { select: { id: true, name: true, status: true } },
         parent: { select: { id: true, key: true, title: true } },
-        children: { select: { id: true, key: true, title: true, status: true, priority: true } },
+        children: {
+          select: { id: true, key: true, title: true, status: true, priority: true, storyPoints: true },
+          orderBy: { order: 'asc' },
+        },
         comments: {
           include: {
             user: { select: { id: true, name: true, email: true, image: true } },
@@ -119,7 +122,7 @@ export async function PUT(
     const fields = [
       'title', 'description', 'status', 'priority', 'type',
       'assigneeId', 'sprintId', 'storyPoints', 'order',
-      'startDate', 'dueDate', 'estimatedHours', 'labels',
+      'startDate', 'dueDate', 'estimatedHours', 'labels', 'parentId',
     ];
 
     const data: Record<string, any> = {};

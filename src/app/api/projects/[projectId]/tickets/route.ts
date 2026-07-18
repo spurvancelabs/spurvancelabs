@@ -104,7 +104,7 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { title, description, type, priority, assigneeId, sprintId, labels, storyPoints, dueDate } = body;
+    const { title, description, type, priority, assigneeId, sprintId, labels, storyPoints, dueDate, parentId } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -128,6 +128,7 @@ export async function POST(
         reporterId: userId,
         assigneeId: assigneeId || null,
         sprintId: sprintId || null,
+        parentId: parentId || null,
         labels: labels || [],
         storyPoints: storyPoints || null,
         dueDate: dueDate || null,
