@@ -58,7 +58,7 @@ export async function logActivity(
   oldValue?: string,
   newValue?: string
 ) {
-  await prisma.activity.create({
+  await prisma.ticketActivity.create({
     data: { ticketId, userId, action, field, oldValue, newValue },
   });
 }

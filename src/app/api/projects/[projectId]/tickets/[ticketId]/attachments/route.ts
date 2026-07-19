@@ -48,7 +48,7 @@ export async function GET(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    const attachments = await prisma.attachment.findMany({
+    const attachments = await prisma.ticketAttachment.findMany({
       where: { ticketId },
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -134,7 +134,7 @@ export async function POST(
       }
     }
 
-    const attachment = await prisma.attachment.create({
+    const attachment = await prisma.ticketAttachment.create({
       data: {
         ticketId,
         userId,

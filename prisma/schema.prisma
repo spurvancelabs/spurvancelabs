@@ -479,7 +479,7 @@ model Submission {
 // ─── Project Management Models ───────────────────────────────
 
 model Project {
-  id          String        @id @db.Uuid
+  id          String        @id @default(uuid()) @db.Uuid
   name        String        @db.VarChar(300)
   description String?
   key         String        @unique @db.VarChar(10)
@@ -490,7 +490,7 @@ model Project {
   startDate   DateTime?     @map("start_date")
   endDate     DateTime?     @map("end_date")
   createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime      @db.Timestamptz(6) @map("updated_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   owner          User              @relation("ProjectOwner", fields: [ownerId], references: [id])
   members        ProjectMember[]
@@ -505,7 +505,7 @@ model Project {
 }
 
 model ProjectMember {
-  id        String      @id @db.Uuid
+  id        String      @id @default(uuid()) @db.Uuid
   projectId String      @map("project_id") @db.Uuid
   userId    String      @map("user_id") @db.Uuid
   role      ProjectRole @default(DEVELOPER)
@@ -521,7 +521,7 @@ model ProjectMember {
 }
 
 model Ticket {
-  id              String         @id @db.Uuid
+  id              String         @id @default(uuid()) @db.Uuid
   projectId       String         @map("project_id") @db.Uuid
   key             String         @db.VarChar(20)
   title           String         @db.VarChar(500)
@@ -540,7 +540,7 @@ model Ticket {
   estimatedHours  Float?         @map("estimated_hours")
   labels          String[]
   createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime       @db.Timestamptz(6) @map("updated_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   assignee   User?             @relation("TicketAssignee", fields: [assigneeId], references: [id])
@@ -564,7 +564,7 @@ model Ticket {
 }
 
 model Sprint {
-  id        String       @id @db.Uuid
+  id        String       @id @default(uuid()) @db.Uuid
   projectId String       @map("project_id") @db.Uuid
   name      String       @db.VarChar(300)
   goal      String?
@@ -572,7 +572,7 @@ model Sprint {
   startDate DateTime?    @map("start_date")
   endDate   DateTime?    @map("end_date")
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime     @db.Timestamptz(6) @map("updated_at")
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tickets Ticket[]
@@ -583,12 +583,12 @@ model Sprint {
 }
 
 model TicketComment {
-  id        String   @id @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   ticketId  String   @map("ticket_id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   content   String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @db.Timestamptz(6) @map("updated_at")
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id])
@@ -599,7 +599,7 @@ model TicketComment {
 }
 
 model TicketAttachment {
-  id        String   @id @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   ticketId  String   @map("ticket_id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   fileName  String   @map("file_name") @db.VarChar(500)
@@ -617,7 +617,7 @@ model TicketAttachment {
 }
 
 model TicketActivity {
-  id        String   @id @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   ticketId  String   @map("ticket_id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   action    String   @db.VarChar(50)
@@ -635,7 +635,7 @@ model TicketActivity {
 }
 
 model TicketLabel {
-  id        String   @id @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   projectId String   @map("project_id") @db.Uuid
   name      String   @db.VarChar(100)
   color     String   @default("#6366f1") @db.VarChar(7)
@@ -648,7 +648,7 @@ model TicketLabel {
 }
 
 model TimeLog {
-  id          String   @id @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   ticketId    String   @map("ticket_id") @db.Uuid
   userId      String   @map("user_id") @db.Uuid
   description String?
@@ -666,7 +666,7 @@ model TimeLog {
 }
 
 model Milestone {
-  id          String   @id @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   projectId   String   @map("project_id") @db.Uuid
   name        String   @db.VarChar(300)
   description String?
