@@ -36,7 +36,7 @@ export async function GET(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    const labels = await prisma.label.findMany({
+    const labels = await prisma.ticketLabel.findMany({
       where: { projectId },
       orderBy: { name: 'asc' },
     });
@@ -79,7 +79,7 @@ export async function POST(
       return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
-    const label = await prisma.label.create({
+    const label = await prisma.ticketLabel.create({
       data: {
         projectId,
         name,

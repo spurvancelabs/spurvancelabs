@@ -1,4 +1,4 @@
-export type { Project, ProjectMember, Ticket, Sprint, Comment, Attachment, Label, TimeLog, Activity, Milestone } from '@prisma/client';
+export type { Project, ProjectMember, Ticket, Sprint, TicketComment as Comment, TicketAttachment as Attachment, TicketLabel as Label, TimeLog, TicketActivity as Activity, Milestone } from '@prisma/client';
 
 export const TICKET_STATUSES = ['BACKLOG', 'TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE', 'CANCELLED'] as const;
 export const TICKET_PRIORITIES = ['LOWEST', 'LOW', 'MEDIUM', 'HIGH', 'HIGHEST'] as const;

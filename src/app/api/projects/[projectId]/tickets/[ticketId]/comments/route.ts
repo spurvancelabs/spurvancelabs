@@ -46,7 +46,7 @@ export async function GET(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    const comments = await prisma.comment.findMany({
+    const comments = await prisma.ticketComment.findMany({
       where: { ticketId },
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
@@ -100,7 +100,7 @@ export async function POST(
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
     }
 
-    const comment = await prisma.comment.create({
+    const comment = await prisma.ticketComment.create({
       data: {
         ticketId,
         userId,
