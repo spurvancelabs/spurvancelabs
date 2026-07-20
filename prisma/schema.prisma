@@ -8,6 +8,8 @@ datasource db {
   schemas  = ["public"]
 }
 
+// ─── Core Models ─────────────────────────────────────────────
+
 model User {
   id            String    @id @db.Uuid
   email         String?   @unique
@@ -20,7 +22,15 @@ model User {
   createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  adminUser AdminUser?
+  adminUser             AdminUser?
+  ownedProjects         Project[]                 @relation("ProjectOwner")
+  projectMembers        ProjectMember[]
+  assignedTickets       Ticket[]                  @relation("TicketAssignee")
+  reportedTickets       Ticket[]                  @relation("TicketReporter")
+  ticketComments        TicketComment[]
+  ticketAttachments     TicketAttachment[]
+  ticketActivities      TicketActivity[]
+  timeLogs              TimeLog[]
 
   @@map("users")
   @@schema("public")
@@ -42,22 +52,22 @@ model AdminUser {
 }
 
 model Notification {
-  id                                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId                               String    @map("user_id") @db.Uuid
-  type                                 String    @db.VarChar(50)
-  title                                String
-  message                              String
-  priority                             String?   @default("medium") @db.VarChar(20)
-  read                                 Boolean?  @default(false)
-  readAt                               DateTime? @map("read_at") @db.Timestamptz(6)
-  createdAt                            DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt                            DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  data                                 Json?     @default("{}") @map("data")
-  link                                 String?
-  senderId                             String?   @map("sender_id") @db.Uuid
-  senderName                           String?   @map("sender_name")
-  senderAvatar                         String?   @map("sender_avatar")
-  expiresAt                            DateTime? @map("expires_at") @db.Timestamptz(6)
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  type          String    @db.VarChar(50)
+  title         String
+  message       String
+  priority      String?   @default("medium") @db.VarChar(20)
+  read          Boolean?  @default(false)
+  readAt        DateTime? @map("read_at") @db.Timestamptz(6)
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  data          Json?     @default("{}") @map("data")
+  link          String?
+  senderId      String?   @map("sender_id") @db.Uuid
+  senderName    String?   @map("sender_name")
+  senderAvatar  String?   @map("sender_avatar")
+  expiresAt     DateTime? @map("expires_at") @db.Timestamptz(6)
 
   @@index([createdAt(sort: Desc)], map: "idx_notifications_created_at")
   @@index([priority], map: "idx_notifications_priority")
@@ -95,22 +105,24 @@ model AuditLog {
   @@schema("public")
 }
 
+// ─── Recruitment Models ──────────────────────────────────────
+
 model Job {
-  id          String   @id @default(uuid()) @db.Uuid
-  title       String   @db.VarChar(200)
-  department  String   @db.VarChar(100)
-  type        String   @db.VarChar(50)
-  location    String   @db.VarChar(200)
-  salary      String?  @db.VarChar(100)
-  salaryMin   Int?
-  salaryMax   Int?
-  skills      String[]
-  description String   @db.Text
-  icon        String?  @db.VarChar(500)
-  status      JobStatus @default(ACTIVE)
-  applicationUrl String? @db.VarChar(500)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(uuid()) @db.Uuid
+  title         String    @db.VarChar(200)
+  department    String    @db.VarChar(100)
+  type          String    @db.VarChar(50)
+  location      String    @db.VarChar(200)
+  salary        String?   @db.VarChar(100)
+  salaryMin     Int?
+  salaryMax     Int?
+  skills        String[]
+  description   String    @db.Text
+  icon          String?   @db.VarChar(500)
+  status        JobStatus @default(ACTIVE)
+  applicationUrl String?  @db.VarChar(500)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   applications JobApplication[]
 
@@ -119,20 +131,20 @@ model Job {
 }
 
 model Internship {
-  id          String   @id @default(uuid()) @db.Uuid
-  title       String   @db.VarChar(200)
-  department  String   @db.VarChar(100)
-  duration    String   @db.VarChar(50)
-  location    String   @db.VarChar(200)
-  stipend     String?  @db.VarChar(100)
+  id            String    @id @default(uuid()) @db.Uuid
+  title         String    @db.VarChar(200)
+  department    String    @db.VarChar(100)
+  duration      String    @db.VarChar(50)
+  location      String    @db.VarChar(200)
+  stipend       String?   @db.VarChar(100)
   stipendAmount Int?
-  skills      String[]
-  description String   @db.Text
-  icon        String?  @db.VarChar(500)
-  status      JobStatus @default(ACTIVE)
-  applicationUrl String? @db.VarChar(500)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  skills        String[]
+  description   String    @db.Text
+  icon          String?   @db.VarChar(500)
+  status        JobStatus @default(ACTIVE)
+  applicationUrl String?  @db.VarChar(500)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   applications InternshipApplication[]
 
@@ -141,30 +153,30 @@ model Internship {
 }
 
 model JobApplication {
-  id          String            @id @default(uuid()) @db.Uuid
-  jobId       String            @map("job_id") @db.Uuid
-  userId      String?           @map("user_id") @db.Uuid
-  name        String            @db.VarChar(200)
-  email       String            @db.VarChar(320)
-  phone       String?           @db.VarChar(30)
-  currentCompany    String?   @map("current_company") @db.VarChar(200)
-  currentPosition   String?   @map("current_position") @db.VarChar(200)
-  yearsOfExperience String?   @map("years_of_experience") @db.VarChar(20)
-  linkedInUrl       String?   @map("linkedin_url") @db.VarChar(500)
-  portfolioUrl      String?   @map("portfolio_url") @db.VarChar(500)
-  resumeUrl   String?           @map("resume_url") @db.VarChar(500)
-  coverLetter String?           @map("cover_letter") @db.Text
-  salaryExpectation  String?  @map("salary_expectation") @db.VarChar(100)
-  startDate          DateTime? @map("start_date") @db.Date
-  workAuthorization  String?  @map("work_authorization") @db.VarChar(100)
-  referralSource     String?  @map("referral_source") @db.VarChar(200)
-  additionalInfo     String?  @map("additional_info") @db.Text
-  status          ApplicationStatus @default(PENDING)
-  interviewerName   String?   @map("interviewer_name") @db.VarChar(200)
-  interviewDate     DateTime? @map("interview_date") @db.Date
-  interviewerFeedback String? @map("interviewer_feedback") @db.Text
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  id            String            @id @default(uuid()) @db.Uuid
+  jobId         String            @map("job_id") @db.Uuid
+  userId        String?           @map("user_id") @db.Uuid
+  name          String            @db.VarChar(200)
+  email         String            @db.VarChar(320)
+  phone         String?           @db.VarChar(30)
+  currentCompany    String?       @map("current_company") @db.VarChar(200)
+  currentPosition   String?       @map("current_position") @db.VarChar(200)
+  yearsOfExperience String?       @map("years_of_experience") @db.VarChar(20)
+  linkedInUrl       String?       @map("linkedin_url") @db.VarChar(500)
+  portfolioUrl      String?       @map("portfolio_url") @db.VarChar(500)
+  resumeUrl         String?       @map("resume_url") @db.VarChar(500)
+  coverLetter       String?       @map("cover_letter") @db.Text
+  salaryExpectation  String?      @map("salary_expectation") @db.VarChar(100)
+  startDate          DateTime?    @map("start_date") @db.Date
+  workAuthorization  String?      @map("work_authorization") @db.VarChar(100)
+  referralSource     String?      @map("referral_source") @db.VarChar(200)
+  additionalInfo     String?      @map("additional_info") @db.Text
+  status             ApplicationStatus @default(PENDING)
+  interviewerName    String?      @map("interviewer_name") @db.VarChar(200)
+  interviewDate      DateTime?    @map("interview_date") @db.Date
+  interviewerFeedback String?     @map("interviewer_feedback") @db.Text
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
 
   job  Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
@@ -179,9 +191,9 @@ model InternshipApplication {
   name         String            @db.VarChar(200)
   email        String            @db.VarChar(320)
   phone        String?           @db.VarChar(30)
-  university          String    @map("university") @db.VarChar(200)
-  major               String    @map("major") @db.VarChar(200)
-  yearOfStudy         String    @map("year_of_study") @db.VarChar(50)
+  university          String    @db.VarChar(200)
+  major               String    @db.VarChar(200)
+  yearOfStudy         String    @db.VarChar(50)
   graduationDate      DateTime? @map("graduation_date") @db.Date
   gpa                 String?   @db.VarChar(10)
   linkedInUrl         String?   @map("linkedin_url") @db.VarChar(500)
@@ -191,14 +203,14 @@ model InternshipApplication {
   workAuthorization   String?   @map("work_authorization") @db.VarChar(100)
   referralSource      String?   @map("referral_source") @db.VarChar(200)
   additionalInfo      String?   @map("additional_info") @db.Text
-  resumeUrl    String?           @map("resume_url") @db.VarChar(500)
-  coverLetter  String?           @map("cover_letter") @db.Text
-  status          ApplicationStatus @default(PENDING)
-  interviewerName   String?   @map("interviewer_name") @db.VarChar(200)
-  interviewDate     DateTime? @map("interview_date") @db.Date
-  interviewerFeedback String? @map("interviewer_feedback") @db.Text
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  resumeUrl           String?   @db.VarChar(500)
+  coverLetter         String?   @db.Text
+  status              ApplicationStatus @default(PENDING)
+  interviewerName     String?   @map("interviewer_name") @db.VarChar(200)
+  interviewDate       DateTime? @map("interview_date") @db.Date
+  interviewerFeedback String?   @map("interviewer_feedback") @db.Text
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   internship Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
 
@@ -215,7 +227,7 @@ model Interviewer {
   @@map("interviewers")
 }
 
-// ─── LMS Models ─────────────────────────────────────────────
+// ─── LMS Models ──────────────────────────────────────────────
 
 model Category {
   id          String   @id @default(uuid()) @db.Uuid
@@ -224,7 +236,7 @@ model Category {
   description String?  @db.Text
   createdAt   DateTime @default(now()) @map("created_at")
 
-  courses     Course[]
+  courses Course[]
 
   @@map("categories")
   @@schema("public")
@@ -248,12 +260,12 @@ model Course {
   createdAt     DateTime     @default(now()) @map("created_at")
   updatedAt     DateTime     @updatedAt @map("updated_at")
 
-  modules       Module[]
-  enrollments   Enrollment[]
-  certificates  Certificate[]
-  reviews       Review[]
-  wishlists     Wishlist[]
-  category      Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  modules      Module[]
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  reviews      Review[]
+  wishlists    Wishlist[]
+  category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@index([slug])
   @@index([status])
@@ -270,8 +282,8 @@ model Module {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
 
   @@index([courseId, sortOrder])
   @@map("modules")
@@ -280,7 +292,7 @@ model Module {
 
 model Lesson {
   id          String     @id @default(uuid()) @db.Uuid
-  moduleId     String     @map("module_id") @db.Uuid
+  moduleId    String     @map("module_id") @db.Uuid
   title       String     @db.VarChar(300)
   description String?    @db.Text
   type        LessonType @default(TEXT)
@@ -293,7 +305,7 @@ model Lesson {
   createdAt   DateTime   @default(now()) @map("created_at")
   updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  module      Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress    Progress[]
   quizzes     Quiz[]
   submissions Submission[]
@@ -305,8 +317,8 @@ model Lesson {
 
 model Enrollment {
   id          String           @id @default(uuid()) @db.Uuid
-  courseId      String         @map("course_id") @db.Uuid
-  studentId     String         @map("student_id") @db.Uuid
+  courseId    String           @map("course_id") @db.Uuid
+  studentId   String           @map("student_id") @db.Uuid
   status      EnrollmentStatus @default(ACTIVE)
   progress    Float            @default(0)
   enrolledAt  DateTime         @default(now()) @map("enrolled_at")
@@ -314,7 +326,7 @@ model Enrollment {
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")
 
-  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, studentId])
   @@index([studentId])
@@ -323,16 +335,16 @@ model Enrollment {
 }
 
 model Progress {
-  id          String   @id @default(uuid()) @db.Uuid
-  studentId    String   @map("student_id") @db.Uuid
-  lessonId     String   @map("lesson_id") @db.Uuid
-  completed   Boolean  @default(false)
+  id          String    @id @default(uuid()) @db.Uuid
+  studentId   String    @map("student_id") @db.Uuid
+  lessonId    String    @map("lesson_id") @db.Uuid
+  completed   Boolean   @default(false)
   score       Float?
   completedAt DateTime? @map("completed_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, lessonId])
   @@map("progress")
@@ -340,21 +352,21 @@ model Progress {
 }
 
 model Quiz {
-  id                String   @id @default(uuid()) @db.Uuid
-  lessonId           String   @map("lesson_id") @db.Uuid
-  title             String   @db.VarChar(300)
-  description       String?  @db.Text
-  passingScore      Int      @default(70) @map("passing_score")
-  timeLimit         Int?     @map("time_limit")
-  maxAttempts       Int      @default(1) @map("max_attempts")
-  shuffleQuestions  Boolean  @default(false) @map("shuffle_questions")
-  showResults       Boolean  @default(true) @map("show_results")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid()) @db.Uuid
+  lessonId         String   @map("lesson_id") @db.Uuid
+  title            String   @db.VarChar(300)
+  description      String?  @db.Text
+  passingScore     Int      @default(70) @map("passing_score")
+  timeLimit        Int?     @map("time_limit")
+  maxAttempts      Int      @default(1) @map("max_attempts")
+  shuffleQuestions Boolean  @default(false) @map("shuffle_questions")
+  showResults      Boolean  @default(true) @map("show_results")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
-  lesson            Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  questions         Question[]
-  attempts          QuizAttempt[]
+  lesson   Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions Question[]
+  attempts  QuizAttempt[]
 
   @@index([lessonId])
   @@map("quizzes")
@@ -363,7 +375,7 @@ model Quiz {
 
 model Question {
   id            String   @id @default(uuid()) @db.Uuid
-  quizId         String   @map("quiz_id") @db.Uuid
+  quizId        String   @map("quiz_id") @db.Uuid
   type          String   @db.VarChar(50)
   question      String   @db.Text
   options       Json?    @default("[]")
@@ -373,7 +385,7 @@ model Question {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   @@index([quizId, sortOrder])
   @@map("questions")
@@ -381,17 +393,17 @@ model Question {
 }
 
 model QuizAttempt {
-  id          String   @id @default(uuid()) @db.Uuid
-  quizId       String   @map("quiz_id") @db.Uuid
-  studentId    String   @map("student_id") @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
+  quizId      String    @map("quiz_id") @db.Uuid
+  studentId   String    @map("student_id") @db.Uuid
   score       Float?
   passed      Boolean?
-  answers     Json?    @default("[]")
-  startedAt   DateTime @default(now()) @map("started_at")
+  answers     Json?     @default("[]")
+  startedAt   DateTime  @default(now()) @map("started_at")
   completedAt DateTime? @map("completed_at")
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
-  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   @@index([quizId, studentId])
   @@map("quiz_attempts")
@@ -399,14 +411,14 @@ model QuizAttempt {
 }
 
 model Certificate {
-  id              String   @id @default(uuid()) @db.Uuid
-  courseId          String   @map("course_id") @db.Uuid
-  studentId         String   @map("student_id") @db.Uuid
-  certificateUrl   String?  @map("certificate_url") @db.VarChar(500)
-  issuedAt         DateTime @default(now()) @map("issued_at")
-  createdAt        DateTime @default(now()) @map("created_at")
+  id             String   @id @default(uuid()) @db.Uuid
+  courseId       String   @map("course_id") @db.Uuid
+  studentId      String   @map("student_id") @db.Uuid
+  certificateUrl String?  @map("certificate_url") @db.VarChar(500)
+  issuedAt       DateTime @default(now()) @map("issued_at")
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  course           Course   @relation(fields: [courseId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
 
   @@unique([courseId, studentId])
   @@map("certificates")
@@ -415,13 +427,13 @@ model Certificate {
 
 model Review {
   id        String   @id @default(uuid()) @db.Uuid
-  courseId    String   @map("course_id") @db.Uuid
-  studentId   String   @map("student_id") @db.Uuid
+  courseId   String   @map("course_id") @db.Uuid
+  studentId  String   @map("student_id") @db.Uuid
   rating    Int      @db.SmallInt
   comment   String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at")
 
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, studentId])
   @@index([courseId])
@@ -431,17 +443,245 @@ model Review {
 
 model Wishlist {
   id        String   @id @default(uuid()) @db.Uuid
-  studentId   String   @map("student_id") @db.Uuid
-  courseId    String   @map("course_id") @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  courseId   String   @map("course_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
 
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId])
   @@index([studentId])
   @@map("wishlists")
   @@schema("public")
 }
+
+model Submission {
+  id          String    @id @default(uuid()) @db.Uuid
+  lessonId    String    @map("lesson_id") @db.Uuid
+  studentId   String    @map("student_id") @db.Uuid
+  content     String?   @db.Text
+  status      String    @default("SUBMITTED")
+  grade       Float?
+  feedback    String?   @db.Text
+  gradedBy    String?   @map("graded_by") @db.Uuid
+  submittedAt DateTime  @default(now()) @map("submitted_at")
+  gradedAt    DateTime? @map("graded_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, studentId])
+  @@map("submissions")
+  @@schema("public")
+}
+
+// ─── Project Management Models ───────────────────────────────
+
+model Project {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String        @db.VarChar(300)
+  description String?
+  key         String        @unique @db.VarChar(10)
+  status      ProjectStatus @default(ACTIVE)
+  ownerId     String        @map("owner_id") @db.Uuid
+  color       String?       @db.VarChar(7)
+  icon        String?       @db.VarChar(500)
+  startDate   DateTime?     @map("start_date")
+  endDate     DateTime?     @map("end_date")
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  owner          User              @relation("ProjectOwner", fields: [ownerId], references: [id])
+  members        ProjectMember[]
+  tickets        Ticket[]
+  sprints        Sprint[]
+  labels         TicketLabel[]
+  milestones     Milestone[]
+
+  @@index([ownerId])
+  @@map("projects")
+  @@schema("public")
+}
+
+model ProjectMember {
+  id        String      @id @default(uuid()) @db.Uuid
+  projectId String      @map("project_id") @db.Uuid
+  userId    String      @map("user_id") @db.Uuid
+  role      ProjectRole @default(DEVELOPER)
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+  @@schema("public")
+}
+
+model Ticket {
+  id              String         @id @default(uuid()) @db.Uuid
+  projectId       String         @map("project_id") @db.Uuid
+  key             String         @db.VarChar(20)
+  title           String         @db.VarChar(500)
+  description     String?
+  status          TicketStatus   @default(BACKLOG)
+  priority        TicketPriority @default(MEDIUM)
+  type            TicketType     @default(TASK)
+  assigneeId      String?        @map("assignee_id") @db.Uuid
+  reporterId      String         @map("reporter_id") @db.Uuid
+  sprintId        String?        @map("sprint_id") @db.Uuid
+  parentId        String?        @map("parent_id") @db.Uuid
+  storyPoints     Int?           @map("story_points")
+  order           Float          @default(0)
+  startDate       DateTime?      @map("start_date")
+  dueDate         DateTime?      @map("due_date")
+  estimatedHours  Float?         @map("estimated_hours")
+  labels          String[]
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee   User?             @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  reporter   User              @relation("TicketReporter", fields: [reporterId], references: [id])
+  sprint     Sprint?           @relation(fields: [sprintId], references: [id])
+  parent     Ticket?           @relation("TicketHierarchy", fields: [parentId], references: [id])
+  children   Ticket[]          @relation("TicketHierarchy")
+  comments   TicketComment[]
+  attachments TicketAttachment[]
+  activities TicketActivity[]
+  timeLogs   TimeLog[]
+
+  @@unique([projectId, key])
+  @@index([assigneeId])
+  @@index([parentId])
+  @@index([projectId, status])
+  @@index([reporterId])
+  @@index([sprintId])
+  @@map("tickets")
+  @@schema("public")
+}
+
+model Sprint {
+  id        String       @id @default(uuid()) @db.Uuid
+  projectId String       @map("project_id") @db.Uuid
+  name      String       @db.VarChar(300)
+  goal      String?
+  status    SprintStatus @default(PLANNING)
+  startDate DateTime?    @map("start_date")
+  endDate   DateTime?    @map("end_date")
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tickets Ticket[]
+
+  @@index([projectId, status])
+  @@map("sprints")
+  @@schema("public")
+}
+
+model TicketComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  ticketId  String   @map("ticket_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  content   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("ticket_comments")
+  @@schema("public")
+}
+
+model TicketAttachment {
+  id        String   @id @default(uuid()) @db.Uuid
+  ticketId  String   @map("ticket_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  fileName  String   @map("file_name") @db.VarChar(500)
+  fileUrl   String   @map("file_url") @db.VarChar(1000)
+  fileSize  Int      @map("file_size")
+  mimeType  String?  @map("mime_type") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("ticket_attachments")
+  @@schema("public")
+}
+
+model TicketActivity {
+  id        String   @id @default(uuid()) @db.Uuid
+  ticketId  String   @map("ticket_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  action    String   @db.VarChar(50)
+  field     String?  @map("field") @db.VarChar(50)
+  oldValue  String?  @map("old_value")
+  newValue  String?  @map("new_value")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@map("ticket_activities")
+  @@schema("public")
+}
+
+model TicketLabel {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  name      String   @db.VarChar(100)
+  color     String   @default("#6366f1") @db.VarChar(7)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+  @@map("ticket_labels")
+  @@schema("public")
+}
+
+model TimeLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  ticketId    String   @map("ticket_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  description String?
+  hours       Float
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([ticketId])
+  @@index([userId])
+  @@map("time_logs")
+  @@schema("public")
+}
+
+model Milestone {
+  id          String   @id @default(uuid()) @db.Uuid
+  projectId   String   @map("project_id") @db.Uuid
+  name        String   @db.VarChar(300)
+  description String?
+  dueDate     DateTime? @map("due_date")
+  status      String   @default("pending") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("milestones")
+  @@schema("public")
+}
+
+// ─── Enums ───────────────────────────────────────────────────
 
 enum JobStatus {
   ACTIVE
@@ -469,27 +709,6 @@ enum CourseStatus {
   @@schema("public")
 }
 
-model Submission {
-  id          String   @id @default(uuid()) @db.Uuid
-  lessonId     String   @map("lesson_id") @db.Uuid
-  studentId    String   @map("student_id") @db.Uuid
-  content     String?  @db.Text
-  status      String   @default("SUBMITTED")
-  grade       Float?
-  feedback    String?  @db.Text
-  gradedBy    String?  @map("graded_by") @db.Uuid
-  submittedAt DateTime @default(now()) @map("submitted_at")
-  gradedAt    DateTime? @map("graded_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([lessonId, studentId])
-  @@map("submissions")
-  @@schema("public")
-}
-
 enum LessonType {
   VIDEO
   TEXT
@@ -506,4 +725,61 @@ enum EnrollmentStatus {
 
   @@schema("public")
 }
-
+
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
+
+  @@schema("public")
+}
+
+enum ProjectRole {
+  PROJECT_OWNER
+  PROJECT_MANAGER
+  DEVELOPER
+  CLIENT
+  VIEWER
+
+  @@schema("public")
+}
+
+enum SprintStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+
+  @@schema("public")
+}
+
+enum TicketStatus {
+  BACKLOG
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+
+  @@schema("public")
+}
+
+enum TicketPriority {
+  LOWEST
+  LOW
+  MEDIUM
+  HIGH
+  HIGHEST
+
+  @@schema("public")
+}
+
+enum TicketType {
+  STORY
+  TASK
+  BUG
+  EPIC
+  SUB_TASK
+
+  @@schema("public")
+}
