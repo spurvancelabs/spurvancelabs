@@ -205,6 +205,10 @@ export default function KanbanBoard({
     window.location.reload();
   }, []);
 
+  const handleSubtaskCreated = useCallback(() => {
+    window.location.reload();
+  }, []);
+
   return (
     <div className="h-screen flex flex-col bg-zinc-950">
       <div className="shrink-0 border-b border-white/[0.06] px-6 py-4">
@@ -311,6 +315,8 @@ export default function KanbanBoard({
                 status={status}
                 tickets={ticketsByStatus[status] || []}
                 onTicketClick={(ticket: KanbanBoardTicket) => setSelectedTicketId(ticket.id)}
+                projectId={project.id}
+                onSubtaskCreated={handleSubtaskCreated}
               />
             ))}
           </div>
@@ -318,7 +324,7 @@ export default function KanbanBoard({
           <DragOverlay>
             {activeTicket ? (
               <div className="rotate-2 opacity-90">
-                <TicketCard ticket={activeTicket} onClick={() => {}} />
+                <TicketCard ticket={activeTicket} onClick={() => {}} projectId={project.id} />
               </div>
             ) : null}
           </DragOverlay>

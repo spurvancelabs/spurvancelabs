@@ -10,9 +10,11 @@ interface KanbanColumnProps {
   status: string;
   tickets: KanbanBoardTicket[];
   onTicketClick: (ticket: KanbanBoardTicket) => void;
+  projectId: string;
+  onSubtaskCreated?: () => void;
 }
 
-export default function KanbanColumn({ status, tickets, onTicketClick }: KanbanColumnProps) {
+export default function KanbanColumn({ status, tickets, onTicketClick, projectId, onSubtaskCreated }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -32,7 +34,13 @@ export default function KanbanColumn({ status, tickets, onTicketClick }: KanbanC
       >
         <SortableContext items={tickets.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           {tickets.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} onClick={onTicketClick} />
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              onClick={onTicketClick}
+              projectId={projectId}
+              onSubtaskCreated={onSubtaskCreated}
+            />
           ))}
         </SortableContext>
 
