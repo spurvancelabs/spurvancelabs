@@ -32,17 +32,28 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { role } = await request.json();
+    const body = await request.json();
+    const { role, name, email } = body;
+
+    if (id === decoded.userId) {
+      return NextResponse.json({ error: 'Cannot change your own account.' }, { status: 400 });
+    }
+
+    if (name !== undefined || email !== undefined) {
+      if (name !== undefined) {
+        await supabase.from('users').update({ name }).eq('id', id);
+      }
+      if (email !== undefined) {
+        await supabase.auth.admin.updateUserById(id, { email });
+      }
+      return NextResponse.json({ message: 'User updated' });
+    }
 
     if (!role || !isValidRole(role)) {
       return NextResponse.json(
         { error: 'Invalid role' },
         { status: 400 }
       );
-    }
-
-    if (id === decoded.userId) {
-      return NextResponse.json({ error: 'Cannot change your own role.' }, { status: 400 });
     }
 
     const assignableRoles = getAssignableRoles(requesterRole);
@@ -100,6 +111,49 @@ export async function PATCH(
       message: `Role updated to ${role}`,
       user: { id, role },
     });
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const decoded = await verifyToken(token);
+    if (!decoded?.userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const supabase = getSupabaseAdminClient();
+
+    const { data: requesterAdmin } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('user_id', decoded.userId)
+      .single();
+
+    if (!canManageUsers(requesterAdmin?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    if (id === decoded.userId) {
+      return NextResponse.json({ error: 'Cannot delete your own account.' }, { status: 400 });
+    }
+
+    await supabase.from('admin_users').delete().eq('user_id', id);
+    await supabase.from('users').delete().eq('id', id);
+    await supabase.auth.admin.deleteUser(id);
+
+    return NextResponse.json({ message: 'User deleted' });
   } catch (error: any) {
     if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
       return NextResponse.json({ error: error.message }, { status: 403 });

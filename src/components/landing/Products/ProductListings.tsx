@@ -125,7 +125,7 @@ export default function ProductListings() {
               className="bg-[#0a0a0a] border border-[#1a1a1a] rounded-xl overflow-hidden transition-[0.3s_ease] opacity-0 translate-y-[30px] [&.visible]:opacity-100 [&.visible]:translate-y-0 hover:border-[#2a2a2a] hover:-translate-y-2 flex flex-col h-full"
               ref={(el) => { itemsRef.current[index] = el; }}
             >
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-40 overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -143,7 +143,7 @@ export default function ProductListings() {
                   {product.name}
                 </h3>
 
-                <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-4 flex-1">
+                <p className="text-[#666] text-[0.9rem] leading-[1.6] mb-4 flex-1 line-clamp-2">
                   {product.description}
                 </p>
 

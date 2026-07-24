@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer, requireNanoEditor, requireAdmin } from '@/lib/lms/utils';
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireViewer();
   try {
+    await requireViewer();
     const { id } = await params;
     const { searchParams } = new URL(_request.url);
     const type = searchParams.get('type') || 'job';
@@ -36,8 +36,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireNanoEditor();
   try {
+    await requireNanoEditor();
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
@@ -94,8 +94,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const { id } = await params;
     const { searchParams } = new URL(_request.url);
     const type = searchParams.get('type') || 'job';

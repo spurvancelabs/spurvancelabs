@@ -5,18 +5,13 @@ CREATE TABLE IF NOT EXISTS public.users (
   email text UNIQUE,
   name text,
   image text,
-  role text NOT NULL DEFAULT 'USER',
+  type text NOT NULL DEFAULT 'USER',
   provider text,
   provider_id text,
   email_verified boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
-
-ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role text;
-UPDATE public.users SET role = 'USER' WHERE role IS NULL;
-ALTER TABLE public.users ALTER COLUMN role SET NOT NULL;
-ALTER TABLE public.users ALTER COLUMN role SET DEFAULT 'USER';
 
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS provider text;
 ALTER TABLE public.users ADD COLUMN IF NOT EXISTS provider_id text;
@@ -44,12 +39,16 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  IF NEW.raw_user_meta_data->>'skip_users_table' = 'true' THEN
+    RETURN NEW;
+  END IF;
+
   INSERT INTO public.users (
     id,
     email,
     name,
     image,
-    role,
+    type,
     provider,
     provider_id,
     email_verified
@@ -68,7 +67,7 @@ BEGIN
     email = COALESCE(EXCLUDED.email, public.users.email),
     name = COALESCE(NULLIF(EXCLUDED.name, ''), public.users.name),
     image = COALESCE(EXCLUDED.image, public.users.image),
-    role = COALESCE(EXCLUDED.role, public.users.role),
+    type = COALESCE(EXCLUDED.type, public.users.type),
     provider = COALESCE(EXCLUDED.provider, public.users.provider),
     provider_id = COALESCE(EXCLUDED.provider_id, public.users.provider_id),
     email_verified = public.users.email_verified OR EXCLUDED.email_verified,

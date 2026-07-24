@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireNanoEditor, requireAdmin } from '@/lib/lms/utils';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireNanoEditor();
   try {
+    await requireNanoEditor();
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
@@ -18,8 +18,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         type: body.type,
         location: body.location,
         salary: body.salary || null,
-        salary_min: body.salaryMin || null,
-        salary_max: body.salaryMax || null,
+        salaryMin: body.salaryMin || null,
+        salaryMax: body.salaryMax || null,
         skills: body.skills || [],
         description: body.description,
         icon: body.icon || null,
@@ -30,6 +30,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (error) {
+      console.error('Job update error:', JSON.stringify(error, null, 2));
       return NextResponse.json({ error: error.message || 'Failed to update job' }, { status: 500 });
     }
     return NextResponse.json({ job: data });
@@ -39,8 +40,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
 

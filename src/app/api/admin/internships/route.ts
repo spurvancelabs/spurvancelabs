@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer, requireEditor } from '@/lib/lms/utils';
 
 export async function GET() {
-  await requireViewer();
   try {
+    await requireViewer();
     const supabase = getSupabaseAdminClient();
     const { data: internships, error } = await supabase
       .from('internships')
@@ -38,8 +38,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  await requireEditor();
   try {
+    await requireEditor();
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         duration: body.duration,
         location: body.location,
         stipend: body.stipend || null,
-        stipend_amount: body.stipendAmount || null,
+        stipendAmount: body.stipendAmount || null,
         skills: body.skills || [],
         description: body.description,
         icon: body.icon || null,
@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message || 'Failed to create internship' }, { status: 500 });
+      console.error('Internship insert error:', JSON.stringify(error, null, 2));
+      return NextResponse.json({ error: error.message || 'Failed to create internship', details: error }, { status: 500 });
     }
     return NextResponse.json({ internship: data }, { status: 201 });
   } catch (error: any) {

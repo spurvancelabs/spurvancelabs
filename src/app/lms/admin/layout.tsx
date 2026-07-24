@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
-import { ROLES, hasMinRole } from '@/lib/lms/roles';
+import { ROLES } from '@/lib/lms/roles';
 import AdminSidebar from '@/components/lms/AdminSidebar';
 import "@/global.css";
 
@@ -18,21 +18,13 @@ export default async function LMSAdminLayout({ children }: { children: React.Rea
   if (!decoded?.userId) notFound();
 
   const supabase = getSupabaseAdminClient();
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('id', decoded.userId)
-    .single();
-
-  if (!user) notFound();
-
   const { data: adminUser } = await supabase
     .from('admin_users')
     .select('role')
     .eq('user_id', decoded.userId)
     .single();
 
-  if (!adminUser?.role || !hasMinRole(adminUser.role, ROLES.ADMIN)) {
+  if (adminUser?.role !== ROLES.SUPER_ADMIN) {
     notFound();
   }
 
