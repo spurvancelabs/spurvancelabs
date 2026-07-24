@@ -35,6 +35,7 @@ export default function ProjectSidebar({ project }: { project?: ProjectInfo }) {
       { type: 'divider' as const },
       { href: `/projects/${projectId}/board`, label: 'Board', icon: 'board' as const },
       { href: `/projects/${projectId}/backlog`, label: 'Backlog', icon: 'backlog' as const },
+      { href: `/projects/${projectId}/planning`, label: 'Sprint Planning', icon: 'sprints' as const },
       { href: `/projects/${projectId}/sprints`, label: 'Sprints', icon: 'sprints' as const },
       { href: `/projects/${projectId}/reports`, label: 'Reports', icon: 'reports' as const },
       { href: `/projects/${projectId}/settings`, label: 'Settings', icon: 'settings' as const },
