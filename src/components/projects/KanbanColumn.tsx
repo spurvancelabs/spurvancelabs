@@ -12,9 +12,11 @@ interface KanbanColumnProps {
   onTicketClick: (ticket: KanbanBoardTicket) => void;
   projectId: string;
   onSubtaskCreated?: () => void;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (ticketId: string) => void;
 }
 
-export default function KanbanColumn({ status, tickets, onTicketClick, projectId, onSubtaskCreated }: KanbanColumnProps) {
+export default function KanbanColumn({ status, tickets, onTicketClick, projectId, onSubtaskCreated, selectedIds, onToggleSelect }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -40,6 +42,8 @@ export default function KanbanColumn({ status, tickets, onTicketClick, projectId
               onClick={onTicketClick}
               projectId={projectId}
               onSubtaskCreated={onSubtaskCreated}
+              selected={selectedIds?.has(ticket.id)}
+              onToggleSelect={onToggleSelect}
             />
           ))}
         </SortableContext>

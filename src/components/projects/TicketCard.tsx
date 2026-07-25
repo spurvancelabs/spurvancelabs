@@ -12,9 +12,11 @@ interface TicketCardProps {
   onClick: (ticket: KanbanBoardTicket) => void;
   projectId: string;
   onSubtaskCreated?: () => void;
+  selected?: boolean;
+  onToggleSelect?: (ticketId: string) => void;
 }
 
-export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreated }: TicketCardProps) {
+export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreated, selected, onToggleSelect }: TicketCardProps) {
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState('');
   const [creating, setCreating] = useState(false);
@@ -74,8 +76,30 @@ export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreate
       onClick={() => {
         if (!showSubtaskForm) onClick(ticket);
       }}
-      className="group relative bg-zinc-800 border border-white/[0.06] rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-white/[0.12] transition-colors"
+      className={`group relative bg-zinc-800 border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-white/[0.12] transition-colors ${
+        selected ? 'border-blue-500/60 bg-blue-500/[0.06]' : 'border-white/[0.06]'
+      }`}
     >
+      {onToggleSelect && (
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSelect(ticket.id);
+          }}
+          className={`absolute top-2 left-2 w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer z-20 ${
+            selected
+              ? 'bg-blue-600 border-blue-500'
+              : 'border-white/20 bg-zinc-900 opacity-0 group-hover:opacity-100'
+          }`}
+        >
+          {selected && (
+            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </div>
+      )}
+
       <button
         onClick={(e) => {
           e.stopPropagation();
