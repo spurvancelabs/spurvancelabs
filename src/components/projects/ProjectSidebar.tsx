@@ -37,6 +37,7 @@ export default function ProjectSidebar({ project }: { project?: ProjectInfo }) {
       { href: `/projects/${projectId}/backlog`, label: 'Backlog', icon: 'backlog' as const },
       { href: `/projects/${projectId}/planning`, label: 'Sprint Planning', icon: 'sprints' as const },
       { href: `/projects/${projectId}/sprints`, label: 'Sprints', icon: 'sprints' as const },
+      { href: `/projects/${projectId}/roadmap`, label: 'Roadmap', icon: 'timeline' as const },
       { href: `/projects/${projectId}/reports`, label: 'Reports', icon: 'reports' as const },
       { href: `/projects/${projectId}/settings`, label: 'Settings', icon: 'settings' as const },
     ] : []),
