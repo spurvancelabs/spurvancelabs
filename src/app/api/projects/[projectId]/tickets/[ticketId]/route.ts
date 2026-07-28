@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { logActivity } from '@/lib/projects/utils';
+import { NotificationTrigger } from '@/lib/notification/trigger';
 
 async function getAuthUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -153,6 +154,21 @@ export async function PUT(
 
     for (const change of changes) {
       await logActivity(ticketId, userId, 'UPDATED', change.field, change.oldValue, change.newValue);
+    }
+
+    const assigneeChange = changes.find(c => c.field === 'assigneeId');
+    if (assigneeChange && assigneeChange.newValue && assigneeChange.newValue !== userId) {
+      try {
+        await NotificationTrigger.triggerNotification({
+          user_id: assigneeChange.newValue,
+          type: 'info',
+          title: 'Assigned to ticket',
+          message: `${ticket.key}: ${ticket.title}`,
+          priority: 'medium',
+          link: `/projects/${projectId}/board`,
+          sender_id: userId,
+        });
+      } catch { /* best effort */ }
     }
 
     return NextResponse.json({ data: ticket });

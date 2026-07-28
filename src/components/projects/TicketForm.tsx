@@ -26,6 +26,7 @@ interface TicketFormProps {
     sprintId?: string | null;
     storyPoints?: number | null;
     labels?: string[];
+    startDate?: string | null;
     dueDate?: string | null;
   } | null;
   parentId?: string | null;
@@ -50,6 +51,7 @@ export default function TicketForm({
   const [sprintId, setSprintId] = useState(initialData?.sprintId || '');
   const [storyPoints, setStoryPoints] = useState(initialData?.storyPoints?.toString() || '');
   const [labelsInput, setLabelsInput] = useState((initialData?.labels || []).join(', '));
+  const [startDate, setStartDate] = useState(initialData?.startDate || '');
   const [dueDate, setDueDate] = useState(initialData?.dueDate || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -76,6 +78,7 @@ export default function TicketForm({
         .map((l) => l.trim())
         .filter(Boolean),
       dueDate: dueDate || null,
+      startDate: startDate || null,
       parentId: parentId || null,
     };
 
@@ -215,11 +218,11 @@ export default function TicketForm({
               />
             </div>
             <div>
-              <label className={labelClass}>Due Date</label>
+              <label className={labelClass}>Start Date</label>
               <input
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
                 className={inputClass}
               />
             </div>

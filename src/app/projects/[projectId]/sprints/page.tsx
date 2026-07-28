@@ -116,6 +116,21 @@ export default function SprintsPage({ params }: { params: Promise<{ projectId: s
     );
   }
 
+  if (!project) {
+    return (
+      <div className="flex min-h-screen bg-zinc-950">
+        <ProjectSidebar />
+        <div className="flex-1 lg:ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-white mb-2">Project not found</h1>
+            <p className="text-gray-400 text-sm mb-4">This project may have been deleted or you may not have access.</p>
+            <Link href="/projects" className="text-blue-400 hover:text-blue-300 text-sm">Go back to projects</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-zinc-950">
       <ProjectSidebar project={project || undefined} />

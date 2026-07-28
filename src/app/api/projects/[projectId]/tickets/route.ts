@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getNextTicketKey } from '@/lib/projects/utils';
+import { NotificationTrigger } from '@/lib/notification/trigger';
 
 async function getAuthUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -104,7 +105,7 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { title, description, type, priority, assigneeId, sprintId, labels, storyPoints, dueDate, parentId } = body;
+    const { title, description, type, priority, assigneeId, sprintId, labels, storyPoints, startDate, dueDate, parentId } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -131,6 +132,7 @@ export async function POST(
         parentId: parentId || null,
         labels: labels || [],
         storyPoints: storyPoints || null,
+        startDate: startDate || null,
         dueDate: dueDate || null,
         order: (maxOrder._max.order ?? 0) + 1,
       },
@@ -140,6 +142,20 @@ export async function POST(
         _count: { select: { comments: true, attachments: true } },
       },
     });
+
+    if (assigneeId && assigneeId !== userId) {
+      try {
+        await NotificationTrigger.triggerNotification({
+          user_id: assigneeId,
+          type: 'info',
+          title: 'Assigned to ticket',
+          message: `${ticket.key}: ${title}`,
+          priority: 'medium',
+          link: `/projects/${projectId}/board`,
+          sender_id: userId,
+        });
+      } catch { /* best effort */ }
+    }
 
     return NextResponse.json({ data: ticket }, { status: 201 });
   } catch (error) {

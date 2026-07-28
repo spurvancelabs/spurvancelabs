@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
 import ProjectSidebar from '@/components/projects/ProjectSidebar';
 import ProjectHeader from '@/components/projects/ProjectHeader';
 
@@ -181,38 +182,27 @@ export default function RoadmapPage({ params }: { params: Promise<{ projectId: s
 
   const todayPercent = dayToPercent(new Date());
 
-  const TicketBar = ({ ticket, depth = 0 }: { ticket: Ticket; depth?: number }) => {
+  const renderBar = (ticket: Ticket) => {
     const start = parseDate(ticket.startDate);
     const due = parseDate(ticket.dueDate);
     if (!start && !due) return null;
-
     const barStart = start || due!;
     const barEnd = due || start!;
     const left = dayToPercent(barStart);
     const width = Math.max(0.5, dayToPercent(barEnd) - left);
     const color = STATUS_COLORS[ticket.status] || '#6b7280';
-
     return (
-      <div className="flex items-center h-7 group" style={{ paddingLeft: `${depth * 20}px` }}>
-        <div className="absolute left-0 w-[280px] md:w-[340px] shrink-0 flex items-center gap-2 px-3 h-7 z-10 bg-zinc-950">
-          {ticket.type !== 'EPIC' && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: TYPE_COLORS[ticket.type] || '#6b7280' }} />}
-          <span className="text-[10px] font-mono text-gray-500 shrink-0">{ticket.key}</span>
-          <span className="text-[11px] text-gray-300 truncate">{ticket.title}</span>
-        </div>
-        <div className="flex-1 relative h-full">
-          <div
-            className="absolute top-1.5 h-4 rounded-sm flex items-center px-1.5 cursor-default transition-opacity group-hover:opacity-90"
-            style={{
-              left: `${left}%`,
-              width: `${width}%`,
-              backgroundColor: color + '30',
-              borderLeft: `2px solid ${color}`,
-            }}
-            title={`${ticket.key}: ${ticket.title}\n${formatDate(barStart)} → ${formatDate(barEnd)}\nStatus: ${ticket.status.replace('_', ' ')}`}
-          >
-            <span className="text-[9px] text-white/70 truncate">{ticket.key}</span>
-          </div>
-        </div>
+      <div
+        className="absolute top-1.5 h-4 rounded-sm flex items-center px-1.5 cursor-default group-hover:opacity-90"
+        style={{
+          left: `${left}%`,
+          width: `${width}%`,
+          backgroundColor: color + '30',
+          borderLeft: `2px solid ${color}`,
+        }}
+        title={`${ticket.key}: ${ticket.title}\n${formatDate(barStart)} → ${formatDate(barEnd)}\nStatus: ${ticket.status.replace('_', ' ')}`}
+      >
+        <span className="text-[9px] text-white/70 truncate">{ticket.key}</span>
       </div>
     );
   };
@@ -223,6 +213,21 @@ export default function RoadmapPage({ params }: { params: Promise<{ projectId: s
         <ProjectSidebar />
         <div className="flex-1 lg:ml-64 flex items-center justify-center">
           <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex min-h-screen bg-zinc-950">
+        <ProjectSidebar />
+        <div className="flex-1 lg:ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-white mb-2">Project not found</h1>
+            <p className="text-gray-400 text-sm mb-4">This project may have been deleted or you may not have access.</p>
+            <Link href="/projects" className="text-blue-400 hover:text-blue-300 text-sm">Go back to projects</Link>
+          </div>
         </div>
       </div>
     );
@@ -358,41 +363,20 @@ export default function RoadmapPage({ params }: { params: Promise<{ projectId: s
                           <span className="text-xs text-white font-medium truncate">{epic.title}</span>
                           <span className="text-[9px] text-gray-600 ml-auto shrink-0">{children.length}</span>
                         </div>
-                        <div className="flex-1 relative h-9">
-                          <TicketBar ticket={epic} />
+                        <div className="flex-1 relative h-9 group">
+                          {renderBar(epic)}
                         </div>
                       </div>
 
                       {isExpanded && children.map(child => (
-                        <div key={child.id} className="flex items-center border-t border-white/[0.02] hover:bg-white/[0.01]">
-                          <div className="w-[280px] md:w-[340px] shrink-0 border-r border-white/[0.03]">
-                            <TicketBar ticket={child} depth={1} />
+                        <div key={child.id} className="flex items-center border-t border-white/[0.02] hover:bg-white/[0.01] group">
+                          <div className="w-[280px] md:w-[340px] shrink-0 flex items-center gap-2 px-3 h-7 border-r border-white/[0.03] pl-7">
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: TYPE_COLORS[child.type] || '#6b7280' }} />
+                            <span className="text-[10px] font-mono text-gray-500 shrink-0">{child.key}</span>
+                            <span className="text-[11px] text-gray-300 truncate">{child.title}</span>
                           </div>
                           <div className="flex-1 relative h-7">
-                            {(() => {
-                              const start = parseDate(child.startDate);
-                              const due = parseDate(child.dueDate);
-                              if (!start && !due) return null;
-                              const barStart = start || due!;
-                              const barEnd = due || start!;
-                              const left = dayToPercent(barStart);
-                              const width = Math.max(0.5, dayToPercent(barEnd) - left);
-                              const color = STATUS_COLORS[child.status] || '#6b7280';
-                              return (
-                                <div
-                                  className="absolute top-1.5 h-4 rounded-sm flex items-center px-1.5 cursor-default hover:opacity-80"
-                                  style={{
-                                    left: `${left}%`,
-                                    width: `${width}%`,
-                                    backgroundColor: color + '25',
-                                    borderLeft: `2px solid ${color}`,
-                                  }}
-                                  title={`${child.key}: ${child.title}\n${formatDate(barStart)} → ${formatDate(barEnd)}\nStatus: ${child.status.replace('_', ' ')}`}
-                                >
-                                  <span className="text-[9px] text-white/60 truncate">{child.key}</span>
-                                </div>
-                              );
-                            })()}
+                            {renderBar(child)}
                           </div>
                         </div>
                       ))}
@@ -410,35 +394,14 @@ export default function RoadmapPage({ params }: { params: Promise<{ projectId: s
                   {tickets
                     .filter(t => !t.parentId && t.type !== 'EPIC')
                     .map(ticket => (
-                      <div key={ticket.id} className="flex items-center border-t border-white/[0.02] hover:bg-white/[0.01]">
-                        <div className="w-[280px] md:w-[340px] shrink-0 border-r border-white/[0.03]">
-                          <TicketBar ticket={ticket} />
+                      <div key={ticket.id} className="flex items-center border-t border-white/[0.02] hover:bg-white/[0.01] group">
+                        <div className="w-[280px] md:w-[340px] shrink-0 flex items-center gap-2 px-3 h-7 border-r border-white/[0.03]">
+                          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: TYPE_COLORS[ticket.type] || '#6b7280' }} />
+                          <span className="text-[10px] font-mono text-gray-500 shrink-0">{ticket.key}</span>
+                          <span className="text-[11px] text-gray-300 truncate">{ticket.title}</span>
                         </div>
                         <div className="flex-1 relative h-7">
-                          {(() => {
-                            const start = parseDate(ticket.startDate);
-                            const due = parseDate(ticket.dueDate);
-                            if (!start && !due) return null;
-                            const barStart = start || due!;
-                            const barEnd = due || start!;
-                            const left = dayToPercent(barStart);
-                            const width = Math.max(0.5, dayToPercent(barEnd) - left);
-                            const color = STATUS_COLORS[ticket.status] || '#6b7280';
-                            return (
-                              <div
-                                className="absolute top-1.5 h-4 rounded-sm flex items-center px-1.5 cursor-default hover:opacity-80"
-                                style={{
-                                  left: `${left}%`,
-                                  width: `${width}%`,
-                                  backgroundColor: color + '25',
-                                  borderLeft: `2px solid ${color}`,
-                                }}
-                                title={`${ticket.key}: ${ticket.title}\n${formatDate(barStart)} → ${formatDate(barEnd)}`}
-                              >
-                                <span className="text-[9px] text-white/60 truncate">{ticket.key}</span>
-                              </div>
-                            );
-                          })()}
+                          {renderBar(ticket)}
                         </div>
                       </div>
                     ))}

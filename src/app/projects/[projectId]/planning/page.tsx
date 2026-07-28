@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import ProjectSidebar from '@/components/projects/ProjectSidebar';
 import ProjectHeader from '@/components/projects/ProjectHeader';
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -182,6 +183,21 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
         <ProjectSidebar />
         <div className="flex-1 lg:ml-64 flex items-center justify-center">
           <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex min-h-screen bg-zinc-950">
+        <ProjectSidebar />
+        <div className="flex-1 lg:ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-white mb-2">Project not found</h1>
+            <p className="text-gray-400 text-sm mb-4">This project may have been deleted or you may not have access.</p>
+            <Link href="/projects" className="text-blue-400 hover:text-blue-300 text-sm">Go back to projects</Link>
+          </div>
         </div>
       </div>
     );
