@@ -15,6 +15,7 @@ import {
   type DragOverEvent,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import ProjectSidebar from './ProjectSidebar';
 import KanbanColumn from './KanbanColumn';
 import TicketCard from './TicketCard';
 import TicketForm from './TicketForm';
@@ -259,7 +260,10 @@ export default function KanbanBoard({
   }, [selectedIds, bulkStatus, bulkAssignee, project.id]);
 
   return (
-    <div className="h-screen flex flex-col bg-zinc-950">
+    <div className="flex min-h-screen bg-zinc-950">
+      <ProjectSidebar project={project} />
+      <div className="flex-1 lg:ml-64">
+        <div className="h-screen flex flex-col">
       <div className="shrink-0 border-b border-white/[0.06] px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -404,6 +408,8 @@ export default function KanbanBoard({
             ) : null}
           </DragOverlay>
         </DndContext>
+      </div>
+        </div>
       </div>
 
       {showCreateForm && (
