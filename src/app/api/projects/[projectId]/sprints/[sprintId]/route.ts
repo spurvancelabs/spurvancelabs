@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { canProject } from '@/lib/projects/permissions';
 
 async function getAuthUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -81,7 +82,8 @@ export async function PUT(
       select: { id: true },
     });
 
-    if (!isOwner && member?.role !== 'PROJECT_OWNER' && member?.role !== 'PROJECT_MANAGER') {
+    const role = isOwner ? 'PROJECT_OWNER' : member?.role;
+    if (!canProject(role, 'manage_sprints')) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
@@ -163,7 +165,8 @@ export async function DELETE(
       select: { id: true },
     });
 
-    if (!isOwner && member?.role !== 'PROJECT_OWNER' && member?.role !== 'PROJECT_MANAGER') {
+    const role = isOwner ? 'PROJECT_OWNER' : member?.role;
+    if (!canProject(role, 'manage_sprints')) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 

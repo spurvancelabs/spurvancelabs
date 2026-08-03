@@ -14,9 +14,10 @@ interface TicketCardProps {
   onSubtaskCreated?: () => void;
   selected?: boolean;
   onToggleSelect?: (ticketId: string) => void;
+  draggable?: boolean;
 }
 
-export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreated, selected, onToggleSelect }: TicketCardProps) {
+export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreated, selected, onToggleSelect, draggable = true }: TicketCardProps) {
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
   const [subtaskTitle, setSubtaskTitle] = useState('');
   const [creating, setCreating] = useState(false);
@@ -28,7 +29,7 @@ export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreate
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: ticket.id });
+  } = useSortable({ id: ticket.id, disabled: !draggable });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -76,9 +77,9 @@ export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreate
       onClick={() => {
         if (!showSubtaskForm) onClick(ticket);
       }}
-      className={`group relative bg-zinc-800 border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:border-white/[0.12] transition-colors ${
+      className={`group relative bg-zinc-800 border rounded-lg p-3 hover:border-white/[0.12] transition-colors ${
         selected ? 'border-blue-500/60 bg-blue-500/[0.06]' : 'border-white/[0.06]'
-      }`}
+      } ${draggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
     >
       {onToggleSelect && (
         <div
@@ -100,18 +101,20 @@ export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreate
         </div>
       )}
 
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowSubtaskForm(!showSubtaskForm);
-        }}
-        className="absolute -top-1.5 -right-1.5 opacity-0 group-hover:opacity-100 w-5 h-5 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center transition-all cursor-pointer z-10"
-        title="Add sub-task"
-      >
-        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
+      {draggable && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowSubtaskForm(!showSubtaskForm);
+          }}
+          className="absolute -top-1.5 -right-1.5 opacity-0 group-hover:opacity-100 w-5 h-5 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center transition-all cursor-pointer z-10"
+          title="Add sub-task"
+        >
+          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      )}
 
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs text-gray-500 font-mono">{ticket.key}</span>

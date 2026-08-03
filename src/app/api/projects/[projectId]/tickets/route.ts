@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getNextTicketKey } from '@/lib/projects/utils';
+import { canProject } from '@/lib/projects/permissions';
 import { NotificationTrigger } from '@/lib/notification/trigger';
 
 async function getAuthUserId(): Promise<string | null> {
@@ -102,6 +103,11 @@ export async function POST(
 
     if (!member && !isOwner) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+
+    const role = isOwner ? 'PROJECT_OWNER' : member?.role;
+    if (!canProject(role, 'manage_tickets')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     const body = await req.json();

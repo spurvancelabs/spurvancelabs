@@ -52,6 +52,7 @@ export default function TicketDetailModal({
   onUpdate,
   members = [],
   sprints = [],
+  currentUserRole = null,
 }: {
   ticketId: string;
   projectId: string;
@@ -59,7 +60,10 @@ export default function TicketDetailModal({
   onUpdate?: () => void;
   members?: Member[];
   sprints?: Sprint[];
+  currentUserRole?: string | null;
 }) {
+  const canManageTickets = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER' || currentUserRole === 'DEVELOPER';
+  const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('comments');
@@ -210,12 +214,14 @@ export default function TicketDetailModal({
             <span className={`text-[10px] px-2 py-0.5 rounded border ${TYPE_COLORS[ticket.type] || ''}`}>{TYPE_LABELS[ticket.type] || ticket.type}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setEditing(!editing); setEditData(ticket); }}
-              className="text-gray-400 hover:text-white text-sm cursor-pointer"
-            >
-              {editing ? 'Cancel' : 'Edit'}
-            </button>
+            {canManageTickets && (
+              <button
+                onClick={() => { setEditing(!editing); setEditData(ticket); }}
+                className="text-gray-400 hover:text-white text-sm cursor-pointer"
+              >
+                {editing ? 'Cancel' : 'Edit'}
+              </button>
+            )}
             <button onClick={onClose} className="text-gray-400 hover:text-white cursor-pointer">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -293,19 +299,25 @@ export default function TicketDetailModal({
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Sprint</label>
-                  <select
-                    value={editData.sprint?.id || ''}
-                    onChange={e => {
-                      const s = sprints.find(s => s.id === e.target.value);
-                      setEditData({ ...editData, sprint: s ? { id: s.id, name: s.name } : null });
-                    }}
-                    className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-                  >
-                    <option value="">No Sprint</option>
-                    {sprints.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
+                  {canManageSprints ? (
+                    <select
+                      value={editData.sprint?.id || ''}
+                      onChange={e => {
+                        const s = sprints.find(s => s.id === e.target.value);
+                        setEditData({ ...editData, sprint: s ? { id: s.id, name: s.name } : null });
+                      }}
+                      className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                    >
+                      <option value="">No Sprint</option>
+                      {sprints.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm opacity-60">
+                      {editData.sprint?.name || 'No Sprint'}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Story Points</label>
@@ -338,7 +350,7 @@ export default function TicketDetailModal({
                     storyPoints: editData.storyPoints,
                     dueDate: editData.dueDate,
                     assigneeId: editData.assignee?.id || null,
-                    sprintId: editData.sprint?.id || null,
+                    ...(canManageSprints ? { sprintId: editData.sprint?.id || null } : {}),
                   };
                   const res = await fetch(`/api/projects/${projectId}/tickets/${ticketId}`, {
                     method: 'PUT',
@@ -372,13 +384,17 @@ export default function TicketDetailModal({
             <div className="bg-zinc-900 border border-white/[0.06] rounded-xl p-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Status</span>
-                <select
-                  value={ticket.status}
-                  onChange={e => updateField('status', e.target.value)}
-                  className={`text-[11px] px-2 py-0.5 rounded border bg-transparent cursor-pointer outline-none ${STATUS_COLORS[ticket.status] || ''}`}
-                >
-                  {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
+                {canManageTickets ? (
+                  <select
+                    value={ticket.status}
+                    onChange={e => updateField('status', e.target.value)}
+                    className={`text-[11px] px-2 py-0.5 rounded border bg-transparent cursor-pointer outline-none ${STATUS_COLORS[ticket.status] || ''}`}
+                  >
+                    {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                ) : (
+                  <span className={`text-[11px] px-2 py-0.5 rounded border ${STATUS_COLORS[ticket.status] || ''}`}>{STATUS_LABELS[ticket.status] || ticket.status}</span>
+                )}
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Priority</span>
@@ -426,15 +442,17 @@ export default function TicketDetailModal({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-gray-500 uppercase tracking-wider">Sub-tasks ({ticket.children?.length || 0})</span>
-              <button
-                onClick={() => setShowSubtaskForm(!showSubtaskForm)}
-                className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1 cursor-pointer"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add sub-task
-              </button>
+              {canManageTickets && (
+                <button
+                  onClick={() => setShowSubtaskForm(!showSubtaskForm)}
+                  className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add sub-task
+                </button>
+              )}
             </div>
 
             {showSubtaskForm && (
@@ -583,29 +601,31 @@ export default function TicketDetailModal({
 
           {tab === 'time' && (
             <div>
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="number"
-                  step="0.25"
-                  value={timeHours}
-                  onChange={e => setTimeHours(e.target.value)}
-                  placeholder="Hours"
-                  className="w-24 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-                />
-                <input
-                  value={timeDesc}
-                  onChange={e => setTimeDesc(e.target.value)}
-                  placeholder="Description (optional)"
-                  className="flex-1 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-                />
-                <button
-                  onClick={addTimeLog}
-                  disabled={!timeHours}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm disabled:opacity-50 cursor-pointer"
-                >
-                  Log
-                </button>
-              </div>
+              {canManageTickets && (
+                <div className="flex gap-2 mb-4">
+                  <input
+                    type="number"
+                    step="0.25"
+                    value={timeHours}
+                    onChange={e => setTimeHours(e.target.value)}
+                    placeholder="Hours"
+                    className="w-24 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                  />
+                  <input
+                    value={timeDesc}
+                    onChange={e => setTimeDesc(e.target.value)}
+                    placeholder="Description (optional)"
+                    className="flex-1 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                  />
+                  <button
+                    onClick={addTimeLog}
+                    disabled={!timeHours}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm disabled:opacity-50 cursor-pointer"
+                  >
+                    Log
+                  </button>
+                </div>
+              )}
               <div className="space-y-2">
                 {ticket.timeLogs.map(l => (
                   <div key={l.id} className="flex items-center justify-between bg-zinc-900 border border-white/[0.06] rounded-lg px-4 py-2">
@@ -625,15 +645,24 @@ export default function TicketDetailModal({
           )}
 
           {tab === 'attachments' && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors inline-flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  {uploading ? 'Uploading...' : 'Upload file'}
-                  <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading} />
-                </label>
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                {canManageTickets ? (
+                  <label className="cursor-pointer text-blue-400 hover:text-blue-300 text-sm flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload file
+                    <input type="file" className="hidden" onChange={handleFileUpload} />
+                  </label>
+                ) : (
+                  <span className="text-sm text-gray-500 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload file
+                  </span>
+                )}
                 <span className="text-xs text-gray-600">Max 5MB</span>
               </div>
               {ticket.attachments.map(a => (

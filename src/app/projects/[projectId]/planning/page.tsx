@@ -43,8 +43,8 @@ const PRIORITY_COLORS: Record<string, string> = {
   HIGHEST: 'bg-red-500/10 text-red-400',
 };
 
-function DraggableTicket({ ticket }: { ticket: Ticket }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: ticket.id, data: ticket });
+function DraggableTicket({ ticket, draggable = true }: { ticket: Ticket; draggable?: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: ticket.id, data: ticket, disabled: !draggable });
   const style = transform ? { transform: `translate(${transform.x}px, ${transform.y}px)` } : undefined;
   return (
     <div
@@ -52,7 +52,7 @@ function DraggableTicket({ ticket }: { ticket: Ticket }) {
       {...listeners}
       {...attributes}
       style={style}
-      className={`bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2.5 mb-2 cursor-grab active:cursor-grabbing hover:bg-zinc-750 transition-colors ${isDragging ? 'opacity-40' : ''}`}
+      className={`bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2.5 mb-2 hover:bg-zinc-750 transition-colors ${isDragging ? 'opacity-40' : ''} ${draggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
     >
       <div className="flex items-center justify-between mb-1">
         <span className="text-[11px] font-mono text-gray-500">{ticket.key}</span>
@@ -111,6 +111,9 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
   const [project, setProject] = useState<{ id: string; name: string; key: string } | null>(null);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [filter, setFilter] = useState('');
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+
+  const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -122,10 +125,18 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
       fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
       fetch(`/api/projects/${projectId}/tickets`, { credentials: 'include' }).then(r => r.json()),
       fetch(`/api/projects/${projectId}/sprints`, { credentials: 'include' }).then(r => r.json()),
-    ]).then(([pData, tData, sData]) => {
+      fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
+      fetch(`/api/auth/me`, { credentials: 'include' }).then(r => r.json()),
+    ]).then(([pData, tData, sData, mData, me]) => {
       setProject(pData.data);
       setTickets(tData.data || []);
       setSprints((sData.data || []).filter((s: Sprint) => s.status !== 'COMPLETED'));
+      const memberList = (mData.data || []).map((m: any) => ({ id: m.user?.id || m.userId, role: m.role }));
+      setCurrentUserRole(
+        me?.id === pData.data?.owner?.id
+          ? 'PROJECT_OWNER'
+          : (memberList.find((m: any) => m.id === me?.id)?.role ?? null)
+      );
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [projectId]);
@@ -146,6 +157,7 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
   const handleDragStart = (e: any) => setActiveTicket(e.active.data.current);
   const handleDragEnd = async (e: any) => {
     setActiveTicket(null);
+    if (!canManageSprints) return;
     const { active, over } = e;
     if (!over) return;
     const sprintId = over.data.current?.sprintId;
@@ -234,7 +246,7 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
                   <div className="text-center py-12 text-gray-600 text-sm">No tickets in backlog</div>
                 ) : (
                   <div className="space-y-0">
-                    {backlogTickets.map(t => <DraggableTicket key={t.id} ticket={t} />)}
+                    {backlogTickets.map(t => <DraggableTicket key={t.id} ticket={t} draggable={canManageSprints} />)}
                   </div>
                 )}
               </div>
@@ -249,7 +261,7 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
                     return (
                       <div key={s.id}>
                         <SprintZone sprint={s} tickets={sprintTickets} />
-                        {sprintTickets.length > 0 && (
+                    {sprintTickets.length > 0 && canManageSprints && (
                           <div className="flex justify-end mt-1">
                             <button
                               onClick={() => sprintTickets.forEach(t => handleRemoveFromSprint(t.id))}

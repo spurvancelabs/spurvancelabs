@@ -40,6 +40,7 @@ export default function SettingsPage({ params }: { params: Promise<{ projectId: 
   const [addEmail, setAddEmail] = useState('');
   const [addRole, setAddRole] = useState('DEVELOPER');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState('');
 
   useEffect(() => { params.then(p => setProjectId(p.projectId)); }, [params]);
 
@@ -48,14 +49,21 @@ export default function SettingsPage({ params }: { params: Promise<{ projectId: 
     Promise.all([
       fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
       fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
-    ]).then(([pData, mData]) => {
+      fetch('/api/auth/me', { credentials: 'include' }).then(r => r.json()),
+    ]).then(([pData, mData, meData]) => {
       setProject(pData.data);
       setMembers(mData.data || []);
+      setCurrentUserId(meData.userId || meData.id || '');
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [projectId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  const currentMember = members.find(m => m.userId === currentUserId);
+  const isOwner = project?.owner?.id === currentUserId || currentMember?.role === 'PROJECT_OWNER';
+  const canManageMembers = isOwner;
+  const canManageProject = isOwner || currentMember?.role === 'PROJECT_MANAGER';
 
   const handleUpdate = async (updates: Partial<ProjectData>) => {
     setSaving(true);
@@ -96,6 +104,24 @@ export default function SettingsPage({ params }: { params: Promise<{ projectId: 
       });
       fetchData();
     } catch { toast.error('Failed to remove member'); }
+  };
+
+  const handleRoleChange = async (userId: string, role: string) => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}/members`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userId, role }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || 'Failed to update role');
+        return;
+      }
+      toast.success('Role updated');
+      fetchData();
+    } catch { toast.error('Failed to update role'); }
   };
 
   const handleDelete = async () => {
@@ -140,6 +166,7 @@ export default function SettingsPage({ params }: { params: Promise<{ projectId: 
         <main className="p-4 sm:p-6 lg:p-8 max-w-3xl">
           <h1 className="text-xl font-bold text-white mb-6">Project Settings</h1>
 
+          {canManageProject ? (
           <div className="bg-zinc-900 border border-white/[0.06] rounded-xl p-6 mb-6">
             <h2 className="text-lg font-semibold text-white mb-4">General</h2>
             <div className="space-y-4">
@@ -185,6 +212,9 @@ export default function SettingsPage({ params }: { params: Promise<{ projectId: 
               {saving && <p className="text-xs text-gray-500">Saving...</p>}
             </div>
           </div>
+          ) : (
+            <p className="text-gray-500 text-sm mb-6">Project settings can only be edited by the project owner or a project manager.</p>
+          )}
 
           <div className="bg-zinc-900 border border-white/[0.06] rounded-xl p-6 mb-6">
             <h2 className="text-lg font-semibold text-white mb-4">Members ({members.length})</h2>
@@ -201,102 +231,91 @@ export default function SettingsPage({ params }: { params: Promise<{ projectId: 
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <select
-                      defaultValue={m.role}
-                      onChange={async (e) => {
-                        const newRole = e.target.value;
-                        try {
-                          const delRes = await fetch(`/api/projects/${projectId}/members`, {
-                            method: 'DELETE',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ userId: m.userId }),
-                          });
-                          if (!delRes.ok) { toast.error('Failed to update role'); return; }
-                          const addRes = await fetch(`/api/projects/${projectId}/members`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ email: m.user.email, role: newRole }),
-                          });
-                          if (!addRes.ok) {
-                            toast.error('Failed to re-add member. Reverting...');
-                            await fetch(`/api/projects/${projectId}/members`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              credentials: 'include',
-                              body: JSON.stringify({ email: m.user.email, role: m.role }),
-                            });
-                          }
-                          fetchData();
-                        } catch { toast.error('Failed to update role'); }
-                      }}
-                      className="bg-zinc-700 border border-white/[0.06] rounded-lg px-2 py-1 text-xs text-white outline-none"
-                    >
-                      {PROJECT_ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
-                    </select>
-                    <button
-                      onClick={() => handleRemoveMember(m.userId)}
-                      className="text-gray-600 hover:text-red-400 cursor-pointer"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
+                    <span className={`text-[10px] px-2 py-0.5 rounded ${
+                      m.role === 'PROJECT_OWNER' ? 'bg-red-500/10 text-red-400' :
+                      m.role === 'PROJECT_MANAGER' ? 'bg-blue-500/10 text-blue-400' :
+                      m.role === 'DEVELOPER' ? 'bg-amber-500/10 text-amber-400' :
+                      m.role === 'CLIENT' ? 'bg-purple-500/10 text-purple-400' :
+                      'bg-gray-500/10 text-gray-400'
+                    }`}>{m.role.replace('_', ' ')}</span>
+                    {canManageMembers && (
+                      <>
+                        <select
+                          defaultValue={m.role}
+                          disabled={m.userId === project?.owner?.id && m.role === 'PROJECT_OWNER'}
+                          onChange={e => handleRoleChange(m.userId, e.target.value)}
+                          className="bg-zinc-700 border border-white/[0.06] rounded-lg px-2 py-1 text-xs text-white outline-none disabled:opacity-50"
+                        >
+                          {PROJECT_ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+                        </select>
+                        <button
+                          onClick={() => handleRemoveMember(m.userId)}
+                          className="text-gray-600 hover:text-red-400 cursor-pointer"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                value={addEmail}
-                onChange={e => setAddEmail(e.target.value)}
-                placeholder="Email address"
-                className="flex-1 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
-              />
-              <select
-                value={addRole}
-                onChange={e => setAddRole(e.target.value)}
-                className="bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-              >
-                {PROJECT_ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
-              </select>
-              <button
-                onClick={handleAddMember}
-                disabled={!addEmail.trim()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 cursor-pointer"
-              >
-                Add
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h2>
-            <p className="text-gray-400 text-sm mb-4">Permanently delete this project and all associated data. This cannot be undone.</p>
-            {!showDeleteConfirm ? (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
-              >
-                Delete Project
-              </button>
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-red-400">Type the project key to confirm:</span>
+            {canManageMembers && (
+              <div className="flex gap-2">
                 <input
-                  type="text"
-                  placeholder={project?.key}
-                  className="bg-zinc-800 border border-red-500/30 rounded-lg px-3 py-2 text-white text-sm outline-none w-32"
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && e.currentTarget.value === project?.key) handleDelete();
-                  }}
+                  type="email"
+                  value={addEmail}
+                  onChange={e => setAddEmail(e.target.value)}
+                  placeholder="Email address"
+                  className="flex-1 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
                 />
-                <button onClick={() => setShowDeleteConfirm(false)} className="text-gray-400 hover:text-white text-sm cursor-pointer">Cancel</button>
+                <select
+                  value={addRole}
+                  onChange={e => setAddRole(e.target.value)}
+                  className="bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                >
+                  {PROJECT_ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+                </select>
+                <button
+                  onClick={handleAddMember}
+                  disabled={!addEmail.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50 cursor-pointer"
+                >
+                  Add
+                </button>
               </div>
             )}
           </div>
+
+          {isOwner && (
+            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h2>
+              <p className="text-gray-400 text-sm mb-4">Permanently delete this project and all associated data. This cannot be undone.</p>
+              {!showDeleteConfirm ? (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
+                >
+                  Delete Project
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-red-400">Type the project key to confirm:</span>
+                  <input
+                    type="text"
+                    placeholder={project?.key}
+                    className="bg-zinc-800 border border-red-500/30 rounded-lg px-3 py-2 text-white text-sm outline-none w-32"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && e.currentTarget.value === project?.key) handleDelete();
+                    }}
+                  />
+                  <button onClick={() => setShowDeleteConfirm(false)} className="text-gray-400 hover:text-white text-sm cursor-pointer">Cancel</button>
+                </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
     </div>

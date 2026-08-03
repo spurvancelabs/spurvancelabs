@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { logActivity } from '@/lib/projects/utils';
+import { canProject } from '@/lib/projects/permissions';
 import { NotificationTrigger } from '@/lib/notification/trigger';
 
 async function getAuthUserId(): Promise<string | null> {
@@ -111,6 +112,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
+    const role = isOwner ? 'PROJECT_OWNER' : member?.role;
+    if (!canProject(role, 'manage_tickets')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    }
+
     const existing = await prisma.ticket.findFirst({
       where: { id: ticketId, projectId },
     });
@@ -140,6 +146,10 @@ export async function PUT(
         }
         data[field] = newVal;
       }
+    }
+
+    if (changes.some(c => c.field === 'sprintId') && !canProject(role, 'manage_sprints')) {
+      return NextResponse.json({ error: 'Only project owner or manager can change sprint assignment' }, { status: 403 });
     }
 
     const ticket = await prisma.ticket.update({
@@ -198,7 +208,8 @@ export async function DELETE(
       select: { id: true },
     });
 
-    if (!isOwner && member?.role !== 'PROJECT_OWNER' && member?.role !== 'PROJECT_MANAGER') {
+    const role = isOwner ? 'PROJECT_OWNER' : member?.role;
+    if (!canProject(role, 'delete_ticket')) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 

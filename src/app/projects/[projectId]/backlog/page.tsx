@@ -49,6 +49,9 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
   const [bulkStatus, setBulkStatus] = useState('');
   const [bulkAssignee, setBulkAssignee] = useState('');
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+
+  const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
 
   useEffect(() => {
     params.then(p => setProjectId(p.projectId));
@@ -60,12 +63,18 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
       fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
       fetch(`/api/projects/${projectId}/tickets`, { credentials: 'include' }).then(r => r.json()),
       fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
-    ]).then(([pData, tData, mData]) => {
+      fetch(`/api/auth/me`, { credentials: 'include' }).then(r => r.json()),
+    ]).then(([pData, tData, mData, me]) => {
       setProject(pData.data);
       const backlog = (tData.data || []).filter((t: Ticket) => !t.sprint);
       setTickets(backlog);
-      const memberList = (mData.data || []).map((m: any) => ({ id: m.userId || m.id, name: m.user?.name || m.name, email: m.user?.email || m.email }));
+      const memberList = (mData.data || []).map((m: any) => ({ id: m.user?.id || m.userId, name: m.user?.name || m.name, email: m.user?.email || m.email, role: m.role }));
       setMembers(memberList);
+      setCurrentUserRole(
+        me?.id === pData.data?.owner?.id
+          ? 'PROJECT_OWNER'
+          : (memberList.find((m: any) => m.id === me?.id)?.role ?? null)
+      );
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [projectId]);
@@ -152,7 +161,7 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
               <p className="text-gray-500 text-sm mt-1">{filteredTickets.length} tickets not assigned to any sprint</p>
             </div>
             <div className="flex items-center gap-3">
-              {selectedIds.size > 0 ? (
+              {canManageSprints && (selectedIds.size > 0 ? (
                 <button
                   onClick={() => setSelectedIds(new Set())}
                   className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
@@ -166,7 +175,7 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
                 >
                   Select all
                 </button>
-              )}
+              ))}
               <input
                 type="text"
                 value={filter}
@@ -180,11 +189,13 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
           <div className="bg-zinc-900 border border-white/[0.06] rounded-xl overflow-hidden">
             <div className="grid grid-cols-[32px_80px_1fr_100px_100px_100px_80px] gap-2 px-4 py-2.5 border-b border-white/[0.06] text-[11px] text-gray-500 uppercase tracking-wider items-center">
               <div
-                onClick={() => {
+                onClick={canManageSprints ? () => {
                   if (selectedIds.size === filteredTickets.length) setSelectedIds(new Set());
                   else setSelectedIds(new Set(filteredTickets.map(t => t.id)));
-                }}
-                className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer ${
+                } : undefined}
+                className={`w-4 h-4 rounded border flex items-center justify-center ${
+                  canManageSprints ? 'cursor-pointer' : 'cursor-default opacity-40'
+                } ${
                   selectedIds.size === filteredTickets.length && filteredTickets.length > 0
                     ? 'bg-blue-600 border-blue-500'
                     : 'border-white/20 bg-zinc-800'
@@ -215,8 +226,10 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
                   onClick={() => setSelectedTicket(ticket.id)}
                 >
                   <div
-                    onClick={(e) => { e.stopPropagation(); handleToggleSelect(ticket.id); }}
-                    className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer ${
+                    onClick={canManageSprints ? (e) => { e.stopPropagation(); handleToggleSelect(ticket.id); } : undefined}
+                    className={`w-4 h-4 rounded border flex items-center justify-center ${
+                      canManageSprints ? 'cursor-pointer' : 'cursor-default opacity-40'
+                    } ${
                       selectedIds.has(ticket.id)
                         ? 'bg-blue-600 border-blue-500'
                         : 'border-white/20 bg-zinc-800'
@@ -262,7 +275,7 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
         </div>
       )}
 
-      {selectedIds.size > 0 && (
+      {selectedIds.size > 0 && canManageSprints && (
         <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-white/[0.06] px-6 py-3 z-50 flex items-center gap-4 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
           <span className="text-sm text-white font-medium">{selectedIds.size} selected</span>
 

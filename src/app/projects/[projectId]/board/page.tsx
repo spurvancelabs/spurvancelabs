@@ -85,6 +85,11 @@ export default async function BoardPage({ params }: BoardPageProps) {
 
   if (!project) redirect('/projects');
 
+  const currentUserRole =
+    project.owner?.id === payload.userId
+      ? 'PROJECT_OWNER'
+      : (members.find((m) => m.user.id === payload.userId)?.role ?? null);
+
   return (
     <KanbanBoard
       project={project}
@@ -98,6 +103,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
       }))}
       sprints={sprints}
       currentUserId={payload.userId}
+      currentUserRole={currentUserRole}
     />
   );
 }

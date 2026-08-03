@@ -20,26 +20,6 @@ export async function getProjectMemberRole(projectId: string, userId: string): P
   return member?.role ?? null;
 }
 
-export function canManageTicket(memberRole: string | null): boolean {
-  return memberRole === 'PROJECT_OWNER' || memberRole === 'PROJECT_MANAGER';
-}
-
-export function canDeleteTicket(memberRole: string | null): boolean {
-  return memberRole === 'PROJECT_OWNER';
-}
-
-export function canManageSprint(memberRole: string | null): boolean {
-  return memberRole === 'PROJECT_OWNER' || memberRole === 'PROJECT_MANAGER';
-}
-
-export function canManageMembers(memberRole: string | null): boolean {
-  return memberRole === 'PROJECT_OWNER';
-}
-
-export function canManageProjectSettings(memberRole: string | null): boolean {
-  return memberRole === 'PROJECT_OWNER' || memberRole === 'PROJECT_MANAGER';
-}
-
 export async function getNextTicketKey(projectId: string): Promise<string> {
   const project = await prisma.project.findUnique({
     where: { id: projectId },

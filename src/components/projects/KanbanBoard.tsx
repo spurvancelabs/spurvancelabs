@@ -42,6 +42,7 @@ interface KanbanBoardProps {
   members: Array<{ id: string; name: string | null; email: string; image: string | null; role: string }>;
   sprints: Array<{ id: string; name: string; status: string; startDate: Date | null; endDate: Date | null; _count: { tickets: number } }>;
   currentUserId: string;
+  currentUserRole: string | null;
 }
 
 const BOARD_STATUSES = TICKET_STATUSES.filter((s) => s !== 'CANCELLED') as readonly string[];
@@ -52,7 +53,11 @@ export default function KanbanBoard({
   members,
   sprints,
   currentUserId,
+  currentUserRole,
 }: KanbanBoardProps) {
+  const canManageTickets = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER' || currentUserRole === 'DEVELOPER';
+  const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
+  const canDeleteTicket = canManageSprints;
   const [tickets, setTickets] = useState<KanbanBoardTicket[]>(initialTickets);
   const [activeTicket, setActiveTicket] = useState<KanbanBoardTicket | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -269,15 +274,17 @@ export default function KanbanBoard({
               <p className="text-gray-500 text-xs">Board view</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Create Ticket
-          </button>
+          {canManageTickets && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2 bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Create Ticket
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
@@ -342,23 +349,25 @@ export default function KanbanBoard({
             </button>
           )}
 
-          <div className="ml-auto flex items-center gap-2">
-            {selectedIds.size > 0 ? (
-              <button
-                onClick={() => setSelectedIds(new Set())}
-                className="text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
-              >
-                Clear selection ({selectedIds.size})
-              </button>
-            ) : (
-              <button
-                onClick={() => setSelectedIds(new Set(filteredTickets.map((t) => t.id)))}
-                className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
-              >
-                Select all ({filteredTickets.length})
-              </button>
-            )}
-          </div>
+          {canManageSprints && (
+            <div className="ml-auto flex items-center gap-2">
+              {selectedIds.size > 0 ? (
+                <button
+                  onClick={() => setSelectedIds(new Set())}
+                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                >
+                  Clear selection ({selectedIds.size})
+                </button>
+              ) : (
+                <button
+                  onClick={() => setSelectedIds(new Set(filteredTickets.map((t) => t.id)))}
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+                >
+                  Select all ({filteredTickets.length})
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -381,6 +390,8 @@ export default function KanbanBoard({
                 onSubtaskCreated={handleSubtaskCreated}
                 selectedIds={selectedIds}
                 onToggleSelect={handleToggleSelect}
+                draggable={canManageTickets}
+                selectable={canManageSprints}
               />
             ))}
           </div>
@@ -412,10 +423,11 @@ export default function KanbanBoard({
           projectId={project.id}
           ticketId={selectedTicketId}
           onClose={() => setSelectedTicketId(null)}
+          currentUserRole={currentUserRole}
         />
       )}
 
-      {selectedIds.size > 0 && (
+      {selectedIds.size > 0 && canManageSprints && (
         <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-white/[0.06] px-6 py-3 z-50 flex items-center gap-4 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
           <span className="text-sm text-white font-medium">{selectedIds.size} selected</span>
 
