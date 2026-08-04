@@ -18,7 +18,7 @@ export default function DashboardPage() {
         const res = await fetch('/api/auth/me')
         if (res.ok) {
           const user = await res.json()
-          if (user?.role === ROLES.INSTRUCTOR) {
+          if (user?.isInstructor) {
             router.replace('/lms/instructor/dashboard')
           } else if (user?.role && user.role !== ROLES.USER) {
             router.replace('/admin/dashboard')

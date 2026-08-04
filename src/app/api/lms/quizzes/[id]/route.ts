@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       include: {
         questions: {
           orderBy: { sortOrder: 'asc' },
-          select: user.role === ROLES.ADMIN || user.role === ROLES.INSTRUCTOR
+          select: user.isInstructor || user.role === ROLES.ADMIN
             ? undefined
             : { id: true, type: true, question: true, options: true, points: true, sortOrder: true },
         },

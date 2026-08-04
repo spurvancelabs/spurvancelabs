@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { ROLES } from '@/lib/lms/roles';
-import { canManageUsers, canCreateContent, canManageAdmins, canAccessLMSAdmin } from '@/lib/lms/permissions';
+import { canManageUsers, canCreateContent, canManageAdmins, canAccessLMSAdmin, canAccessProjectsAdmin } from '@/lib/lms/permissions';
 
 const icons: Record<string, ReactNode> = {
   dashboard: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>,
@@ -22,6 +22,7 @@ const icons: Record<string, ReactNode> = {
   list: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>,
   csv: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" /></svg>,
   shield: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>,
+  projects: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6.75a.75.75 0 00-.75.75V18a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75V7.5a.75.75 0 00-.75-.75H3.75zM3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm5.25 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3h4.5a.75.75 0 010 1.5h-4.5a.75.75 0 010-1.5z" /></svg>,
 };
 
 interface NavItem {
@@ -117,6 +118,10 @@ function getNavItems(role: string): SidebarItem[] {
     { type: 'link', href: '/lms/admin', label: 'LMS Admin', icon: 'shield' },
   ];
 
+  const projectsAdminItems: SidebarItem[] = [
+    { type: 'link', href: '/admin/projects', label: 'Projects Admin', icon: 'projects' },
+  ];
+
   const settingsItem: SidebarItem[] = [
     { type: 'section', label: 'Settings' },
     { type: 'link', href: '/admin/settings', label: 'Settings', icon: 'settings' },
@@ -128,6 +133,9 @@ function getNavItems(role: string): SidebarItem[] {
   }
   if (canAccessLMSAdmin(role)) {
     middleItems.push(...lmsAdminItems);
+  }
+  if (canAccessProjectsAdmin(role)) {
+    middleItems.push(...projectsAdminItems);
   }
   const allItems = [...baseItems, ...middleItems, ...settingsItem];
   return filterNavItems(allItems, role);

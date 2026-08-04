@@ -38,15 +38,15 @@ export default async function InstructorLayout({ children }: { children: React.R
     .eq('id', decoded.userId)
     .single();
 
-  if (user?.type === ROLES.INSTRUCTOR) {
-    return <InstructorShell>{children}</InstructorShell>;
-  }
-
   const { data: adminUser } = await supabase
     .from('admin_users')
-    .select('role')
+    .select('role, is_instructor')
     .eq('user_id', decoded.userId)
     .single();
+
+  if (user?.type === ROLES.INSTRUCTOR || adminUser?.is_instructor) {
+    return <InstructorShell>{children}</InstructorShell>;
+  }
 
   if (adminUser?.role && hasMinRole(adminUser.role, ROLES.ADMIN)) {
     return <InstructorShell>{children}</InstructorShell>;
