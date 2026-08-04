@@ -11,6 +11,7 @@ interface Admin {
   email: string;
   name: string | null;
   role: string;
+  is_instructor: boolean;
   created_at: string;
 }
 
@@ -20,6 +21,7 @@ export default function AdminManagementPage() {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newRole, setNewRole] = useState<string>(ROLES.VIEWER);
+  const [newInstructor, setNewInstructor] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRole, setEditRole] = useState<string>('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export default function AdminManagementPage() {
       const res = await fetch('/api/admin/admins', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newEmail, password: newPassword, role: newRole }),
+        body: JSON.stringify({ email: newEmail, password: newPassword, role: newRole, isInstructor: newInstructor }),
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Failed to add admin');
@@ -53,6 +55,7 @@ export default function AdminManagementPage() {
       setNewEmail('');
       setNewPassword('');
       setNewRole(ROLES.VIEWER);
+      setNewInstructor(false);
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -74,6 +77,26 @@ export default function AdminManagementPage() {
       toast.success('Role updated');
       queryClient.invalidateQueries({ queryKey: ['admin-management'] });
       setEditingId(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const instructorMutation = useMutation({
+    mutationFn: async ({ id, isInstructor }: { id: string; isInstructor: boolean }) => {
+      const res = await fetch(`/api/admin/admins/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isInstructor }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed to update instructor access');
+      return result;
+    },
+    onSuccess: () => {
+      toast.success('Instructor access updated');
+      queryClient.invalidateQueries({ queryKey: ['admin-management'] });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -178,6 +201,15 @@ export default function AdminManagementPage() {
                 className="w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500/50"
               />
             </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none pb-1">
+              <input
+                type="checkbox"
+                checked={newInstructor}
+                onChange={(e) => setNewInstructor(e.target.checked)}
+                className="w-4 h-4 accent-blue-600 cursor-pointer"
+              />
+              <span className="text-xs font-medium text-gray-400">Instructor access</span>
+            </label>
             <button
               onClick={() => addMutation.mutate()}
               disabled={!newEmail || addMutation.isPending}
@@ -186,7 +218,7 @@ export default function AdminManagementPage() {
               {addMutation.isPending ? 'Adding...' : 'Add'}
             </button>
             <button
-              onClick={() => { setShowAddForm(false); setNewEmail(''); setNewPassword(''); }}
+              onClick={() => { setShowAddForm(false); setNewEmail(''); setNewPassword(''); setNewInstructor(false); }}
               className="px-4 py-2 rounded-lg bg-zinc-700 text-white text-sm font-medium hover:bg-zinc-600 transition-colors cursor-pointer"
             >
               Cancel
@@ -212,6 +244,7 @@ export default function AdminManagementPage() {
                   <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Admin</th>
                   <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Email</th>
                   <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Role</th>
+                  <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Instructor</th>
                   <th className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Added</th>
                   <th className="text-right text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-4">Actions</th>
                 </tr>
@@ -267,6 +300,28 @@ export default function AdminManagementPage() {
                           </button>
                         </div>
                       )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {admin.is_instructor ? (
+                          <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium border bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
+                            Instructor
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-600">—</span>
+                        )}
+                        <button
+                          onClick={() => instructorMutation.mutate({ id: admin.id, isInstructor: !admin.is_instructor })}
+                          disabled={instructorMutation.isPending}
+                          className={`text-[10px] px-2 py-1 rounded cursor-pointer disabled:opacity-50 transition-colors ${
+                            admin.is_instructor
+                              ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                              : 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30'
+                          }`}
+                        >
+                          {instructorMutation.isPending ? '...' : admin.is_instructor ? 'Revoke' : 'Grant'}
+                        </button>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-gray-400 text-sm">
                       {new Date(admin.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}

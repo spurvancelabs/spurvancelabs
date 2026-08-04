@@ -200,7 +200,12 @@ export default function AdminUsersPage() {
                             onChange={(e) => setConfirmRole(e.target.value)}
                             className="bg-zinc-800 border border-white/[0.08] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500/50"
                           >
-                            {roleOptions.map((opt) => (
+                            {[
+                              ...roleOptions,
+                              ...(roleOptions.some((o) => o.value === user.role)
+                                ? []
+                                : [{ value: user.role, label: getRoleLabel(user.role) }]),
+                            ].map((opt) => (
                               <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
                           </select>

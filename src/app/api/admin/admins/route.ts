@@ -10,7 +10,7 @@ export async function GET() {
     const supabase = getSupabaseAdminClient();
     const { data: adminData, error } = await supabase
       .from('admin_users')
-      .select('id, user_id, role, created_by, created_at, updated_at')
+      .select('id, user_id, role, is_instructor, created_by, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -33,6 +33,7 @@ export async function GET() {
         id: a.id,
         user_id: a.user_id,
         role: a.role?.trim() || a.role,
+        is_instructor: !!a.is_instructor,
         created_by: a.created_by,
         created_at: a.created_at,
         updated_at: a.updated_at,
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     await requireSuperAdmin();
 
-    const { email, password, role } = await request.json();
+    const { email, password, role, isInstructor } = await request.json();
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
@@ -105,6 +106,7 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await supabase.from('admin_users').insert({
       user_id: userId,
       role: newRole,
+      is_instructor: !!isInstructor,
       created_at: now,
       updated_at: now,
     });
