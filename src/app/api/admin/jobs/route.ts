@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer, requireEditor } from '@/lib/lms/utils';
 
 export async function GET() {
-  await requireViewer();
   try {
+    await requireViewer();
     const supabase = getSupabaseAdminClient();
     const { data: jobs, error } = await supabase
       .from('jobs')
@@ -38,8 +38,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  await requireEditor();
   try {
+    await requireEditor();
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
 
@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
         type: body.type,
         location: body.location,
         salary: body.salary || null,
-        salary_min: body.salaryMin || null,
-        salary_max: body.salaryMax || null,
+        salaryMin: body.salaryMin || null,
+        salaryMax: body.salaryMax || null,
         skills: body.skills || [],
         description: body.description,
         icon: body.icon || null,

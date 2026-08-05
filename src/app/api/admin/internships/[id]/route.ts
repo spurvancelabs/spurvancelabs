@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireNanoEditor, requireAdmin } from '@/lib/lms/utils';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireNanoEditor();
   try {
+    await requireNanoEditor();
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
@@ -18,7 +18,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         duration: body.duration,
         location: body.location,
         stipend: body.stipend || null,
-        stipend_amount: body.stipendAmount || null,
+        stipendAmount: body.stipendAmount || null,
         skills: body.skills || [],
         description: body.description,
         icon: body.icon || null,
@@ -29,6 +29,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (error) {
+      console.error('Internship update error:', JSON.stringify(error, null, 2));
       return NextResponse.json({ error: error.message || 'Failed to update internship' }, { status: 500 });
     }
     return NextResponse.json({ internship: data });
@@ -38,8 +39,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
 

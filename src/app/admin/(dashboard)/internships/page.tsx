@@ -248,7 +248,7 @@ export default function AdminInternshipsPage() {
           duration: editingInternship.duration,
           location: editingInternship.location,
           stipend: editingInternship.stipend || '',
-          stipendAmount: editingInternship.stipend_amount?.toString() || '',
+          stipendAmount: editingInternship.stipendAmount?.toString() || '',
           skills: editingInternship.skills?.join(', ') || '',
           description: editingInternship.description,
           icon: editingInternship.icon || '',

@@ -25,11 +25,28 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     select: { id: true, email: true, name: true, type: true },
   })
 
-  if (!user) return null
+  const supabase = getSupabaseAdminClient()
+
+  if (!user) {
+    const { data: adminUser } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('user_id', decoded.userId)
+      .single()
+
+    if (!adminUser?.role) return null
+
+    return {
+      id: decoded.userId,
+      email: decoded.email ?? '',
+      name: null,
+      role: adminUser.role,
+      level: roleLevel(adminUser.role),
+    }
+  }
 
   let role = user.type ?? ROLES.USER
 
-  const supabase = getSupabaseAdminClient()
   const { data: adminUser } = await supabase
     .from('admin_users')
     .select('role')

@@ -3,8 +3,8 @@ import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer, requireEditor } from '@/lib/lms/utils';
 
 export async function GET() {
-  await requireViewer();
   try {
+    await requireViewer();
     const supabase = getSupabaseAdminClient();
     const { data: interviewers, error } = await supabase
       .from('interviewers')
@@ -19,8 +19,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  await requireEditor();
   try {
+    await requireEditor();
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
     const { name } = body;
