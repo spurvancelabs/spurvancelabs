@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { canProject } from '@/lib/projects/permissions';
+import { isValidAssignee } from '@/lib/projects/utils';
 
 async function getAuthUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -58,6 +59,10 @@ export async function POST(
 
     if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: 'No valid update fields provided' }, { status: 400 });
+    }
+
+    if (data.assigneeId !== null && data.assigneeId !== undefined && !(await isValidAssignee(projectId, data.assigneeId))) {
+      return NextResponse.json({ error: 'Assignee must be a project member' }, { status: 400 });
     }
 
     const result = await prisma.ticket.updateMany({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import {
   DndContext,
@@ -46,6 +46,13 @@ interface KanbanBoardProps {
   currentUserRole: string | null;
 }
 
+interface Department {
+  id: string;
+  name: string;
+  color: string | null;
+  members: Array<{ id: string; name: string | null; email: string }>;
+}
+
 const BOARD_STATUSES = TICKET_STATUSES.filter((s) => s !== 'CANCELLED') as readonly string[];
 
 export default function KanbanBoard({
@@ -60,6 +67,7 @@ export default function KanbanBoard({
   const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
   const canDeleteTicket = canManageSprints;
   const [tickets, setTickets] = useState<KanbanBoardTicket[]>(initialTickets);
+  const draggingRef = useRef(false);
   const [activeTicket, setActiveTicket] = useState<KanbanBoardTicket | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,6 +79,26 @@ export default function KanbanBoard({
   const [bulkStatus, setBulkStatus] = useState('');
   const [bulkAssignee, setBulkAssignee] = useState('');
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/projects/${project.id}/departments`, { credentials: 'include' })
+      .then(r => r.json())
+      .then((data) => {
+        const list: Department[] = (data.data || []).map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          color: d.color,
+          members: (d.members || []).map((m: any) => ({
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+          })),
+        }));
+        setDepartments(list);
+      })
+      .catch(() => {});
+  }, [project.id]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -102,8 +130,28 @@ export default function KanbanBoard({
     return grouped;
   }, [filteredTickets]);
 
+  useEffect(() => {
+    const load = async () => {
+      if (draggingRef.current) return;
+      try {
+        const res = await fetch(`/api/projects/${project.id}/tickets?limit=500`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.data)) setTickets(data.data);
+      } catch {}
+    };
+    const interval = setInterval(load, 10000);
+    const onFocus = () => load();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [project.id]);
+
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
+      draggingRef.current = true;
       const ticket = tickets.find((t) => t.id === event.active.id);
       if (ticket) setActiveTicket(ticket);
     },
@@ -145,6 +193,7 @@ export default function KanbanBoard({
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
+      draggingRef.current = false;
       const { active, over } = event;
       setActiveTicket(null);
 
@@ -382,6 +431,7 @@ export default function KanbanBoard({
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
+          onDragCancel={() => { draggingRef.current = false; }}
         >
           <div className="flex gap-4 h-full">
             {BOARD_STATUSES.map((status) => (
@@ -421,6 +471,7 @@ export default function KanbanBoard({
           projectKey={project.key}
           members={members}
           sprints={sprints}
+          departments={departments}
         />
       )}
 
@@ -430,6 +481,8 @@ export default function KanbanBoard({
           ticketId={selectedTicketId}
           onClose={() => setSelectedTicketId(null)}
           currentUserRole={currentUserRole}
+          members={members}
+          departments={departments}
         />
       )}
 

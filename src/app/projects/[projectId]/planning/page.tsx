@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ProjectSidebar from '@/components/projects/ProjectSidebar';
 import ProjectHeader from '@/components/projects/ProjectHeader';
@@ -112,6 +112,7 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [filter, setFilter] = useState('');
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const draggingRef = useRef(false);
 
   const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
 
@@ -121,24 +122,41 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
 
   useEffect(() => {
     if (!projectId) return;
-    Promise.all([
-      fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/projects/${projectId}/tickets`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/projects/${projectId}/sprints`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/auth/me`, { credentials: 'include' }).then(r => r.json()),
-    ]).then(([pData, tData, sData, mData, me]) => {
-      setProject(pData.data);
-      setTickets(tData.data || []);
-      setSprints((sData.data || []).filter((s: Sprint) => s.status !== 'COMPLETED'));
-      const memberList = (mData.data || []).map((m: any) => ({ id: m.user?.id || m.userId, role: m.role }));
-      setCurrentUserRole(
-        me?.id === pData.data?.owner?.id
-          ? 'PROJECT_OWNER'
-          : (memberList.find((m: any) => m.id === me?.id)?.role ?? null)
-      );
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const [pData, tData, sData, mData, me] = await Promise.all([
+          fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/projects/${projectId}/tickets`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/projects/${projectId}/sprints`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/auth/me`, { credentials: 'include' }).then(r => r.json()),
+        ]);
+        if (cancelled) return;
+        setProject(pData.data);
+        setTickets(tData.data || []);
+        setSprints((sData.data || []).filter((s: Sprint) => s.status !== 'COMPLETED'));
+        const memberList = (mData.data || []).map((m: any) => ({ id: m.user?.id || m.userId, role: m.role }));
+        setCurrentUserRole(
+          me?.id === pData.data?.owner?.id
+            ? 'PROJECT_OWNER'
+            : (memberList.find((m: any) => m.id === me?.id)?.role ?? null)
+        );
+      } catch {} finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void run();
+    const interval = setInterval(() => {
+      if (!draggingRef.current) void run();
+    }, 10000);
+    const onFocus = () => void run();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [projectId]);
 
   const refresh = () => {
@@ -154,8 +172,12 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
   const backlogTickets = tickets.filter(t => !t.sprintId && (!filter || t.title.toLowerCase().includes(filter.toLowerCase()) || t.key.toLowerCase().includes(filter.toLowerCase())));
   const sprintsMap = Object.fromEntries(sprints.map(s => [s.id, s]));
 
-  const handleDragStart = (e: any) => setActiveTicket(e.active.data.current);
+  const handleDragStart = (e: any) => {
+    draggingRef.current = true;
+    setActiveTicket(e.active.data.current);
+  };
   const handleDragEnd = async (e: any) => {
+    draggingRef.current = false;
     setActiveTicket(null);
     if (!canManageSprints) return;
     const { active, over } = e;
@@ -235,7 +257,7 @@ export default function SprintPlanningPage({ params }: { params: Promise<{ proje
             />
           </div>
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={() => { draggingRef.current = false; setActiveTicket(null); }}>
             <div className="grid grid-cols-1 xl:grid-cols-[400px_1fr] gap-6">
               <div className="bg-zinc-900 border border-white/[0.06] rounded-xl p-4 max-h-[75vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-3">

@@ -145,6 +145,17 @@ export default function TicketCard({ ticket, onClick, projectId, onSubtaskCreate
         <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${PRIORITY_COLORS[ticket.priority] || 'bg-gray-500/10 text-gray-400'}`}>
           {PRIORITY_LABELS[ticket.priority] || ticket.priority}
         </span>
+        {ticket.department && (
+          <span
+            className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+            style={{
+              backgroundColor: `${ticket.department.color || '#6366f1'}1a`,
+              color: ticket.department.color || '#6366f1',
+            }}
+          >
+            {ticket.department.name}
+          </span>
+        )}
       </div>
 
       <div className="flex items-center justify-between">

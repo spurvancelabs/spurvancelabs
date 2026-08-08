@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { logActivity } from '@/lib/projects/utils';
+import { logActivity, isValidAssignee, isValidDepartment, isAssigneeInDepartment } from '@/lib/projects/utils';
 import { canProject } from '@/lib/projects/permissions';
 import { NotificationTrigger } from '@/lib/notification/trigger';
 
@@ -46,6 +46,7 @@ export async function GET(
         reporter: { select: { id: true, name: true, email: true, image: true } },
         sprint: { select: { id: true, name: true, status: true } },
         parent: { select: { id: true, key: true, title: true } },
+        department: { select: { id: true, name: true, color: true } },
         children: {
           select: { id: true, key: true, title: true, status: true, priority: true, storyPoints: true },
           orderBy: { order: 'asc' },
@@ -128,7 +129,7 @@ export async function PUT(
     const body = await req.json();
     const fields = [
       'title', 'description', 'status', 'priority', 'type',
-      'assigneeId', 'sprintId', 'storyPoints', 'order',
+      'assigneeId', 'sprintId', 'departmentId', 'storyPoints', 'order',
       'startDate', 'dueDate', 'estimatedHours', 'labels', 'parentId',
     ];
 
@@ -152,13 +153,30 @@ export async function PUT(
       return NextResponse.json({ error: 'Only project owner or manager can change sprint assignment' }, { status: 403 });
     }
 
+    if (body.assigneeId !== undefined && !(await isValidAssignee(projectId, body.assigneeId))) {
+      return NextResponse.json({ error: 'Assignee must be a project member' }, { status: 400 });
+    }
+
+    if (body.departmentId !== undefined && !(await isValidDepartment(projectId, body.departmentId))) {
+      return NextResponse.json({ error: 'Department must belong to this project' }, { status: 400 });
+    }
+
+    const effectiveDepartmentId = body.departmentId !== undefined ? body.departmentId : existing.departmentId;
+    const effectiveAssigneeId = body.assigneeId !== undefined ? body.assigneeId : existing.assigneeId;
+    if (!(await isAssigneeInDepartment(effectiveDepartmentId, effectiveAssigneeId))) {
+      return NextResponse.json({ error: 'Assignee must be a member of the selected department' }, { status: 400 });
+    }
+
     const ticket = await prisma.ticket.update({
       where: { id: ticketId },
       data,
       include: {
         assignee: { select: { id: true, name: true, email: true, image: true } },
         reporter: { select: { id: true, name: true, email: true, image: true } },
-        _count: { select: { comments: true, attachments: true } },
+        sprint: { select: { id: true, name: true, status: true } },
+        parent: { select: { id: true, key: true, title: true } },
+        department: { select: { id: true, name: true, color: true } },
+        _count: { select: { comments: true, attachments: true, timeLogs: true } },
       },
     });
 

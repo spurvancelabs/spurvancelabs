@@ -59,24 +59,39 @@ export default function BacklogPage({ params }: { params: Promise<{ projectId: s
 
   useEffect(() => {
     if (!projectId) return;
-    Promise.all([
-      fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/projects/${projectId}/tickets`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
-      fetch(`/api/auth/me`, { credentials: 'include' }).then(r => r.json()),
-    ]).then(([pData, tData, mData, me]) => {
-      setProject(pData.data);
-      const backlog = (tData.data || []).filter((t: Ticket) => !t.sprint);
-      setTickets(backlog);
-      const memberList = (mData.data || []).map((m: any) => ({ id: m.user?.id || m.userId, name: m.user?.name || m.name, email: m.user?.email || m.email, role: m.role }));
-      setMembers(memberList);
-      setCurrentUserRole(
-        me?.id === pData.data?.owner?.id
-          ? 'PROJECT_OWNER'
-          : (memberList.find((m: any) => m.id === me?.id)?.role ?? null)
-      );
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const [pData, tData, mData, me] = await Promise.all([
+          fetch(`/api/projects/${projectId}`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/projects/${projectId}/tickets`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/projects/${projectId}/members`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`/api/auth/me`, { credentials: 'include' }).then(r => r.json()),
+        ]);
+        if (cancelled) return;
+        setProject(pData.data);
+        const backlog = (tData.data || []).filter((t: Ticket) => !t.sprint);
+        setTickets(backlog);
+        const memberList = (mData.data || []).map((m: any) => ({ id: m.user?.id || m.userId, name: m.user?.name || m.name, email: m.user?.email || m.email, role: m.role }));
+        setMembers(memberList);
+        setCurrentUserRole(
+          me?.id === pData.data?.owner?.id
+            ? 'PROJECT_OWNER'
+            : (memberList.find((m: any) => m.id === me?.id)?.role ?? null)
+        );
+      } catch {} finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void run();
+    const interval = setInterval(run, 10000);
+    const onFocus = () => void run();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [projectId]);
 
   const filteredTickets = tickets.filter(t =>

@@ -16,6 +16,7 @@ interface TicketFormProps {
   projectKey: string;
   members: Array<{ id: string; name: string | null; email: string; image: string | null; role: string }>;
   sprints: Array<{ id: string; name: string; status: string }>;
+  departments: Array<{ id: string; name: string; color: string | null; members: Array<{ id: string; name: string | null; email: string }> }>;
   initialData?: {
     id?: string;
     title?: string;
@@ -24,6 +25,7 @@ interface TicketFormProps {
     priority?: string;
     assigneeId?: string | null;
     sprintId?: string | null;
+    departmentId?: string | null;
     storyPoints?: number | null;
     labels?: string[];
     startDate?: string | null;
@@ -40,6 +42,7 @@ export default function TicketForm({
   projectKey,
   members,
   sprints,
+  departments,
   initialData,
   parentId,
 }: TicketFormProps) {
@@ -49,6 +52,7 @@ export default function TicketForm({
   const [priority, setPriority] = useState(initialData?.priority || 'MEDIUM');
   const [assigneeId, setAssigneeId] = useState(initialData?.assigneeId || '');
   const [sprintId, setSprintId] = useState(initialData?.sprintId || '');
+  const [departmentId, setDepartmentId] = useState(initialData?.departmentId || '');
   const [storyPoints, setStoryPoints] = useState(initialData?.storyPoints?.toString() || '');
   const [labelsInput, setLabelsInput] = useState((initialData?.labels || []).join(', '));
   const [startDate, setStartDate] = useState(initialData?.startDate || '');
@@ -59,6 +63,12 @@ export default function TicketForm({
   if (!isOpen) return null;
 
   const isEditing = !!initialData?.id;
+
+  const selectedDept = departments.find(d => d.id === departmentId);
+  const departmentMemberIds = new Set((selectedDept?.members || []).map(m => m.id));
+  const assigneeOptions = departmentId
+    ? members.filter(m => departmentMemberIds.has(m.id))
+    : members;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,6 +82,7 @@ export default function TicketForm({
       priority,
       assigneeId: assigneeId || null,
       sprintId: sprintId || null,
+      departmentId: departmentId || null,
       storyPoints: storyPoints ? parseInt(storyPoints, 10) : null,
       labels: labelsInput
         .split(',')
@@ -179,17 +190,43 @@ export default function TicketForm({
             </div>
           </div>
 
+          <div>
+            <label className={labelClass}>Department</label>
+            <select
+              value={departmentId}
+              onChange={e => {
+                const next = e.target.value;
+                setDepartmentId(next);
+                if (next) {
+                  const deptMemberIds = new Set((departments.find(d => d.id === next)?.members || []).map(m => m.id));
+                  if (assigneeId && !deptMemberIds.has(assigneeId)) setAssigneeId('');
+                }
+              }}
+              className={inputClass}
+            >
+              <option value="">No department</option>
+              {departments.map(d => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelClass}>Assignee</label>
               <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} className={inputClass}>
                 <option value="">Unassigned</option>
-                {members.map((m) => (
+                {assigneeOptions.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.name || m.email}
                   </option>
                 ))}
               </select>
+              {departmentId && assigneeOptions.length === 0 && (
+                <p className="text-[11px] text-yellow-500 mt-1">No project members in this department yet</p>
+              )}
             </div>
             <div>
               <label className={labelClass}>Sprint</label>

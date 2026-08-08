@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { getNextTicketKey } from '@/lib/projects/utils';
+import { getNextTicketKey, isValidAssignee, isValidDepartment, isAssigneeInDepartment } from '@/lib/projects/utils';
 import { canProject } from '@/lib/projects/permissions';
 import { NotificationTrigger } from '@/lib/notification/trigger';
 
@@ -69,7 +69,10 @@ export async function GET(
         include: {
           assignee: { select: { id: true, name: true, email: true, image: true } },
           reporter: { select: { id: true, name: true, email: true, image: true } },
-          _count: { select: { comments: true, attachments: true } },
+          sprint: { select: { id: true, name: true, status: true } },
+          parent: { select: { id: true, key: true, title: true } },
+          department: { select: { id: true, name: true, color: true } },
+          _count: { select: { comments: true, attachments: true, timeLogs: true } },
         },
       }),
       prisma.ticket.count({ where }),
@@ -111,10 +114,22 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { title, description, type, priority, assigneeId, sprintId, labels, storyPoints, startDate, dueDate, parentId } = body;
+    const { title, description, type, priority, assigneeId, sprintId, labels, storyPoints, startDate, dueDate, parentId, departmentId } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    }
+
+    if (assigneeId && !(await isValidAssignee(projectId, assigneeId))) {
+      return NextResponse.json({ error: 'Assignee must be a project member' }, { status: 400 });
+    }
+
+    if (!(await isValidDepartment(projectId, departmentId))) {
+      return NextResponse.json({ error: 'Department must belong to this project' }, { status: 400 });
+    }
+
+    if (!(await isAssigneeInDepartment(departmentId, assigneeId))) {
+      return NextResponse.json({ error: 'Assignee must be a member of the selected department' }, { status: 400 });
     }
 
     const key = await getNextTicketKey(projectId);
@@ -136,6 +151,7 @@ export async function POST(
         assigneeId: assigneeId || null,
         sprintId: sprintId || null,
         parentId: parentId || null,
+        departmentId: departmentId || null,
         labels: labels || [],
         storyPoints: storyPoints || null,
         startDate: startDate || null,
@@ -145,7 +161,10 @@ export async function POST(
       include: {
         assignee: { select: { id: true, name: true, email: true, image: true } },
         reporter: { select: { id: true, name: true, email: true, image: true } },
-        _count: { select: { comments: true, attachments: true } },
+        sprint: { select: { id: true, name: true, status: true } },
+        parent: { select: { id: true, key: true, title: true } },
+        department: { select: { id: true, name: true, color: true } },
+        _count: { select: { comments: true, attachments: true, timeLogs: true } },
       },
     });
 

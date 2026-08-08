@@ -23,6 +23,7 @@ interface TicketDetail {
   reporter: { id: string; name: string | null; email: string; image: string | null };
   sprint: { id: string; name: string } | null;
   parent: { id: string; key: string; title: string } | null;
+  department: { id: string; name: string; color: string | null } | null;
   comments: Array<{ id: string; content: string; createdAt: string; user: { id: string; name: string | null; email: string; image: string | null } }>;
   attachments: Array<{ id: string; fileName: string; fileUrl: string; fileSize: number; createdAt: string; user: { name: string | null } }>;
   timeLogs: Array<{ id: string; hours: number; description: string | null; date: string; user: { name: string | null } }>;
@@ -33,8 +34,16 @@ interface TicketDetail {
 
 interface Member {
   id: string;
-  user: { id: string; name: string | null; email: string };
+  name: string | null;
+  email: string;
   role: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  color: string | null;
+  members: Array<{ id: string; name: string | null; email: string }>;
 }
 
 interface Sprint {
@@ -51,6 +60,7 @@ export default function TicketDetailModal({
   onClose,
   onUpdate,
   members = [],
+  departments = [],
   sprints = [],
   currentUserRole = null,
 }: {
@@ -59,6 +69,7 @@ export default function TicketDetailModal({
   onClose: () => void;
   onUpdate?: () => void;
   members?: Member[];
+  departments?: Department[];
   sprints?: Sprint[];
   currentUserRole?: string | null;
 }) {
@@ -79,6 +90,27 @@ export default function TicketDetailModal({
   const [subtaskType, setSubtaskType] = useState('SUB_TASK');
   const [subtaskPriority, setSubtaskPriority] = useState('MEDIUM');
   const [creatingSubtask, setCreatingSubtask] = useState(false);
+  const [deptOptions, setDeptOptions] = useState<Department[]>(departments);
+
+  useEffect(() => {
+    if (departments.length > 0) return;
+    fetch(`/api/projects/${projectId}/departments`, { credentials: 'include' })
+      .then(r => r.json())
+      .then((data) => {
+        const list: Department[] = (data.data || []).map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          color: d.color,
+          members: (d.members || []).map((m: any) => ({
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+          })),
+        }));
+        setDeptOptions(list);
+      })
+      .catch(() => {});
+  }, [departments, projectId]);
 
   const fetchTicket = useCallback(async () => {
     try {
@@ -90,7 +122,20 @@ export default function TicketDetailModal({
     }
   }, [projectId, ticketId]);
 
-  useEffect(() => { fetchTicket(); }, [fetchTicket]);
+  useEffect(() => {
+    const t = setTimeout(() => void fetchTicket(), 0);
+    return () => clearTimeout(t);
+  }, [fetchTicket]);
+
+  useEffect(() => {
+    const interval = setInterval(() => void fetchTicket(), 15000);
+    const onFocus = () => void fetchTicket();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [fetchTicket]);
 
   const updateField = async (field: string, value: string) => {
     setSaving(true);
@@ -250,6 +295,30 @@ export default function TicketDetailModal({
                   rows={4}
                 />
               </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Department</label>
+                <select
+                  value={editData.department?.id || ''}
+                  onChange={e => {
+                    const d = deptOptions.find(d => d.id === e.target.value);
+                    const nextDept = d ? { id: d.id, name: d.name, color: d.color } : null;
+                    setEditData({ ...editData, department: nextDept });
+                    if (nextDept) {
+                      const deptMemberIds = new Set(d.members.map(m => m.id));
+                      const curAssigneeId = editData.assignee?.id;
+                      if (curAssigneeId && !deptMemberIds.has(curAssigneeId)) {
+                        setEditData({ ...editData, department: nextDept, assignee: null });
+                      }
+                    }
+                  }}
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                >
+                  <option value="">No Department</option>
+                  {deptOptions.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Status</label>
@@ -286,14 +355,17 @@ export default function TicketDetailModal({
                   <select
                     value={editData.assignee?.id || ''}
                     onChange={e => {
-                      const m = members.find(m => m.user.id === e.target.value);
-                      setEditData({ ...editData, assignee: m ? { id: m.user.id, name: m.user.name, email: m.user.email, image: null } : null });
+                      const m = members.find(m => m.id === e.target.value);
+                      setEditData({ ...editData, assignee: m ? { id: m.id, name: m.name, email: m.email, image: null } : null });
                     }}
                     className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
                   >
                     <option value="">Unassigned</option>
-                    {members.map(m => (
-                      <option key={m.user.id} value={m.user.id}>{m.user.name || m.user.email}</option>
+                    {(editData.department
+                      ? members.filter(m => new Set(deptOptions.find(d => d.id === editData.department?.id)?.members.map(x => x.id) || []).has(m.id))
+                      : members
+                    ).map(m => (
+                      <option key={m.id} value={m.id}>{m.name || m.email}</option>
                     ))}
                   </select>
                 </div>
@@ -350,6 +422,7 @@ export default function TicketDetailModal({
                     storyPoints: editData.storyPoints,
                     dueDate: editData.dueDate,
                     assigneeId: editData.assignee?.id || null,
+                    departmentId: editData.department?.id || null,
                     ...(canManageSprints ? { sprintId: editData.sprint?.id || null } : {}),
                   };
                   const res = await fetch(`/api/projects/${projectId}/tickets/${ticketId}`, {
@@ -421,6 +494,16 @@ export default function TicketDetailModal({
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Sprint</span>
                 <span className="text-white text-xs">{ticket.sprint?.name || 'None'}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Department</span>
+                {ticket.department ? (
+                  <span className="text-[11px] px-2 py-0.5 rounded font-medium" style={{ backgroundColor: `${ticket.department.color || '#6366f1'}1a`, color: ticket.department.color || '#6366f1' }}>
+                    {ticket.department.name}
+                  </span>
+                ) : (
+                  <span className="text-white text-xs">None</span>
+                )}
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Total Logged</span>

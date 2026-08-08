@@ -119,7 +119,12 @@ function getNavItems(role: string): SidebarItem[] {
   ];
 
   const projectsAdminItems: SidebarItem[] = [
-    { type: 'link', href: '/admin/projects', label: 'Projects Admin', icon: 'projects' },
+    {
+      type: 'group', label: 'Projects Admin', icon: 'projects', href: '/admin/projects', children: [
+        { href: '/admin/projects', label: 'All Projects', icon: 'list' },
+        { href: '/admin/projects/departments', label: 'Departments', icon: 'list' },
+      ]
+    },
   ];
 
   const settingsItem: SidebarItem[] = [
