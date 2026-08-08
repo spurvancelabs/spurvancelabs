@@ -23,6 +23,7 @@ interface TicketDetail {
   reporter: { id: string; name: string | null; email: string; image: string | null };
   sprint: { id: string; name: string } | null;
   parent: { id: string; key: string; title: string } | null;
+  department: { id: string; name: string; color: string | null } | null;
   comments: Array<{ id: string; content: string; createdAt: string; user: { id: string; name: string | null; email: string; image: string | null } }>;
   attachments: Array<{ id: string; fileName: string; fileUrl: string; fileSize: number; createdAt: string; user: { name: string | null } }>;
   timeLogs: Array<{ id: string; hours: number; description: string | null; date: string; user: { name: string | null } }>;
@@ -33,8 +34,16 @@ interface TicketDetail {
 
 interface Member {
   id: string;
-  user: { id: string; name: string | null; email: string };
+  name: string | null;
+  email: string;
   role: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  color: string | null;
+  members: Array<{ id: string; name: string | null; email: string }>;
 }
 
 interface Sprint {
@@ -51,15 +60,21 @@ export default function TicketDetailModal({
   onClose,
   onUpdate,
   members = [],
+  departments = [],
   sprints = [],
+  currentUserRole = null,
 }: {
   ticketId: string;
   projectId: string;
   onClose: () => void;
   onUpdate?: () => void;
   members?: Member[];
+  departments?: Department[];
   sprints?: Sprint[];
+  currentUserRole?: string | null;
 }) {
+  const canManageTickets = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER' || currentUserRole === 'DEVELOPER';
+  const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('comments');
@@ -75,6 +90,27 @@ export default function TicketDetailModal({
   const [subtaskType, setSubtaskType] = useState('SUB_TASK');
   const [subtaskPriority, setSubtaskPriority] = useState('MEDIUM');
   const [creatingSubtask, setCreatingSubtask] = useState(false);
+  const [deptOptions, setDeptOptions] = useState<Department[]>(departments);
+
+  useEffect(() => {
+    if (departments.length > 0) return;
+    fetch(`/api/projects/${projectId}/departments`, { credentials: 'include' })
+      .then(r => r.json())
+      .then((data) => {
+        const list: Department[] = (data.data || []).map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          color: d.color,
+          members: (d.members || []).map((m: any) => ({
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+          })),
+        }));
+        setDeptOptions(list);
+      })
+      .catch(() => {});
+  }, [departments, projectId]);
 
   const fetchTicket = useCallback(async () => {
     try {
@@ -86,7 +122,20 @@ export default function TicketDetailModal({
     }
   }, [projectId, ticketId]);
 
-  useEffect(() => { fetchTicket(); }, [fetchTicket]);
+  useEffect(() => {
+    const t = setTimeout(() => void fetchTicket(), 0);
+    return () => clearTimeout(t);
+  }, [fetchTicket]);
+
+  useEffect(() => {
+    const interval = setInterval(() => void fetchTicket(), 15000);
+    const onFocus = () => void fetchTicket();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [fetchTicket]);
 
   const updateField = async (field: string, value: string) => {
     setSaving(true);
@@ -210,12 +259,14 @@ export default function TicketDetailModal({
             <span className={`text-[10px] px-2 py-0.5 rounded border ${TYPE_COLORS[ticket.type] || ''}`}>{TYPE_LABELS[ticket.type] || ticket.type}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setEditing(!editing); setEditData(ticket); }}
-              className="text-gray-400 hover:text-white text-sm cursor-pointer"
-            >
-              {editing ? 'Cancel' : 'Edit'}
-            </button>
+            {canManageTickets && (
+              <button
+                onClick={() => { setEditing(!editing); setEditData(ticket); }}
+                className="text-gray-400 hover:text-white text-sm cursor-pointer"
+              >
+                {editing ? 'Cancel' : 'Edit'}
+              </button>
+            )}
             <button onClick={onClose} className="text-gray-400 hover:text-white cursor-pointer">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -243,6 +294,30 @@ export default function TicketDetailModal({
                   className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none resize-none"
                   rows={4}
                 />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Department</label>
+                <select
+                  value={editData.department?.id || ''}
+                  onChange={e => {
+                    const d = deptOptions.find(d => d.id === e.target.value);
+                    const nextDept = d ? { id: d.id, name: d.name, color: d.color } : null;
+                    setEditData({ ...editData, department: nextDept });
+                    if (nextDept) {
+                      const deptMemberIds = new Set(d.members.map(m => m.id));
+                      const curAssigneeId = editData.assignee?.id;
+                      if (curAssigneeId && !deptMemberIds.has(curAssigneeId)) {
+                        setEditData({ ...editData, department: nextDept, assignee: null });
+                      }
+                    }
+                  }}
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                >
+                  <option value="">No Department</option>
+                  {deptOptions.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -280,32 +355,41 @@ export default function TicketDetailModal({
                   <select
                     value={editData.assignee?.id || ''}
                     onChange={e => {
-                      const m = members.find(m => m.user.id === e.target.value);
-                      setEditData({ ...editData, assignee: m ? { id: m.user.id, name: m.user.name, email: m.user.email, image: null } : null });
+                      const m = members.find(m => m.id === e.target.value);
+                      setEditData({ ...editData, assignee: m ? { id: m.id, name: m.name, email: m.email, image: null } : null });
                     }}
                     className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
                   >
                     <option value="">Unassigned</option>
-                    {members.map(m => (
-                      <option key={m.user.id} value={m.user.id}>{m.user.name || m.user.email}</option>
+                    {(editData.department
+                      ? members.filter(m => new Set(deptOptions.find(d => d.id === editData.department?.id)?.members.map(x => x.id) || []).has(m.id))
+                      : members
+                    ).map(m => (
+                      <option key={m.id} value={m.id}>{m.name || m.email}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Sprint</label>
-                  <select
-                    value={editData.sprint?.id || ''}
-                    onChange={e => {
-                      const s = sprints.find(s => s.id === e.target.value);
-                      setEditData({ ...editData, sprint: s ? { id: s.id, name: s.name } : null });
-                    }}
-                    className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-                  >
-                    <option value="">No Sprint</option>
-                    {sprints.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
+                  {canManageSprints ? (
+                    <select
+                      value={editData.sprint?.id || ''}
+                      onChange={e => {
+                        const s = sprints.find(s => s.id === e.target.value);
+                        setEditData({ ...editData, sprint: s ? { id: s.id, name: s.name } : null });
+                      }}
+                      className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                    >
+                      <option value="">No Sprint</option>
+                      {sprints.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm opacity-60">
+                      {editData.sprint?.name || 'No Sprint'}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Story Points</label>
@@ -338,7 +422,8 @@ export default function TicketDetailModal({
                     storyPoints: editData.storyPoints,
                     dueDate: editData.dueDate,
                     assigneeId: editData.assignee?.id || null,
-                    sprintId: editData.sprint?.id || null,
+                    departmentId: editData.department?.id || null,
+                    ...(canManageSprints ? { sprintId: editData.sprint?.id || null } : {}),
                   };
                   const res = await fetch(`/api/projects/${projectId}/tickets/${ticketId}`, {
                     method: 'PUT',
@@ -372,13 +457,17 @@ export default function TicketDetailModal({
             <div className="bg-zinc-900 border border-white/[0.06] rounded-xl p-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Status</span>
-                <select
-                  value={ticket.status}
-                  onChange={e => updateField('status', e.target.value)}
-                  className={`text-[11px] px-2 py-0.5 rounded border bg-transparent cursor-pointer outline-none ${STATUS_COLORS[ticket.status] || ''}`}
-                >
-                  {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
+                {canManageTickets ? (
+                  <select
+                    value={ticket.status}
+                    onChange={e => updateField('status', e.target.value)}
+                    className={`text-[11px] px-2 py-0.5 rounded border bg-transparent cursor-pointer outline-none ${STATUS_COLORS[ticket.status] || ''}`}
+                  >
+                    {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                ) : (
+                  <span className={`text-[11px] px-2 py-0.5 rounded border ${STATUS_COLORS[ticket.status] || ''}`}>{STATUS_LABELS[ticket.status] || ticket.status}</span>
+                )}
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Priority</span>
@@ -407,6 +496,16 @@ export default function TicketDetailModal({
                 <span className="text-white text-xs">{ticket.sprint?.name || 'None'}</span>
               </div>
               <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Department</span>
+                {ticket.department ? (
+                  <span className="text-[11px] px-2 py-0.5 rounded font-medium" style={{ backgroundColor: `${ticket.department.color || '#6366f1'}1a`, color: ticket.department.color || '#6366f1' }}>
+                    {ticket.department.name}
+                  </span>
+                ) : (
+                  <span className="text-white text-xs">None</span>
+                )}
+              </div>
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Total Logged</span>
                 <span className="text-white">{totalHours}h</span>
               </div>
@@ -426,15 +525,17 @@ export default function TicketDetailModal({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-gray-500 uppercase tracking-wider">Sub-tasks ({ticket.children?.length || 0})</span>
-              <button
-                onClick={() => setShowSubtaskForm(!showSubtaskForm)}
-                className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1 cursor-pointer"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add sub-task
-              </button>
+              {canManageTickets && (
+                <button
+                  onClick={() => setShowSubtaskForm(!showSubtaskForm)}
+                  className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1 cursor-pointer"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add sub-task
+                </button>
+              )}
             </div>
 
             {showSubtaskForm && (
@@ -583,29 +684,31 @@ export default function TicketDetailModal({
 
           {tab === 'time' && (
             <div>
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="number"
-                  step="0.25"
-                  value={timeHours}
-                  onChange={e => setTimeHours(e.target.value)}
-                  placeholder="Hours"
-                  className="w-24 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-                />
-                <input
-                  value={timeDesc}
-                  onChange={e => setTimeDesc(e.target.value)}
-                  placeholder="Description (optional)"
-                  className="flex-1 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
-                />
-                <button
-                  onClick={addTimeLog}
-                  disabled={!timeHours}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm disabled:opacity-50 cursor-pointer"
-                >
-                  Log
-                </button>
-              </div>
+              {canManageTickets && (
+                <div className="flex gap-2 mb-4">
+                  <input
+                    type="number"
+                    step="0.25"
+                    value={timeHours}
+                    onChange={e => setTimeHours(e.target.value)}
+                    placeholder="Hours"
+                    className="w-24 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                  />
+                  <input
+                    value={timeDesc}
+                    onChange={e => setTimeDesc(e.target.value)}
+                    placeholder="Description (optional)"
+                    className="flex-1 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none"
+                  />
+                  <button
+                    onClick={addTimeLog}
+                    disabled={!timeHours}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm disabled:opacity-50 cursor-pointer"
+                  >
+                    Log
+                  </button>
+                </div>
+              )}
               <div className="space-y-2">
                 {ticket.timeLogs.map(l => (
                   <div key={l.id} className="flex items-center justify-between bg-zinc-900 border border-white/[0.06] rounded-lg px-4 py-2">
@@ -625,15 +728,24 @@ export default function TicketDetailModal({
           )}
 
           {tab === 'attachments' && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors inline-flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  {uploading ? 'Uploading...' : 'Upload file'}
-                  <input type="file" className="hidden" onChange={handleFileUpload} disabled={uploading} />
-                </label>
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                {canManageTickets ? (
+                  <label className="cursor-pointer text-blue-400 hover:text-blue-300 text-sm flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload file
+                    <input type="file" className="hidden" onChange={handleFileUpload} />
+                  </label>
+                ) : (
+                  <span className="text-sm text-gray-500 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Upload file
+                  </span>
+                )}
                 <span className="text-xs text-gray-600">Max 5MB</span>
               </div>
               {ticket.attachments.map(a => (

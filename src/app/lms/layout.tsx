@@ -21,6 +21,7 @@ const navItems: NavItem[] = [
   { href: '/lms/my-courses', label: 'My Learning', roles: [ROLES.USER, ROLES.ADMIN] },
   { href: '/lms/wishlist', label: 'Wishlist', roles: [ROLES.USER, ROLES.ADMIN] },
   { href: '/lms/certificates', label: 'Certificates', roles: [ROLES.USER, ROLES.ADMIN] },
+  { href: '/dashboard', label: 'Dashboard', roles: [ROLES.USER, ROLES.ADMIN] },
   { href: '/lms/instructor/dashboard', label: 'Instructor', roles: [ROLES.INSTRUCTOR, ROLES.ADMIN] },
   { href: '/lms/profile', label: 'Profile', roles: [ROLES.USER, ROLES.ADMIN] },
 ]
@@ -30,6 +31,7 @@ export default function LMSLayout({ children }: { children: React.ReactNode }) {
   const [scrolled, setScrolled] = useState(false)
   const [role, setRole] = useState<NavVisibility>('guest')
 const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [hasInstructorAccess, setHasInstructorAccess] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -44,6 +46,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(false)
         if (res.ok) {
           const user = await res.json()
           setRole(user?.role || ROLES.USER)
+          setHasInstructorAccess(!!user?.isInstructor)
           setIsLoggedIn(true)
         } else {
           setRole('guest')
@@ -57,7 +60,10 @@ const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const isAdmin = pathname.startsWith('/lms/admin')
   const isInstructor = pathname.startsWith('/lms/instructor')
-  const visibleNav = navItems.filter(item => item.roles.includes(role))
+  const visibleNav = navItems.filter(item =>
+    item.roles.includes(role) ||
+    (item.href === '/lms/instructor/dashboard' && (hasInstructorAccess || role === ROLES.INSTRUCTOR))
+  )
 
   if (isAdmin || isInstructor) {
     return <>{children}</>

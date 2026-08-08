@@ -10,6 +10,7 @@ export interface AuthUser {
   name: string | null
   role: string
   level: number
+  isInstructor: boolean
 }
 
 export async function getAuthUser(): Promise<AuthUser | null> {
@@ -30,7 +31,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
   if (!user) {
     const { data: adminUser } = await supabase
       .from('admin_users')
-      .select('role')
+      .select('role, is_instructor')
       .eq('user_id', decoded.userId)
       .single()
 
@@ -42,19 +43,25 @@ export async function getAuthUser(): Promise<AuthUser | null> {
       name: null,
       role: adminUser.role,
       level: roleLevel(adminUser.role),
+      isInstructor: !!adminUser.is_instructor,
     }
   }
 
   let role = user.type ?? ROLES.USER
+  let isInstructor = user.type === ROLES.INSTRUCTOR
 
   const { data: adminUser } = await supabase
     .from('admin_users')
-    .select('role')
+    .select('role, is_instructor')
     .eq('user_id', user.id)
     .single()
 
   if (adminUser?.role) {
     role = adminUser.role
+  }
+
+  if (adminUser?.is_instructor) {
+    isInstructor = true
   }
 
   return {
@@ -63,6 +70,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     name: user.name,
     role,
     level: roleLevel(role),
+    isInstructor,
   }
 }
 
@@ -100,7 +108,7 @@ export async function requireViewer(): Promise<AuthUser> {
 
 export async function requireInstructor(): Promise<AuthUser> {
   const user = await requireAuth()
-  if (!hasMinRole(user.role, ROLES.ADMIN) && user.role !== ROLES.INSTRUCTOR) {
+  if (!user.isInstructor && user.role !== ROLES.INSTRUCTOR && !hasMinRole(user.role, ROLES.ADMIN)) {
     throw new Error('Forbidden')
   }
   return user

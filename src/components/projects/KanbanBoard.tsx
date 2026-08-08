@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import {
   DndContext,
@@ -15,6 +15,7 @@ import {
   type DragOverEvent,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import ProjectSidebar from './ProjectSidebar';
 import KanbanColumn from './KanbanColumn';
 import TicketCard from './TicketCard';
 import TicketForm from './TicketForm';
@@ -42,6 +43,14 @@ interface KanbanBoardProps {
   members: Array<{ id: string; name: string | null; email: string; image: string | null; role: string }>;
   sprints: Array<{ id: string; name: string; status: string; startDate: Date | null; endDate: Date | null; _count: { tickets: number } }>;
   currentUserId: string;
+  currentUserRole: string | null;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  color: string | null;
+  members: Array<{ id: string; name: string | null; email: string }>;
 }
 
 const BOARD_STATUSES = TICKET_STATUSES.filter((s) => s !== 'CANCELLED') as readonly string[];
@@ -52,8 +61,13 @@ export default function KanbanBoard({
   members,
   sprints,
   currentUserId,
+  currentUserRole,
 }: KanbanBoardProps) {
+  const canManageTickets = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER' || currentUserRole === 'DEVELOPER';
+  const canManageSprints = currentUserRole === 'PROJECT_OWNER' || currentUserRole === 'PROJECT_MANAGER';
+  const canDeleteTicket = canManageSprints;
   const [tickets, setTickets] = useState<KanbanBoardTicket[]>(initialTickets);
+  const draggingRef = useRef(false);
   const [activeTicket, setActiveTicket] = useState<KanbanBoardTicket | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +75,30 @@ export default function KanbanBoard({
   const [filterType, setFilterType] = useState('');
   const [filterAssignee, setFilterAssignee] = useState('');
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [bulkAssignee, setBulkAssignee] = useState('');
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+
+  useEffect(() => {
+    fetch(`/api/projects/${project.id}/departments`, { credentials: 'include' })
+      .then(r => r.json())
+      .then((data) => {
+        const list: Department[] = (data.data || []).map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          color: d.color,
+          members: (d.members || []).map((m: any) => ({
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+          })),
+        }));
+        setDepartments(list);
+      })
+      .catch(() => {});
+  }, [project.id]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -92,8 +130,28 @@ export default function KanbanBoard({
     return grouped;
   }, [filteredTickets]);
 
+  useEffect(() => {
+    const load = async () => {
+      if (draggingRef.current) return;
+      try {
+        const res = await fetch(`/api/projects/${project.id}/tickets?limit=500`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.data)) setTickets(data.data);
+      } catch {}
+    };
+    const interval = setInterval(load, 10000);
+    const onFocus = () => load();
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [project.id]);
+
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
+      draggingRef.current = true;
       const ticket = tickets.find((t) => t.id === event.active.id);
       if (ticket) setActiveTicket(ticket);
     },
@@ -135,6 +193,7 @@ export default function KanbanBoard({
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
+      draggingRef.current = false;
       const { active, over } = event;
       setActiveTicket(null);
 
@@ -205,8 +264,55 @@ export default function KanbanBoard({
     window.location.reload();
   }, []);
 
+  const handleSubtaskCreated = useCallback(() => {
+    window.location.reload();
+  }, []);
+
+  const handleToggleSelect = useCallback((ticketId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(ticketId)) next.delete(ticketId);
+      else next.add(ticketId);
+      return next;
+    });
+  }, []);
+
+  const handleBulkUpdate = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    const updates: Record<string, any> = {};
+    if (bulkStatus) updates.status = bulkStatus;
+    if (bulkAssignee) updates.assigneeId = bulkAssignee === '__unassigned' ? null : bulkAssignee;
+    if (Object.keys(updates).length === 0) return;
+
+    setBulkLoading(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/tickets/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ticketIds: Array.from(selectedIds), updates }),
+      });
+      if (res.ok) {
+        toast.success(`Updated ${selectedIds.size} ticket${selectedIds.size > 1 ? 's' : ''}`);
+        setSelectedIds(new Set());
+        setBulkStatus('');
+        setBulkAssignee('');
+        window.location.reload();
+      } else {
+        toast.error('Bulk update failed');
+      }
+    } catch {
+      toast.error('Bulk update failed');
+    } finally {
+      setBulkLoading(false);
+    }
+  }, [selectedIds, bulkStatus, bulkAssignee, project.id]);
+
   return (
-    <div className="h-screen flex flex-col bg-zinc-950">
+    <div className="flex min-h-screen bg-zinc-950">
+      <ProjectSidebar project={project} />
+      <div className="flex-1 lg:ml-64">
+        <div className="h-screen flex flex-col">
       <div className="shrink-0 border-b border-white/[0.06] px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -221,15 +327,17 @@ export default function KanbanBoard({
               <p className="text-gray-500 text-xs">Board view</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Create Ticket
-          </button>
+          {canManageTickets && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2 bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Create Ticket
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
@@ -293,6 +401,26 @@ export default function KanbanBoard({
               Clear filters
             </button>
           )}
+
+          {canManageSprints && (
+            <div className="ml-auto flex items-center gap-2">
+              {selectedIds.size > 0 ? (
+                <button
+                  onClick={() => setSelectedIds(new Set())}
+                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                >
+                  Clear selection ({selectedIds.size})
+                </button>
+              ) : (
+                <button
+                  onClick={() => setSelectedIds(new Set(filteredTickets.map((t) => t.id)))}
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+                >
+                  Select all ({filteredTickets.length})
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -303,6 +431,7 @@ export default function KanbanBoard({
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
+          onDragCancel={() => { draggingRef.current = false; }}
         >
           <div className="flex gap-4 h-full">
             {BOARD_STATUSES.map((status) => (
@@ -311,6 +440,12 @@ export default function KanbanBoard({
                 status={status}
                 tickets={ticketsByStatus[status] || []}
                 onTicketClick={(ticket: KanbanBoardTicket) => setSelectedTicketId(ticket.id)}
+                projectId={project.id}
+                onSubtaskCreated={handleSubtaskCreated}
+                selectedIds={selectedIds}
+                onToggleSelect={handleToggleSelect}
+                draggable={canManageTickets}
+                selectable={canManageSprints}
               />
             ))}
           </div>
@@ -318,11 +453,13 @@ export default function KanbanBoard({
           <DragOverlay>
             {activeTicket ? (
               <div className="rotate-2 opacity-90">
-                <TicketCard ticket={activeTicket} onClick={() => {}} />
+                <TicketCard ticket={activeTicket} onClick={() => {}} projectId={project.id} />
               </div>
             ) : null}
           </DragOverlay>
         </DndContext>
+      </div>
+        </div>
       </div>
 
       {showCreateForm && (
@@ -334,6 +471,7 @@ export default function KanbanBoard({
           projectKey={project.key}
           members={members}
           sprints={sprints}
+          departments={departments}
         />
       )}
 
@@ -342,7 +480,54 @@ export default function KanbanBoard({
           projectId={project.id}
           ticketId={selectedTicketId}
           onClose={() => setSelectedTicketId(null)}
+          currentUserRole={currentUserRole}
+          members={members}
+          departments={departments}
         />
+      )}
+
+      {selectedIds.size > 0 && canManageSprints && (
+        <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-white/[0.06] px-6 py-3 z-50 flex items-center gap-4 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
+          <span className="text-sm text-white font-medium">{selectedIds.size} selected</span>
+
+          <select
+            value={bulkStatus}
+            onChange={(e) => setBulkStatus(e.target.value)}
+            className="bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-1.5 text-gray-300 text-xs focus:outline-none focus:border-blue-500/50 cursor-pointer"
+          >
+            <option value="">Change status...</option>
+            {BOARD_STATUSES.map((s) => (
+              <option key={s} value={s}>{s.replace('_', ' ')}</option>
+            ))}
+          </select>
+
+          <select
+            value={bulkAssignee}
+            onChange={(e) => setBulkAssignee(e.target.value)}
+            className="bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-1.5 text-gray-300 text-xs focus:outline-none focus:border-blue-500/50 cursor-pointer"
+          >
+            <option value="">Change assignee...</option>
+            <option value="__unassigned">Unassigned</option>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>{m.name || m.email}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleBulkUpdate}
+            disabled={bulkLoading || (!bulkStatus && !bulkAssignee)}
+            className="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium px-4 py-1.5 rounded-lg transition-colors cursor-pointer"
+          >
+            {bulkLoading ? 'Updating...' : 'Apply'}
+          </button>
+
+          <button
+            onClick={() => { setSelectedIds(new Set()); setBulkStatus(''); setBulkAssignee(''); }}
+            className="text-gray-500 hover:text-white text-xs cursor-pointer ml-1"
+          >
+            Cancel
+          </button>
+        </div>
       )}
     </div>
   );

@@ -58,6 +58,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
         reporter: { select: { id: true, name: true, email: true, image: true } },
         sprint: { select: { id: true, name: true, status: true } },
         parent: { select: { id: true, key: true, title: true } },
+        department: { select: { id: true, name: true, color: true } },
         _count: { select: { comments: true, attachments: true, timeLogs: true } },
       },
     }),
@@ -85,6 +86,11 @@ export default async function BoardPage({ params }: BoardPageProps) {
 
   if (!project) redirect('/projects');
 
+  const currentUserRole =
+    project.owner?.id === payload.userId
+      ? 'PROJECT_OWNER'
+      : (members.find((m) => m.user.id === payload.userId)?.role ?? null);
+
   return (
     <KanbanBoard
       project={project}
@@ -98,6 +104,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
       }))}
       sprints={sprints}
       currentUserId={payload.userId}
+      currentUserRole={currentUserRole}
     />
   );
 }
@@ -122,5 +129,6 @@ export interface KanbanBoardTicket {
   reporter: { id: string; name: string | null; email: string; image: string | null };
   sprint: { id: string; name: string; status: string } | null;
   parent: { id: string; key: string; title: string } | null;
+  department: { id: string; name: string; color: string | null } | null;
   _count: { comments: number; attachments: number; timeLogs: number };
 }

@@ -31,7 +31,7 @@ export async function GET() {
 
     const { data: adminUser } = await supabase
       .from('admin_users')
-      .select('role')
+      .select('role, is_instructor')
       .eq('user_id', payload.userId)
       .single()
 
@@ -46,13 +46,19 @@ export async function GET() {
         email: payload.email,
         image: null,
         role: adminUser!.role,
+        isInstructor: !!adminUser!.is_instructor,
       })
     }
 
     let role = user.type ?? ROLES.USER
+    let isInstructor = user.type === ROLES.INSTRUCTOR
 
     if (adminUser?.role) {
       role = adminUser.role
+    }
+
+    if (adminUser?.is_instructor) {
+      isInstructor = true
     }
 
     return NextResponse.json({
@@ -61,6 +67,7 @@ export async function GET() {
       email: user.email,
       image: user.image,
       role,
+      isInstructor,
     })
   } catch (error) {
     return NextResponse.json(

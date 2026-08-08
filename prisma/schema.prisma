@@ -25,6 +25,7 @@ model User {
   adminUser             AdminUser?
   ownedProjects         Project[]                 @relation("ProjectOwner")
   projectMembers        ProjectMember[]
+  departmentMemberships DepartmentMember[]
   assignedTickets       Ticket[]                  @relation("TicketAssignee")
   reportedTickets       Ticket[]                  @relation("TicketReporter")
   ticketComments        TicketComment[]
@@ -37,10 +38,11 @@ model User {
 }
 
 model AdminUser {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @unique @map("user_id") @db.Uuid
-  role      String   @default("VIEWER")
-  createdBy String?  @map("created_by") @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @map("user_id") @db.Uuid
+  role         String   @default("VIEWER")
+  isInstructor Boolean  @default(false) @map("is_instructor")
+  createdBy    String?  @map("created_by") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -193,7 +195,7 @@ model InternshipApplication {
   phone        String?           @db.VarChar(30)
   university          String    @db.VarChar(200)
   major               String    @db.VarChar(200)
-  yearOfStudy         String    @db.VarChar(50)
+  yearOfStudy         String    @default("") @map("year_of_study") @db.VarChar(50)
   graduationDate      DateTime? @map("graduation_date") @db.Date
   gpa                 String?   @db.VarChar(10)
   linkedInUrl         String?   @map("linkedin_url") @db.VarChar(500)
@@ -204,7 +206,7 @@ model InternshipApplication {
   referralSource      String?   @map("referral_source") @db.VarChar(200)
   additionalInfo      String?   @map("additional_info") @db.Text
   resumeUrl           String?   @db.VarChar(500)
-  coverLetter         String?   @db.Text
+  coverLetter         String?   @map("cover_letter") @db.Text
   status              ApplicationStatus @default(PENDING)
   interviewerName     String?   @map("interviewer_name") @db.VarChar(200)
   interviewDate       DateTime? @map("interview_date") @db.Date
@@ -494,6 +496,7 @@ model Project {
 
   owner          User              @relation("ProjectOwner", fields: [ownerId], references: [id])
   members        ProjectMember[]
+  departments    Department[]
   tickets        Ticket[]
   sprints        Sprint[]
   labels         TicketLabel[]
@@ -520,6 +523,40 @@ model ProjectMember {
   @@schema("public")
 }
 
+model Department {
+  id          String   @id @default(uuid()) @db.Uuid
+  projectId   String   @map("project_id") @db.Uuid
+  name        String   @db.VarChar(200)
+  description String?
+  color       String?  @db.VarChar(7)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  project Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  members DepartmentMember[]
+  tickets Ticket[]
+
+  @@unique([projectId, name])
+  @@index([projectId])
+  @@map("departments")
+  @@schema("public")
+}
+
+model DepartmentMember {
+  id           String   @id @default(uuid()) @db.Uuid
+  departmentId String   @map("department_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
+
+  @@unique([departmentId, userId])
+  @@index([userId])
+  @@map("department_members")
+  @@schema("public")
+}
+
 model Ticket {
   id              String         @id @default(uuid()) @db.Uuid
   projectId       String         @map("project_id") @db.Uuid
@@ -533,6 +570,7 @@ model Ticket {
   reporterId      String         @map("reporter_id") @db.Uuid
   sprintId        String?        @map("sprint_id") @db.Uuid
   parentId        String?        @map("parent_id") @db.Uuid
+  departmentId    String?        @map("department_id") @db.Uuid
   storyPoints     Int?           @map("story_points")
   order           Float          @default(0)
   startDate       DateTime?      @map("start_date")
@@ -547,6 +585,7 @@ model Ticket {
   reporter   User              @relation("TicketReporter", fields: [reporterId], references: [id])
   sprint     Sprint?           @relation(fields: [sprintId], references: [id])
   parent     Ticket?           @relation("TicketHierarchy", fields: [parentId], references: [id])
+  department Department?       @relation(fields: [departmentId], references: [id], onDelete: SetNull)
   children   Ticket[]          @relation("TicketHierarchy")
   comments   TicketComment[]
   attachments TicketAttachment[]
@@ -559,6 +598,7 @@ model Ticket {
   @@index([projectId, status])
   @@index([reporterId])
   @@index([sprintId])
+  @@index([departmentId])
   @@map("tickets")
   @@schema("public")
 }
