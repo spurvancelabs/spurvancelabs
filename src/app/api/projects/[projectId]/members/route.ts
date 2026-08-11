@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { canProject, isValidProjectRole } from '@/lib/projects/permissions';
 
 async function getAuthUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -71,16 +72,19 @@ export async function POST(
       select: { id: true },
     });
 
-    if (!isOwner && requesterMember?.role !== 'PROJECT_OWNER') {
+    const role = isOwner ? 'PROJECT_OWNER' : requesterMember?.role;
+    if (!canProject(role, 'manage_members')) {
       return NextResponse.json({ error: 'Only project owner can add members' }, { status: 403 });
     }
 
     const body = await req.json();
-    const { email, role } = body;
+    const { email, role: newRole } = body;
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
+
+    const finalRole = newRole && isValidProjectRole(newRole) ? newRole : 'DEVELOPER';
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -98,7 +102,7 @@ export async function POST(
       data: {
         projectId,
         userId: user.id,
-        role: role || 'DEVELOPER',
+        role: finalRole,
       },
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
@@ -142,7 +146,8 @@ export async function DELETE(
       select: { id: true },
     });
 
-    if (!isOwner && requesterMember?.role !== 'PROJECT_OWNER') {
+    const role = isOwner ? 'PROJECT_OWNER' : requesterMember?.role;
+    if (!canProject(role, 'manage_members')) {
       return NextResponse.json({ error: 'Only project owner can remove members' }, { status: 403 });
     }
 
@@ -160,5 +165,71 @@ export async function DELETE(
     return NextResponse.json({ message: 'Member removed' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to remove member' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> }
+) {
+  try {
+    const userId = await getAuthUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { projectId } = await params;
+    const body = await req.json();
+    const { userId: targetUserId, role: newRole } = body;
+
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    }
+
+    if (!isValidProjectRole(newRole)) {
+      return NextResponse.json({ error: 'Invalid project role' }, { status: 400 });
+    }
+
+    const requesterMember = await prisma.projectMember.findUnique({
+      where: { projectId_userId: { projectId, userId } },
+      select: { role: true },
+    });
+    const isOwner = await prisma.project.findFirst({
+      where: { id: projectId, ownerId: userId },
+      select: { id: true },
+    });
+
+    const role = isOwner ? 'PROJECT_OWNER' : requesterMember?.role;
+    if (!canProject(role, 'manage_members')) {
+      return NextResponse.json({ error: 'Only project owner can change roles' }, { status: 403 });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { ownerId: true },
+    });
+
+    if (project && project.ownerId === targetUserId && newRole !== 'PROJECT_OWNER') {
+      return NextResponse.json({ error: 'Cannot change the project owner\u2019s role' }, { status: 400 });
+    }
+
+    const existing = await prisma.projectMember.findUnique({
+      where: { projectId_userId: { projectId, userId: targetUserId } },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
+
+    const member = await prisma.projectMember.update({
+      where: { projectId_userId: { projectId, userId: targetUserId } },
+      data: { role: newRole },
+      include: {
+        user: { select: { id: true, name: true, email: true, image: true } },
+      },
+    });
+
+    return NextResponse.json({ data: member });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update member role' }, { status: 500 });
   }
 }

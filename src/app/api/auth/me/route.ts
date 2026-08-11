@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import { getSupabaseAdminClient } from '@/lib/supabase/server'
-import { ROLES } from '@/lib/lms/roles'
+import { ROLES, isAdminRole } from '@/lib/lms/roles'
 
 export async function GET() {
   try {
@@ -46,6 +46,7 @@ export async function GET() {
         email: payload.email,
         image: null,
         role: adminUser!.role,
+        isInstructor: isAdminRole(adminUser!.role),
       })
     }
 
@@ -55,12 +56,15 @@ export async function GET() {
       role = adminUser.role
     }
 
+    const isInstructor = isAdminRole(role)
+
     return NextResponse.json({
       id: user.id,
       name: user.name,
       email: user.email,
       image: user.image,
       role,
+      isInstructor,
     })
   } catch (error) {
     return NextResponse.json(

@@ -4,16 +4,19 @@ import { requireInstructor } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireInstructor()
+    await requireInstructor()
     const { searchParams } = new URL(req.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
     const status = searchParams.get('status')
     const search = searchParams.get('search')
+    const isCompleteParam = searchParams.get('isComplete')
 
-    const where: any = { instructorId: user.id }
+    const where: any = {}
     if (status) where.status = status
     if (search) where.title = { contains: search, mode: 'insensitive' }
+    if (isCompleteParam === 'true') where.isComplete = true
+    else if (isCompleteParam === 'false') where.isComplete = false
 
     const [courses, total] = await Promise.all([
       prisma.course.findMany({

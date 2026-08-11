@@ -1,6 +1,9 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { useNotifications, useMarkAsRead, useDeleteNotification } from '@/hooks/useNotificationQueries';
 import { Notification } from '@/lib/notification/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -16,19 +19,20 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { BellIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 
 interface NotificationDropdownProps {
   onClose: () => void;
 }
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) => {
-  const { data: notifications = [], isLoading, error, refetch } = useNotifications();
+  const router = useRouter();
+  const { data, isLoading, error, refetch } = useNotifications();
   const markAsReadMutation = useMarkAsRead();
   const deleteNotificationMutation = useDeleteNotification();
 
+  const notifications = data?.notifications ?? [];
+  const total = data?.total ?? 0;
   const recentNotifications = notifications.slice(0, 5);
-  const hasMoreNotifications = notifications.length > 5;
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -51,26 +55,43 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
     }
   };
 
+  const navigate = (link?: string) => {
+    onClose();
+    if (!link) return;
+    if (link.startsWith('/')) {
+      router.push(link);
+    } else {
+      window.location.assign(link);
+    }
+  };
+
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
-      await markAsReadMutation.mutateAsync([notification.id]);
+      try {
+        await markAsReadMutation.mutateAsync([notification.id]);
+      } catch {
+        toast.error('Failed to mark notification as read');
+      }
     }
-    
-    if (notification.link) {
-      window.location.assign(notification.link);
-    }
-    onClose();
+    navigate(notification.link);
   };
 
   const handleMarkRead = async (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
-    await markAsReadMutation.mutateAsync([notificationId]);
+    try {
+      await markAsReadMutation.mutateAsync([notificationId]);
+    } catch {
+      toast.error('Failed to mark notification as read');
+    }
   };
 
   const handleDelete = async (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
-    if (confirm('Are you sure you want to delete this notification?')) {
+    if (!confirm('Are you sure you want to delete this notification?')) return;
+    try {
       await deleteNotificationMutation.mutateAsync(notificationId);
+    } catch {
+      toast.error('Failed to delete notification');
     }
   };
 
@@ -101,7 +122,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
       <div className="p-8 text-center bg-black rounded-lg">
         <BellIcon className="w-12 h-12 mx-auto text-gray-600" />
         <p className="text-gray-400 mt-2">No notifications yet</p>
-        <p className="text-sm text-gray-500">We'll notify you when something arrives</p>
+        <p className="text-sm text-gray-500">You will be notified when something arrives</p>
       </div>
     );
   }
@@ -182,8 +203,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ onClose }) 
           className="flex items-center justify-between w-full px-4 py-3 text-sm text-blue-400 hover:bg-white/5 rounded-lg transition-colors group"
         >
           <span>
-            {hasMoreNotifications 
-              ? `View all ${notifications.length} notifications` 
+            {total > 5 
+              ? `View all ${total} notifications` 
               : 'View all notifications'}
           </span>
           <ChevronRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

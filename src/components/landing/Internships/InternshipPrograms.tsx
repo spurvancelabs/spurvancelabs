@@ -1,7 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import InternshipApplicationModal from './InternshipApplicationModal';
+
+interface Internship {
+  id: string;
+  title: string;
+}
 
 const internshipPrograms = [
   {
@@ -63,7 +68,17 @@ const internshipPrograms = [
 export default function InternshipPricing() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [internships, setInternships] = useState<Internship[]>([]);
+  const [selectedInternship, setSelectedInternship] = useState<Internship | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    fetch('/api/internships')
+      .then(r => r.json())
+      .then(data => setInternships(data.internships || []))
+      .catch(() => setInternships([]));
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -142,6 +157,9 @@ export default function InternshipPricing() {
             Choose from our specialized software development
 internship tracks and kickstart your career
           </p>
+          <p className="text-blue-500 text-[0.85rem] max-sm:text-[0.8rem] mt-4">
+            Applications close September 30, 2026
+          </p>
         </div>
 
         <div className="relative h-96 max-sm:h-90 flex items-center justify-center">
@@ -195,9 +213,16 @@ internship tracks and kickstart your career
                   </div>
 
                        {isActive && (
-                      <Link href="#internship-listings" className="w-full text-center py-2 max-sm:py-2 rounded-xl font-medium transition-all duration-300 max-sm:text-sm bg-blue-500 text-white hover:bg-blue-600 cursor-pointer">
+                      <button
+                        onClick={() => {
+                          const match = internships.find(i => i.title.toLowerCase() === program.title.toLowerCase());
+                          setSelectedInternship(match || { id: 'general', title: program.title });
+                          setShowModal(true);
+                        }}
+                        className="w-full text-center py-2 max-sm:py-2 rounded-xl font-medium transition-all duration-300 max-sm:text-sm bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                      >
                         Apply Now
-                      </Link>
+                      </button>
                     )}
                   </div>
               );
@@ -220,6 +245,13 @@ internship tracks and kickstart your career
 
         </div>
       </div>
+
+      {showModal && (
+        <InternshipApplicationModal
+          internship={selectedInternship}
+          onClose={() => { setShowModal(false); setSelectedInternship(null); }}
+        />
+      )}
     </div>
   );
 }

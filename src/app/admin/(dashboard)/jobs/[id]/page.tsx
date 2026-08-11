@@ -7,6 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ApplicationStatusBadge from '@/components/admin/ApplicationStatusBadge';
 import { canEditContent, canDeleteContent } from '@/lib/lms/permissions';
+import { toDateInputValue } from '@/lib/dates';
 const statusOptions = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 
 export default function AdminJobDetailPage() {
@@ -300,7 +301,7 @@ export default function AdminJobDetailPage() {
                       <td className="px-6 py-4">
                         <input
                           type="date"
-                          value={app.interview_date ? app.interview_date.split('T')[0] : ''}
+                          value={toDateInputValue(app.interview_date)}
                           onChange={(e) => interviewMutation.mutate({ appId: app.id, interview_date: e.target.value || undefined })}
                           className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none focus:border-blue-500 w-full min-w-[140px]"
                         />

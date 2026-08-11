@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireAdmin } from '@/lib/lms/utils'
+import { requireInstructor } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,11 +18,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAdmin()
+    await requireInstructor()
     const body = await req.json()
     const { name, slug, description } = body
     if (!name || !slug) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 })
+    }
+    const existing = await prisma.category.findFirst({
+      where: { OR: [{ name }, { slug }] },
+    })
+    if (existing) {
+      return NextResponse.json({ error: 'Category already exists' }, { status: 409 })
     }
     const category = await prisma.category.create({
       data: { name, slug, description },

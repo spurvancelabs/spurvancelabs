@@ -83,6 +83,35 @@ export default function SprintBoardPage({ params }: { params: Promise<{ projectI
     );
   }
 
+  if (!project) {
+    return (
+      <div className="flex min-h-screen bg-zinc-950">
+        <ProjectSidebar />
+        <div className="flex-1 lg:ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-white mb-2">Project not found</h1>
+            <Link href="/projects" className="text-blue-400 hover:text-blue-300 text-sm">Go back to projects</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!sprint) {
+    return (
+      <div className="flex min-h-screen bg-zinc-950">
+        <ProjectSidebar project={project} />
+        <div className="flex-1 lg:ml-64 flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-white mb-2">Sprint not found</h1>
+            <p className="text-gray-400 text-sm mb-4">This sprint may have been deleted or the link is incorrect.</p>
+            <Link href={`/projects/${projectId}/sprints`} className="text-blue-400 hover:text-blue-300 text-sm">Go back to sprints</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-zinc-950">
       <ProjectSidebar project={project || undefined} />

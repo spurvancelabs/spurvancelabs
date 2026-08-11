@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { ROLES, ROLE_LABELS, getRoleColor, getRoleLabel } from '@/lib/lms/roles';
+import { ROLES, ROLE_LABELS, getRoleColor, getRoleLabel, isAdminRole } from '@/lib/lms/roles';
 import { getAssignableRoles } from '@/lib/lms/permissions';
 
 interface User {
@@ -23,6 +23,7 @@ export default function AdminUsersPage() {
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [myRole, setMyRole] = useState<string>(ROLES.ADMIN);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -120,8 +121,16 @@ export default function AdminUsersPage() {
 
   const users: User[] = data?.users || [];
   const total = users.length;
-  const instructors = users.filter((u) => u.role === ROLES.INSTRUCTOR).length;
+  const instructors = users.filter((u) => isAdminRole(u.role)).length;
   const students = users.filter((u) => u.role === ROLES.USER).length;
+
+  const q = search.trim().toLowerCase();
+  const filteredUsers = users.filter(
+    (u) =>
+      !q ||
+      u.email.toLowerCase().includes(q) ||
+      (u.name || '').toLowerCase().includes(q)
+  );
 
   const confirmChange = () => {
     if (editingUserId && confirmRole) {
@@ -151,14 +160,27 @@ export default function AdminUsersPage() {
         ))}
       </div>
 
+      <div className="relative max-w-xs mb-4">
+        <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search users by name or email..."
+          className="w-full bg-zinc-900 border border-white/[0.08] rounded-xl pl-9 pr-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 text-sm"
+        />
+      </div>
+
       <div className="bg-zinc-900/50 border border-white/[0.06] rounded-2xl overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : users.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-500">No users found.</p>
+            <p className="text-gray-500">{search.trim() ? 'No users match your search.' : 'No users found.'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -173,7 +195,7 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.06]">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -200,7 +222,12 @@ export default function AdminUsersPage() {
                             onChange={(e) => setConfirmRole(e.target.value)}
                             className="bg-zinc-800 border border-white/[0.08] rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500/50"
                           >
-                            {roleOptions.map((opt) => (
+                            {[
+                              ...roleOptions,
+                              ...(roleOptions.some((o) => o.value === user.role)
+                                ? []
+                                : [{ value: user.role, label: getRoleLabel(user.role) }]),
+                            ].map((opt) => (
                               <option key={opt.value} value={opt.value}>{opt.label}</option>
                             ))}
                           </select>

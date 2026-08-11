@@ -13,11 +13,13 @@ const navLinks = [
   { href: '/lms/my-courses', label: 'My Learning' },
   { href: '/lms/wishlist', label: 'Wishlist' },
   { href: '/lms/certificates', label: 'Certificates' },
+  { href: '/projects', label: 'Projects' },
 ]
 
 function Header() {
   const pathname = usePathname()
   const [role, setRole] = useState<string | null>(null)
+  const [isInstructorFlag, setIsInstructorFlag] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
@@ -27,6 +29,7 @@ function Header() {
         if (res.ok) {
           const user = await res.json()
           setRole(user?.role)
+          setIsInstructorFlag(!!user?.isInstructor)
           setIsLoggedIn(true)
         }
       } catch {}
@@ -35,7 +38,7 @@ function Header() {
   }, [])
 
   const isStudent = role === ROLES.USER || role === null
-  const isInstructor = role === ROLES.INSTRUCTOR
+  const isInstructor = isInstructorFlag
 
   const instructorLinks = [
     { href: '/lms/instructor/dashboard', label: 'Dashboard' },

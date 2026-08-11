@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import ProductDetailModal from './ProductDetailModal';
 
 const products = [
   {
@@ -58,6 +58,7 @@ const categories = ['All', 'Productivity', 'Infrastructure', 'Design', 'Business
 
 export default function ProductListings() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedProduct, setSelectedProduct] = useState<typeof products[number] | null>(null);
   const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const filteredProducts = activeCategory === 'All'
@@ -85,7 +86,7 @@ export default function ProductListings() {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [filteredProducts]);
 
   return (
     <section className="py-20 px-8">
@@ -156,15 +157,24 @@ export default function ProductListings() {
                 </div>
 
                 <div className="flex justify-between items-center pt-4 border-t border-[#1a1a1a]">
-                  <Link href="/services" className=" text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5">
+                  <button
+                    onClick={() => setSelectedProduct(product)}
+                    className="bg-blue-500 text-white px-5 py-2 rounded-full text-[0.85rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5"
+                  >
                     Learn More
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
     </section>
   );
 }

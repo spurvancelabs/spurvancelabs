@@ -11,6 +11,7 @@ export const PERMISSIONS = {
   VIEW_ANALYTICS: 'view_analytics',
   ACCESS_LMS_ADMIN: 'access_lms_admin',
   ACCESS_LMS_INSTRUCTOR: 'access_lms_instructor',
+  ACCESS_PROJECTS_ADMIN: 'access_projects_admin',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -25,7 +26,8 @@ const PERMISSION_ROLES: Record<Permission, string[]> = {
   [PERMISSIONS.VIEW_ADMIN_PANEL]: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER],
   [PERMISSIONS.VIEW_ANALYTICS]: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER],
   [PERMISSIONS.ACCESS_LMS_ADMIN]: [ROLES.SUPER_ADMIN],
-  [PERMISSIONS.ACCESS_LMS_INSTRUCTOR]: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.INSTRUCTOR],
+  [PERMISSIONS.ACCESS_LMS_INSTRUCTOR]: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER],
+  [PERMISSIONS.ACCESS_PROJECTS_ADMIN]: [ROLES.SUPER_ADMIN],
 };
 
 export function hasPermission(role: string | null | undefined, permission: Permission): boolean {
@@ -70,13 +72,17 @@ export function canAccessLMSInstructor(role: string | null | undefined): boolean
   return hasPermission(role, PERMISSIONS.ACCESS_LMS_INSTRUCTOR);
 }
 
+export function canAccessProjectsAdmin(role: string | null | undefined): boolean {
+  return hasPermission(role, PERMISSIONS.ACCESS_PROJECTS_ADMIN);
+}
+
 export function getAssignableRoles(actorRole: string | null | undefined): string[] {
   if (!actorRole) return [];
   if (actorRole === ROLES.SUPER_ADMIN) {
-    return [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.INSTRUCTOR, ROLES.USER];
+    return [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.USER];
   }
   if (actorRole === ROLES.ADMIN) {
-    return [ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.INSTRUCTOR, ROLES.USER];
+    return [ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.USER];
   }
   return [];
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { parse } from 'csv-parse/sync';
 import { requireEditor } from '@/lib/lms/utils';
+import { normalizeDateInput } from '@/lib/dates';
 
 const VALID_STATUSES = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 
@@ -74,7 +75,8 @@ export async function POST(request: NextRequest) {
       }
       if (record.Phone) insertData.phone = record.Phone;
       if (record.Interviewer) insertData.interviewer_name = record.Interviewer;
-      if (record['Interview Date']) insertData.interview_date = record['Interview Date'];
+      const importedDate = normalizeDateInput(record['Interview Date']);
+      if (importedDate) insertData.interview_date = importedDate;
 
       if (type === 'internship') {
         insertData.university = record.University || record.university || 'Not specified';

@@ -1,15 +1,17 @@
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { ROLES, hasMinRole, roleLevel } from '@/lib/lms/roles'
+import { ROLES, hasMinRole, roleLevel, isAdminRole } from '@/lib/lms/roles'
 import { getSupabaseAdminClient } from '@/lib/supabase/server'
 
 export interface AuthUser {
   id: string
   email: string
   name: string | null
+  image: string | null
   role: string
   level: number
+  isInstructor: boolean
 }
 
 export async function getAuthUser(): Promise<AuthUser | null> {
@@ -22,7 +24,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.userId },
-    select: { id: true, email: true, name: true, type: true },
+    select: { id: true, email: true, name: true, image: true, type: true },
   })
 
   const supabase = getSupabaseAdminClient()
@@ -40,8 +42,10 @@ export async function getAuthUser(): Promise<AuthUser | null> {
       id: decoded.userId,
       email: decoded.email ?? '',
       name: null,
+      image: null,
       role: adminUser.role,
       level: roleLevel(adminUser.role),
+      isInstructor: isAdminRole(adminUser.role),
     }
   }
 
@@ -61,8 +65,10 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     id: user.id,
     email: user.email ?? '',
     name: user.name,
+    image: user.image,
     role,
     level: roleLevel(role),
+    isInstructor: isAdminRole(role),
   }
 }
 
@@ -100,7 +106,7 @@ export async function requireViewer(): Promise<AuthUser> {
 
 export async function requireInstructor(): Promise<AuthUser> {
   const user = await requireAuth()
-  if (!hasMinRole(user.role, ROLES.ADMIN) && user.role !== ROLES.INSTRUCTOR) {
+  if (!user.isInstructor) {
     throw new Error('Forbidden')
   }
   return user

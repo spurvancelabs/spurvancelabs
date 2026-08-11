@@ -84,9 +84,12 @@ export async function PATCH(
         const { error: insertError } = await supabase
           .from('admin_users')
           .insert({
+            id: crypto.randomUUID(),
             user_id: id,
             role,
             created_by: decoded.userId,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           });
 
         if (insertError) throw insertError;
@@ -98,14 +101,12 @@ export async function PATCH(
         .eq('user_id', id);
     }
 
-    if (!isNewAdmin) {
-      const { error: updateUserError } = await supabase
-        .from('users')
-        .update({ type: role })
-        .eq('id', id);
+    const { error: updateUserError } = await supabase
+      .from('users')
+      .update({ type: role })
+      .eq('id', id);
 
-      if (updateUserError) throw updateUserError;
-    }
+    if (updateUserError) throw updateUserError;
 
     return NextResponse.json({
       message: `Role updated to ${role}`,

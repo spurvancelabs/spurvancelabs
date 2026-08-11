@@ -18,7 +18,7 @@ interface Internship {
 export default function InternshipListings() {
   const [internships, setInternships] = useState<Internship[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedInternship, setSelectedInternship] = useState<Internship | null>(null);
+  const [selectedInternship, setSelectedInternship] = useState<{ id: string; title: string } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -70,6 +70,9 @@ export default function InternshipListings() {
           <p className="text-[#666] text-[1.05rem] font-light max-w-[500px] mx-auto">
            Join our software development internship program and
 start building the future of technology
+          </p>
+          <p className="text-blue-500 text-[0.85rem] max-sm:text-[0.8rem] mt-4">
+            Applications close September 30, 2026
           </p>
         </div>
 
@@ -132,6 +135,12 @@ start building the future of technology
             <p className="text-[#888] text-[1.1rem] font-light">
               No internship positions available right now — check back soon, or submit a general application.
             </p>
+            <button
+              onClick={() => { setSelectedInternship({ id: 'general', title: 'General Application' }); setShowModal(true); }}
+              className="mt-6 bg-blue-500 text-white px-8 py-3 rounded-full text-[0.95rem] font-medium cursor-pointer transition-[0.3s_ease] hover:bg-blue-600 hover:-translate-y-0.5"
+            >
+              Submit a General Application
+            </button>
           </div>
         )}
       </div>

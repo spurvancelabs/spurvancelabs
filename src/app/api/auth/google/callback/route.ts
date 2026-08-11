@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSupabaseAdminClient, getSupabaseServerClient } from '@/lib/supabase/server'
 import { ROLES } from '@/lib/lms/roles'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth'
+import { AdminNotificationService } from '@/lib/admin-notifications/service'
 
 export async function GET(request: Request) {
   try {
@@ -71,6 +72,18 @@ export async function GET(request: Request) {
         return NextResponse.redirect('/login?error=signup_failed')
       }
       userId = newUser.id
+
+      try {
+        await AdminNotificationService.notifyAdmins({
+          type: 'registration',
+          title: 'New user registered',
+          message: `${googleUser.name || 'Someone'} (${googleUser.email}) signed up with Google`,
+          priority: 'medium',
+          link: '/admin/users',
+        });
+      } catch (notificationError) {
+        console.error('Failed to notify admins about registration:', notificationError);
+      }
     }
 
     const accessToken = await generateAccessToken({

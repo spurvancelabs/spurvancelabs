@@ -28,8 +28,9 @@ export default function TicketDetailPageClient({
         onClose={() => router.back()}
         onUpdate={() => {}}
         members={membersData.map(m => ({
-          id: m.id,
-          user: m.user,
+          id: m.user.id,
+          name: m.user.name,
+          email: m.user.email,
           role: m.role,
         }))}
         sprints={sprintsData}

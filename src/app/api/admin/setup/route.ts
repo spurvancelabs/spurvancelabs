@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
 
       const now = new Date().toISOString();
       await supabase.from('admin_users').insert({
+        id: crypto.randomUUID(),
         user_id: existingAuthUser.id,
         role: ROLES.SUPER_ADMIN,
         created_at: now,
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
     if (authUser?.user) {
       const now = new Date().toISOString();
       await supabase.from('admin_users').insert({
+        id: crypto.randomUUID(),
         user_id: authUser.user.id,
         role: ROLES.SUPER_ADMIN,
         created_by: authUser.user.id,

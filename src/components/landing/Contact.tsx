@@ -112,7 +112,7 @@ export default function Contact() {
     <section className="py-10 px-5 sm:py-20 sm:px-8 pb-14 sm:pb-24 overflow-hidden">
           <div className="text-center mb-10 sm:mb-14">
         <h2 className="text-white text-[1.8rem] sm:text-[2.4rem] md:text-[3rem] font-bold tracking-[-0.03em] mb-3">
-          Let's <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">connect</span>
+          Let&apos;s <span className="bg-gradient-to-br from-[#f0f0f0] to-[#777] bg-clip-text text-transparent">connect</span>
         </h2>
         <p className="text-[#666] text-[0.85rem] sm:text-[1.1rem] font-light max-w-[500px] mx-auto">
 Have a project in mind? Our software development company for remote teams is ready to bring your vision to life        </p>
@@ -144,7 +144,7 @@ Have a project in mind? Our software development company for remote teams is rea
               <div>
                 <span className="block text-[#444] text-[0.6rem] sm:text-[0.65rem] uppercase tracking-[0.08em] mb-[0.2rem]">Email</span>
                 <p className="text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] m-0">hello@spurvancelab.com</p>
-                <p className="text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] m-0">support@spurvancelab.com</p>
+                <p className="text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] m-0">support@spurvancelabs.com</p>
               </div>
             </div>
 
@@ -154,8 +154,7 @@ Have a project in mind? Our software development company for remote teams is rea
               </div>
               <div>
                 <span className="block text-[#444] text-[0.6rem] sm:text-[0.65rem] uppercase tracking-[0.08em] mb-[0.2rem]">Phone</span>
-                <p className="text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] m-0">+1 (555) 123-4567</p>
-                <p className="text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] m-0">+1 (555) 987-6543</p>
+                <p className="text-[#c0c0c0] text-[0.85rem] sm:text-[0.9rem] leading-[1.6] m-0">+923294171505</p>
               </div>
             </div>
 
@@ -174,16 +173,16 @@ Have a project in mind? Our software development company for remote teams is rea
           <div className="pt-6 sm:pt-8 border-t border-[#1a1a1a]">
             <span className="block text-[#444] text-[0.6rem] sm:text-[0.65rem] uppercase tracking-[0.08em] mb-3">Follow Us</span>
             <div className="flex gap-3">
-              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+              <a href="https://www.linkedin.com/company/spurvancelabs/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
                 <i className="fab fa-linkedin-in text-sm sm:text-base"></i>
               </a>
-              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
-                <i className="fab fa-twitter text-sm sm:text-base"></i>
+              <a href="https://x.com/spurvancelabs" target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+                <i className="fab fa-x-twitter text-sm sm:text-base"></i>
               </a>
-              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
                 <i className="fab fa-github text-sm sm:text-base"></i>
               </a>
-              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
+              <a href="https://www.youtube.com/@spurvancelabs" target="_blank" rel="noopener noreferrer" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1">
                 <i className="fab fa-youtube text-sm sm:text-base"></i>
               </a>
             </div>
@@ -273,7 +272,7 @@ Have a project in mind? Our software development company for remote teams is rea
                 className="w-[18px] h-[18px] min-w-[18px] accent-white cursor-pointer p-0 mt-1 sm:mt-0"
               />
               <label htmlFor="agree" className="text-[#666] text-[0.8rem] sm:text-[0.85rem] font-normal cursor-pointer">
-                I agree to the <a href="#" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Privacy Policy</a> and <a href="#" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Terms of Service</a>
+                I agree to the <a href="/landing/privacy" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Privacy Policy</a> and <a href="/landing/terms" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Terms of Service</a>
               </label>
               <span className={`text-[#ef4444] text-[0.7rem] sm:text-[0.75rem] w-full ${errors.agree ? 'block' : 'hidden'}`}>{errors.agree}</span>
             </div>
@@ -291,7 +290,7 @@ Have a project in mind? Our software development company for remote teams is rea
             <div className={`text-center p-6 sm:p-8 ${isSuccess ? 'block' : 'hidden'}`}>
               <i className="fas fa-check-circle text-[2.5rem] sm:text-[3rem] text-[#22c55e] mb-3 sm:mb-4"></i>
               <h3 className="text-white text-[1.2rem] sm:text-[1.4rem] mb-2">Message Sent!</h3>
-              <p className="text-[#666] text-[0.9rem] sm:text-[0.95rem]">Thank you for reaching out. We'll get back to you within 24 hours.</p>
+              <p className="text-[#666] text-[0.9rem] sm:text-[0.95rem]">Thank you for reaching out. We&apos;ll get back to you within 24 hours.</p>
             </div>
           </form>
         </div>

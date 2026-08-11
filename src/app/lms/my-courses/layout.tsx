@@ -31,7 +31,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
 
   const effectiveRole = adminUser?.role || user.type || ROLES.USER;
 
-  if (effectiveRole !== ROLES.USER && effectiveRole !== ROLES.INSTRUCTOR && !hasMinRole(effectiveRole, ROLES.VIEWER)) {
+  if (effectiveRole !== ROLES.USER && !hasMinRole(effectiveRole, ROLES.VIEWER)) {
     notFound();
   }
 

@@ -61,7 +61,7 @@ export default function Header() {
                 </li>
               </Link>
             ))}
-            <Link href="/contact">
+            <Link href="/landing/contact">
               <li className="bg-white inline-block px-3 lg:px-4 py-2 cursor-pointer text-[0.8rem] lg:text-[0.9rem] font-medium text-black rounded-[40px] transition-all duration-200 hover:bg-[#a4a4a4]">
                 Contact Us
               </li>
@@ -85,7 +85,7 @@ export default function Header() {
                 </li>
               </Link>
             ))}
-            <Link href="/contact" onClick={() => setMenuOpen(false)}>
+            <Link href="/landing/contact" onClick={() => setMenuOpen(false)}>
               <li className="bg-white text-black px-4 py-3 cursor-pointer text-[0.9rem] font-medium rounded-[12px] transition-all duration-200 hover:bg-[#a4a4a4]">
                 Contact Us
               </li>

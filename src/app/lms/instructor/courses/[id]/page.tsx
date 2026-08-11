@@ -19,12 +19,13 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
 }
 
 function EditCourseForm({ courseId }: { courseId: string }) {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-
-  const { data: course, isLoading } = useQuery<CourseData>({
+  const { data: course, isLoading, isError } = useQuery<CourseData>({
     queryKey: ['lms-course', courseId],
-    queryFn: () => fetch(`/api/lms/courses/${courseId}`).then(r => r.json()),
+    queryFn: async () => {
+      const res = await fetch(`/api/lms/courses/${courseId}`)
+      if (!res.ok) throw new Error('Failed to load course')
+      return res.json()
+    },
     enabled: !!courseId,
   })
 
@@ -33,48 +34,48 @@ function EditCourseForm({ courseId }: { courseId: string }) {
     queryFn: () => fetch('/api/lms/categories').then(r => r.json()),
   })
 
-  const [title, setTitle] = useState('')
-  const [slug, setSlug] = useState('')
-  const [description, setDescription] = useState('')
-  const [thumbnail, setThumbnail] = useState('')
-  const [thumbnailUploading, setThumbnailUploading] = useState(false)
-  const [duration, setDuration] = useState('')
-  const [level, setLevel] = useState('beginner')
-  const [categoryId, setCategoryId] = useState('')
-  const [isFree, setIsFree] = useState(true)
-  const [price, setPrice] = useState('')
-  const [status, setStatus] = useState<string>('DRAFT')
+  if (isError) {
+    return (
+      <div className="max-w-2xl rounded-xl bg-red-500/10 border border-red-500/20 px-5 py-4">
+        <p className="text-sm text-red-300">Failed to load course. Please try again.</p>
+      </div>
+    )
+  }
 
-  useEffect(() => {
-    if (course) {
-      setTitle(course.title)
-      setSlug(course.slug)
-      setDescription(course.description || '')
-      setThumbnail(course.thumbnail || '')
-      setDuration(course.duration?.toString() || '')
-      setLevel(course.level || 'beginner')
-      setCategoryId(course.categoryId || '')
-      setIsFree(course.isFree ?? true)
-      setPrice(course.price?.toString() || '')
-      setStatus(course.status)
-    }
-  }, [course])
+  if (isLoading || !course) {
+    return (
+      <div className="max-w-2xl">
+        <div className="h-8 w-48 bg-zinc-800 rounded animate-pulse mb-6" />
+        <div className="space-y-4">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 bg-zinc-800 rounded-xl animate-pulse" />)}
+        </div>
+      </div>
+    )
+  }
+
+  return <CourseEditor courseId={courseId} course={course} categories={categories || []} />
+}
+
+function CourseEditor({ courseId, course, categories }: { courseId: string; course: CourseData; categories: CategoryData[] }) {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const [title, setTitle] = useState(course.title)
+  const [slug, setSlug] = useState(course.slug)
+  const [description, setDescription] = useState(course.description || '')
+  const [thumbnail, setThumbnail] = useState(course.thumbnail || '')
+  const [thumbnailUploading, setThumbnailUploading] = useState(false)
+  const [duration, setDuration] = useState(course.duration?.toString() || '')
+  const [level, setLevel] = useState(course.level || 'beginner')
+  const [categoryId, setCategoryId] = useState(course.categoryId || '')
+  const [isFree, setIsFree] = useState(course.isFree ?? true)
+  const [price, setPrice] = useState(course.price?.toString() || '')
+  const [status, setStatus] = useState<string>(course.status)
 
   const autoSlug = useCallback((val: string) => {
     setTitle(val)
     setSlug(val.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, ''))
   }, [])
-
-  const updateMutation = useMutation({
-    mutationFn: (body: Record<string, unknown>) =>
-      fetch(`/api/lms/courses/${courseId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
-    onSuccess: () => {
-      toast.success('Course updated')
-      queryClient.invalidateQueries({ queryKey: ['lms-course', courseId] })
-      queryClient.invalidateQueries({ queryKey: ['instructor-courses'] })
-    },
-    onError: () => toast.error('Failed to update course'),
-  })
 
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -96,19 +97,31 @@ function EditCourseForm({ courseId }: { courseId: string }) {
     }
   }
 
-  const submitMutation = useMutation({
+  const updateMutation = useMutation({
+    mutationFn: (body: Record<string, unknown>) =>
+      fetch(`/api/lms/courses/${courseId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    onSuccess: () => {
+      toast.success('Course updated')
+      queryClient.invalidateQueries({ queryKey: ['lms-course', courseId] })
+      queryClient.invalidateQueries({ queryKey: ['instructor-courses'] })
+    },
+    onError: () => toast.error('Failed to update course'),
+  })
+
+  const approveMutation = useMutation({
     mutationFn: () =>
       fetch(`/api/lms/courses/${courseId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isComplete: true }),
+        body: JSON.stringify({ status: 'PUBLISHED' }),
       }),
     onSuccess: () => {
-      toast.success('Course submitted for admin review!')
+      toast.success('Course approved and published!')
       queryClient.invalidateQueries({ queryKey: ['lms-course', courseId] })
       queryClient.invalidateQueries({ queryKey: ['instructor-courses'] })
+      setStatus('PUBLISHED')
     },
-    onError: () => toast.error('Failed to submit course'),
+    onError: () => toast.error('Failed to approve course'),
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -128,20 +141,18 @@ function EditCourseForm({ courseId }: { courseId: string }) {
     })
   }
 
-  if (isLoading) {
-    return (
-      <div className="max-w-2xl">
-        <div className="h-8 w-48 bg-zinc-800 rounded animate-pulse mb-6" />
-        <div className="space-y-4">
-          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-10 bg-zinc-800 rounded-xl animate-pulse" />)}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div>
       <h1 className="text-2xl font-bold text-white mb-6">Edit Course</h1>
+
+      {course?.status === 'DRAFT' && course?.isComplete && (
+        <div className="mb-6 rounded-xl bg-blue-500/10 border border-blue-500/20 px-5 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-blue-300 font-medium">Pending Review</p>
+            <p className="text-xs text-blue-400/70 mt-0.5">This course has been submitted for approval. Review the content and publish when ready.</p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -230,26 +241,15 @@ function EditCourseForm({ courseId }: { courseId: string }) {
             <select value={status} onChange={e => setStatus(e.target.value as string)}
               className="w-full bg-zinc-900 border border-white/[0.08] rounded-xl px-4 py-2.5 text-gray-300 focus:outline-none focus:border-amber-500/50 text-sm">
               <option value="DRAFT">Draft</option>
-              {status === 'PUBLISHED' && <option value="PUBLISHED">Published</option>}
+              <option value="PUBLISHED">Published</option>
               <option value="ARCHIVED">Archived</option>
             </select>
-            {status === 'DRAFT' && !course?.isComplete && (
-              <div className="mt-3 rounded-lg bg-amber-500/5 border border-amber-500/10 px-3 py-2.5">
-                <p className="text-xs text-amber-300 mb-2">
-                  When ready, submit this course for admin review. An admin will review and publish it.
-                </p>
-                <button type="button" onClick={() => submitMutation.mutate()} disabled={submitMutation.isPending}
-                  className="px-4 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-medium hover:bg-amber-500 disabled:opacity-50 transition-colors">
-                  {submitMutation.isPending ? 'Submitting...' : 'Submit for Review'}
-                </button>
-              </div>
-            )}
-            {status === 'DRAFT' && course?.isComplete && (
+            {status === 'DRAFT' && (
               <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-blue-500/5 border border-blue-500/10 px-3 py-2">
                 <svg className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-[11px] text-blue-300">Submitted for review. An admin will review and publish your course.</p>
+                <p className="text-[11px] text-blue-300">Approve this course to publish it for students.</p>
               </div>
             )}
             {status === 'ARCHIVED' && (
@@ -263,6 +263,12 @@ function EditCourseForm({ courseId }: { courseId: string }) {
               className="px-6 py-2.5 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-500 disabled:opacity-50 transition-colors">
               {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
             </button>
+            {status === 'DRAFT' && (
+              <button type="button" onClick={() => { if (window.confirm('Approve and publish this course? It will be visible to all users.')) approveMutation.mutate() }} disabled={approveMutation.isPending}
+                className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 disabled:opacity-50 transition-colors">
+                {approveMutation.isPending ? 'Publishing...' : 'Approve & Publish'}
+              </button>
+            )}
             <button type="button" onClick={() => router.push('/lms/instructor/courses')}
               className="px-6 py-2.5 rounded-xl bg-zinc-800 text-gray-300 text-sm font-medium hover:bg-zinc-700 transition-colors">
               Cancel
@@ -271,11 +277,9 @@ function EditCourseForm({ courseId }: { courseId: string }) {
         </form>
 
         <div>
-          <ModulesSection courseId={courseId} />
+          <ModulesSection courseId={courseId} variant="admin" />
         </div>
       </div>
     </div>
   )
 }
-
-

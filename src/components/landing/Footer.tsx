@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -24,13 +25,39 @@ export default function Footer() {
     setTimeout(() => setIsSubscribed(false), 5000);
   };
 
+  const socialLinks = [
+    { href: 'https://www.linkedin.com/company/spurvancelabs/', label: 'LinkedIn', icon: 'fab fa-linkedin-in' },
+    { href: 'https://x.com/spurvancelabs', label: 'X', icon: 'fab fa-x-twitter' },
+    { href: 'https://github.com', label: 'GitHub', icon: 'fab fa-github' },
+    { href: 'https://www.youtube.com/@spurvancelabs', label: 'YouTube', icon: 'fab fa-youtube' },
+    { href: 'https://www.instagram.com/spurvancelabs/', label: 'Instagram', icon: 'fab fa-instagram' },
+  ];
+
+  const serviceLinks = [
+    { href: '/landing/services', label: 'Web Development' },
+    { href: '/landing/services', label: 'Mobile Apps' },
+    { href: '/landing/services', label: 'UI/UX Design' },
+    { href: '/landing/services', label: 'Cloud Solutions' },
+    { href: '/landing/services', label: 'AI & Machine Learning' },
+    { href: '/landing/services', label: 'Cybersecurity' },
+  ];
+
+  const companyLinks = [
+    { href: '/landing/about', label: 'About Us' },
+    { href: '/landing/jobs', label: 'Careers' },
+    { href: '/landing/products', label: 'Portfolio' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/landing', label: 'Testimonials' },
+    { href: '/landing/contact', label: 'Contact' },
+  ];
+
   return (
     <footer className="bg-black border-t border-[#1a1a1a] pt-10 sm:pt-16 px-4 sm:px-8 overflow-hidden">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1.5fr] gap-12 pb-12 border-b border-[#1a1a1a]">
         {/* Brand Column */}
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
+            <Link href="/landing" className="flex items-center gap-3 no-underline w-fit">
               <Image
                 src="/spurvance-logo-removebg-preview.png"
                 alt="Spurvancelab"
@@ -41,28 +68,25 @@ export default function Footer() {
               <span className="text-white text-[1.3rem] font-bold bg-gradient-to-r from-[#f0f0f0] to-[#aaa] bg-clip-text text-transparent max-sm:text-[1.1rem]">
                 Spurvancelab
               </span>
-            </div>
+            </Link>
             <p className="text-[#666] text-[0.95rem] leading-[1.8] max-w-[350px] max-sm:text-[0.85rem]">
-              We're a software development company for remote teams and startups, 
-crafting digital experiences that transform businesses and drive growth.
+              We&apos;re a software development company for remote teams and startups, 
+              crafting digital experiences that transform businesses and drive growth.
             </p>
           </div>
           <div className="flex gap-3 mt-2">
-            <a href="#" aria-label="LinkedIn" className="w-10 h-10 max-sm:w-9 max-sm:h-9 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-              <i className="fab fa-linkedin-in"></i>
-            </a>
-            <a href="#" aria-label="Twitter" className="w-10 h-10 max-sm:w-9 max-sm:h-9 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-              <i className="fab fa-twitter"></i>
-            </a>
-            <a href="#" aria-label="GitHub" className="w-10 h-10 max-sm:w-9 max-sm:h-9 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-              <i className="fab fa-github"></i>
-            </a>
-            <a href="#" aria-label="YouTube" className="w-10 h-10 max-sm:w-9 max-sm:h-9 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-              <i className="fab fa-youtube"></i>
-            </a>
-            <a href="#" aria-label="Instagram" className="w-10 h-10 max-sm:w-9 max-sm:h-9 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-              <i className="fab fa-instagram"></i>
-            </a>
+            {socialLinks.map((social) => (
+              <a
+                key={social.label}
+                href={social.href}
+                aria-label={social.label}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 max-sm:w-9 max-sm:h-9 rounded-full bg-[#1a1a1a] border border-[#1a1a1a] flex items-center justify-center text-[#666] no-underline transition-[0.3s_ease] hover:bg-[#2a2a2a] hover:border-[#2a2a2a] hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
+              >
+                <i className={social.icon}></i>
+              </a>
+            ))}
           </div>
         </div>
 
@@ -70,12 +94,13 @@ crafting digital experiences that transform businesses and drive growth.
         <div className="flex flex-col gap-4">
           <h4 className="text-white text-[1.1rem] font-semibold mb-[0.2rem] tracking-[-0.01em] max-sm:text-[1rem]">Services</h4>
           <ul className="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Web Development</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Mobile Apps</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">UI/UX Design</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Cloud Solutions</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">AI &amp; Machine Learning</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Cybersecurity</a></li>
+            {serviceLinks.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -83,12 +108,13 @@ crafting digital experiences that transform businesses and drive growth.
         <div className="flex flex-col gap-4">
           <h4 className="text-white text-[1.1rem] font-semibold mb-[0.2rem] tracking-[-0.01em] max-sm:text-[1rem]">Company</h4>
           <ul className="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">About Us</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Careers</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Portfolio</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Blog</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Testimonials</a></li>
-            <li><a href="#" className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">Contact</a></li>
+            {companyLinks.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-[#666] no-underline text-[0.9rem] transition-[0.3s_ease] relative inline-block hover:text-white after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-px after:bg-[#888] after:transition-[0.3s_ease] hover:after:w-full max-sm:text-[0.85rem]">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -124,11 +150,11 @@ crafting digital experiences that transform businesses and drive growth.
         <div className="max-w-[1200px] mx-auto flex justify-between items-center flex-wrap gap-4 flex-col sm:flex-row text-center sm:text-left">
           <p className="text-[#444] text-[0.85rem] m-0">&copy; 2026 Spurvancelab. All rights reserved.</p>
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <a href="#" className="text-[#444] no-underline text-[0.85rem] transition-[0.3s_ease] hover:text-[#888]">Privacy Policy</a>
+            <Link href="/landing/privacy" className="text-[#444] no-underline text-[0.85rem] transition-[0.3s_ease] hover:text-[#888]">Privacy Policy</Link>
             <span className="text-[#1a1a1a]">|</span>
-            <a href="#" className="text-[#444] no-underline text-[0.85rem] transition-[0.3s_ease] hover:text-[#888]">Terms of Service</a>
+            <Link href="/landing/terms" className="text-[#444] no-underline text-[0.85rem] transition-[0.3s_ease] hover:text-[#888]">Terms of Service</Link>
             <span className="text-[#1a1a1a]">|</span>
-            <a href="#" className="text-[#444] no-underline text-[0.85rem] transition-[0.3s_ease] hover:text-[#888]">Cookie Policy</a>
+            <Link href="/landing/cookies" className="text-[#444] no-underline text-[0.85rem] transition-[0.3s_ease] hover:text-[#888]">Cookie Policy</Link>
           </div>
         </div>
       </div>

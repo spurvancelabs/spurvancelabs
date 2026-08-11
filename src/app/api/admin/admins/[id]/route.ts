@@ -10,21 +10,25 @@ export async function PATCH(
   try {
     await requireSuperAdmin();
     const { id } = await params;
-    const { role } = await request.json();
+    const { role, isInstructor } = await request.json();
 
-    if (!role || ![ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER].includes(role)) {
+    if (role && ![ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER].includes(role)) {
       return NextResponse.json({ error: 'Invalid admin role' }, { status: 400 });
     }
 
     const supabase = getSupabaseAdminClient();
+    const updateData: any = { updated_at: new Date().toISOString() };
+    if (role) updateData.role = role;
+    if (typeof isInstructor === 'boolean') updateData.is_instructor = isInstructor;
+
     const { error } = await supabase
       .from('admin_users')
-      .update({ role, updated_at: new Date().toISOString() })
+      .update(updateData)
       .eq('id', id);
 
     if (error) throw error;
 
-    return NextResponse.json({ message: `Role updated to ${role}` });
+    return NextResponse.json({ message: 'Admin updated' });
   } catch (error: any) {
     if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
       return NextResponse.json({ error: error.message }, { status: 401 });

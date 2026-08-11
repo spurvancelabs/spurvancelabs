@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/useNotificationQueries';
+import { useInfiniteNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/useNotificationQueries';
 import { Notification } from '@/lib/notification/types';
 import { formatDistanceToNow } from 'date-fns';
+import toast from 'react-hot-toast';
 import { 
   CheckCircleIcon, 
   XCircleIcon, 
@@ -21,7 +22,11 @@ import "../../global.css";
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { data: notifications = [], isLoading, error, refetch } = useNotifications();
+  const { data, isLoading, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteNotifications();
+
+  const notifications: Notification[] = (data?.pages ?? []).flatMap((p) => p.notifications);
+  const total = data?.pages[0]?.total ?? 0;
+
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
 
@@ -40,21 +45,26 @@ export default function NotificationsPage() {
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
-      await markAsReadMutation.mutateAsync([notification.id]);
+      try {
+        await markAsReadMutation.mutateAsync([notification.id]);
+      } catch {
+        toast.error('Failed to mark notification as read');
+      }
     }
     if (notification.link) {
-      window.location.assign(notification.link);
+      router.push(notification.link);
     }
   };
 
   const handleMarkAllAsRead = async () => {
-    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-    if (unreadIds.length > 0) {
+    try {
       await markAllAsReadMutation.mutateAsync();
+    } catch {
+      toast.error('Failed to mark all notifications as read');
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
@@ -62,7 +72,7 @@ export default function NotificationsPage() {
     );
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
@@ -81,16 +91,16 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="text-white cursor-pointer hover:text-gray-300">
+            <button onClick={() => router.back()} className="text-white cursor-pointer hover:text-gray-300" aria-label="Back">
               <ArrowLeftIcon className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-semibold text-white">Notifications</h1>
-            {notifications.length > 0 && (
-              <span className="text-xs text-gray-500">({notifications.length})</span>
+            {total > 0 && (
+              <span className="text-xs text-gray-500">({total})</span>
             )}
           </div>
           
-          {notifications.filter(n => !n.read).length > 0 && (
+          {notifications.some(n => !n.read) && (
             <button
               onClick={handleMarkAllAsRead}
               className="text-sm text-blue-400 hover:text-blue-300"
@@ -107,53 +117,66 @@ export default function NotificationsPage() {
             <p className="text-gray-400 mt-3">No notifications</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                onClick={() => handleNotificationClick(notification)}
-                className={`
-                  flex items-start gap-3 p-4 cursor-pointer transition-colors
-                  border rounded-lg
-                  ${!notification.read 
-                    ? 'bg-white/5 border-white/20' 
-                    : 'border-white/10 hover:bg-white/5'
-                  }
-                `}
-              >
-                <div className="flex-shrink-0 mt-1">
-                  {getIcon(notification.type)}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <p className={`text-sm font-medium truncate ${!notification.read ? 'text-white' : 'text-gray-400'}`}>
-                        {notification.title}
-                      </p>
-                      <p className={`text-sm line-clamp-2 mt-0.5 ${!notification.read ? 'text-gray-300' : 'text-gray-500'}`}>
-                        {notification.message}
-                      </p>
-                      {notification.sender_name && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          From: {notification.sender_name}
+          <>
+            <div className="space-y-2">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={`
+                    flex items-start gap-3 p-4 cursor-pointer transition-colors
+                    border rounded-lg
+                    ${!notification.read 
+                      ? 'bg-white/5 border-white/20' 
+                      : 'border-white/10 hover:bg-white/5'
+                    }
+                  `}
+                >
+                  <div className="flex-shrink-0 mt-1">
+                    {getIcon(notification.type)}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <p className={`text-sm font-medium truncate ${!notification.read ? 'text-white' : 'text-gray-400'}`}>
+                          {notification.title}
                         </p>
-                      )}
-                      <p className="text-xs text-gray-600 mt-1">
-                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                      </p>
-                    </div>
-                    
-                    {!notification.read && (
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <p className={`text-sm line-clamp-2 mt-0.5 ${!notification.read ? 'text-gray-300' : 'text-gray-500'}`}>
+                          {notification.message}
+                        </p>
+                        {notification.sender_name && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            From: {notification.sender_name}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-600 mt-1">
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                        </p>
                       </div>
-                    )}
+                      
+                      {!notification.read && (
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {hasNextPage && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => fetchNextPage()}
+                  className="px-4 py-2 rounded-lg bg-white/5 text-gray-300 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                >
+                  {isFetchingNextPage ? 'Loading...' : 'Load more'}
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
