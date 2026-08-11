@@ -20,7 +20,7 @@ const developers: Developer[] = [
     role: 'Full Stack Developer',
     image: '/images/developers/me.png',
     whatBuilt:
-      'I designed and developed the entire Spurvancelab website end to end — from UI/UX design to responsive front-end engineering and deployment. Every landing page, component, and interaction on this site was crafted by me, with a focus on clean code, performance, and a polished user experience.',
+      'I am the developer behind the entire Spurvancelab website — responsible for its complete design and development, from UI/UX and responsive front-end engineering to deployment. My focus is on clean, maintainable code, performance, and a seamless, professional user experience that reflects the quality of the work we deliver.',
     socials: {
       linkedin: 'https://www.linkedin.com/in/muzammilriazofficial',
       facebook: 'https://www.facebook.com/muzammilriazofficial01',
