@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import ApplicationStatusBadge from '@/components/admin/ApplicationStatusBadge';
 import ApplicationDetailModal from '@/components/admin/ApplicationDetailModal';
 import { canCreateContent, canEditContent, canDeleteContent } from '@/lib/lms/permissions';
+import { toDateInputValue } from '@/lib/dates';
 
 const statusOptions = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 const tabs = [
@@ -21,7 +22,11 @@ export default function AdminApplicationsPage() {
   const typeFromUrl = searchParams.get('type') || '';
   const queryClient = useQueryClient();
   const [typeFilter, setTypeFilter] = useState(typeFromUrl);
-  useEffect(() => { setTypeFilter(typeFromUrl); }, [typeFromUrl]);
+  const [lastTypeFromUrl, setLastTypeFromUrl] = useState(typeFromUrl);
+  if (typeFromUrl !== lastTypeFromUrl) {
+    setLastTypeFromUrl(typeFromUrl);
+    setTypeFilter(typeFromUrl);
+  }
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [myRole, setMyRole] = useState<string>('');
   useEffect(() => {
@@ -267,7 +272,7 @@ export default function AdminApplicationsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto ">
-            <table className="w-full min-w-[1200px]">
+            <table className="w-full min-w-[960px]">
               <thead>
                 <tr className="border-b border-white/[0.06]">
                   <th className="text-left text-gray-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider px-2 sm:px-4 py-2 sm:py-3">Applicant</th>
@@ -310,7 +315,7 @@ export default function AdminApplicationsPage() {
                     <td className="px-2 sm:px-4 py-2 sm:py-3">
                       <input
                         type="date"
-                        value={app.interview_date ? app.interview_date.split('T')[0] : ''}
+                        value={toDateInputValue(app.interview_date)}
                         onChange={(e) => interviewMutation.mutate({ appId: app.id, interview_date: e.target.value || undefined, type: app.applicationType })}
                         className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-1 sm:px-2 py-0.5 sm:py-1 text-white text-[9px] sm:text-xs focus:outline-none focus:border-blue-500 w-full min-w-[100px] sm:min-w-[120px]"
                       />

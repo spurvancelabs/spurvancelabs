@@ -107,11 +107,11 @@ export default function ProductFeatures() {
               Start your free trial today and experience the difference our products can make for your business.
             </p>
             <div className="flex gap-5 justify-center flex-wrap">
-              <Link href="/contact" className="inline-flex items-center gap-3 px-10 py-4 bg-blue-500 text-white rounded-full font-medium cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(59,130,246,0.3)]">
+              <Link href="/landing/contact" className="inline-flex items-center gap-3 px-10 py-4 bg-blue-500 text-white rounded-full font-medium cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(59,130,246,0.3)]">
                 <span>Start Free Trial</span>
                 <i className="fas fa-arrow-right"></i>
               </Link>
-              <Link href="/contact" className="inline-flex items-center gap-3 px-10 py-4 bg-[#1a1a1a] text-white rounded-full font-medium cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:bg-[#2a2a2a]">
+              <Link href="/landing/contact" className="inline-flex items-center gap-3 px-10 py-4 bg-[#1a1a1a] text-white rounded-full font-medium cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:bg-[#2a2a2a]">
                 <span>Schedule Demo</span>
                 <i className="fas fa-calendar"></i>
               </Link>

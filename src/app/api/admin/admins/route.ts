@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
 
     const now = new Date().toISOString();
     const { error: insertError } = await supabase.from('admin_users').insert({
+      id: crypto.randomUUID(),
       user_id: userId,
       role: newRole,
       is_instructor: !!isInstructor,

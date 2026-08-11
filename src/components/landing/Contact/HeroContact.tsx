@@ -8,10 +8,10 @@ function HeroContact() {
       <div className='flex flex-col lg:flex-row items-center justify-center w-full h-auto lg:h-screen mt-20 mb-10 px-5 sm:px-8 relative'>
         <div className='flex-1 p-5 md:p-10 pr-4'>
             <h3 className='font-bold text-white text-lg sm:text-xl'>Do, you want to <span className='text-blue-500'>contact us</span></h3>
-            <h1 className='font-bold text-xl sm:text-3xl md:text-5xl text-white'>Let's Talk About Your Project</h1>
-            <p className='text-sm text-gray-500 mt-6 sm:mt-8'>Whether you're exploring a new idea or ready to scale, our software
+            <h1 className='font-bold text-xl sm:text-3xl md:text-5xl text-white'>Let&apos;s Talk About Your Project</h1>
+            <p className='text-sm text-gray-500 mt-6 sm:mt-8'>Whether you&apos;re exploring a new idea or ready to scale, our software
 development company for remote teams and startups is here to help.
-Schedule a meeting or send us a message, and we'll get back to you
+Schedule a meeting or send us a message, and we&apos;ll get back to you
 within one business day</p>
             <div className='flex flex-col sm:flex-row gap-3 sm:gap-5 mt-5'>
             <button className='relative bg-white font-semibold text-black py-2 px-4 rounded-full hover:bg-gray-300 cursor-pointer text-sm sm:text-base'>Schedule Meeting</button>
@@ -74,7 +74,7 @@ within one business day</p>
         className="w-[18px] h-[18px] min-w-[18px] accent-white cursor-pointer p-0 mt-1 sm:mt-0"
       />
       <label htmlFor="agree" className="text-[#666] text-[0.8rem] sm:text-[0.85rem] font-normal cursor-pointer">
-        I agree to the <a href="#" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Privacy Policy</a> and <a href="#" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Terms of Service</a>
+        I agree to the <a href="/landing/privacy" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Privacy Policy</a> and <a href="/landing/terms" className="text-[#888] no-underline border-b border-[#1a1a1a] pb-[1px] transition-[0.3s_ease] hover:text-white hover:border-b-[#444]">Terms of Service</a>
       </label>
     </div>
 

@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { getNextTicketKey, isValidAssignee, isValidDepartment, isAssigneeInDepartment } from '@/lib/projects/utils';
 import { canProject } from '@/lib/projects/permissions';
 import { NotificationTrigger } from '@/lib/notification/trigger';
+import { AdminNotificationService } from '@/lib/admin-notifications/service';
 
 async function getAuthUserId(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -181,6 +182,16 @@ export async function POST(
         });
       } catch { /* best effort */ }
     }
+
+    try {
+      await AdminNotificationService.notifyAdmins({
+        type: 'ticket',
+        title: 'New ticket created',
+        message: `${ticket.key}: ${title}`,
+        priority: 'medium',
+        link: `/projects/${projectId}/board`,
+      });
+    } catch { /* best effort */ }
 
     return NextResponse.json({ data: ticket }, { status: 201 });
   } catch (error) {

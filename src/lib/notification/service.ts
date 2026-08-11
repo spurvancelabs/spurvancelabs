@@ -186,19 +186,19 @@ export class NotificationService {
   static async getStats(userId: string): Promise<NotificationStats> {
     const supabase = getSupabaseAdminClient();
 
-    // Get total and unread counts
-    const { data: totalData, error: totalError, count: totalCount } = await supabase
+    // Get total and unread counts (head-only, no row data fetched)
+    const { error: totalError, count: totalCount } = await supabase
       .from('notifications')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
     if (totalError) {
       throw new Error(`Failed to get stats: ${totalError.message}`);
     }
 
-    const { data: unreadData, error: unreadError, count: unreadCount } = await supabase
+    const { error: unreadError, count: unreadCount } = await supabase
       .from('notifications')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('read', false);
 
@@ -206,44 +206,10 @@ export class NotificationService {
       throw new Error(`Failed to get stats: ${unreadError.message}`);
     }
 
-    // Get counts by type
-    const { data: typeData, error: typeError } = await supabase
-      .from('notifications')
-      .select('type')
-      .eq('user_id', userId);
-
-    if (typeError) {
-      throw new Error(`Failed to get stats by type: ${typeError.message}`);
-    }
-
-    const byType = typeData?.reduce((acc: any, curr: any) => {
-      acc[curr.type] = (acc[curr.type] || 0) + 1;
-      return acc;
-    }, {});
-
-    // Get counts by priority
-    const { data: priorityData, error: priorityError } = await supabase
-      .from('notifications')
-      .select('priority')
-      .eq('user_id', userId);
-
-    if (priorityError) {
-      throw new Error(`Failed to get stats by priority: ${priorityError.message}`);
-    }
-
-    const byPriority = priorityData?.reduce((acc: any, curr: any) => {
-      acc[curr.priority] = (acc[curr.priority] || 0) + 1;
-      return acc;
-    }, {});
-
-    const stats: NotificationStats = {
+    return {
       total: totalCount || 0,
       unread: unreadCount || 0,
-      by_type: byType || {},
-      by_priority: byPriority || {},
     };
-
-    return stats;
   }
 
   static async getPreferences(userId: string): Promise<NotificationPreferences | null> {

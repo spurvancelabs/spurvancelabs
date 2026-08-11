@@ -19,8 +19,14 @@ export default function InstructorCoursesPage() {
 
   const params = new URLSearchParams()
   if (search) params.set('search', search)
-  if (statusFilter) params.set('status', statusFilter)
   params.set('limit', '50')
+
+  if (statusFilter === 'PENDING') {
+    params.set('status', 'DRAFT')
+    params.set('isComplete', 'true')
+  } else if (statusFilter) {
+    params.set('status', statusFilter)
+  }
 
   const { data, isLoading } = useQuery<PaginatedResponse<CourseData>>({
     queryKey: ['instructor-courses', search, statusFilter],
@@ -43,8 +49,8 @@ export default function InstructorCoursesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">My Courses</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage your courses</p>
+          <h1 className="text-2xl font-bold text-white">Courses</h1>
+          <p className="text-gray-400 text-sm mt-1">Manage all courses</p>
         </div>
         <Link
           href="/lms/instructor/courses/new"
@@ -68,6 +74,7 @@ export default function InstructorCoursesPage() {
           className="bg-zinc-900 border border-white/[0.08] rounded-xl px-4 py-2.5 text-gray-300 focus:outline-none focus:border-amber-500/50 text-sm"
         >
           <option value="">All Status</option>
+          <option value="PENDING">Pending Review</option>
           <option value="DRAFT">Draft</option>
           <option value="PUBLISHED">Published</option>
           <option value="ARCHIVED">Archived</option>

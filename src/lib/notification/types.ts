@@ -79,8 +79,8 @@ export interface NotificationFilter {
 export interface NotificationStats {
   total: number;
   unread: number;
-  by_type: Record<NotificationType, number>;
-  by_priority: Record<NotificationPriority, number>;
+  by_type?: Record<NotificationType, number>;
+  by_priority?: Record<NotificationPriority, number>;
 }
 
 export interface NotificationWebSocketMessage {

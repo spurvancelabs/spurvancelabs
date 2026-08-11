@@ -37,8 +37,8 @@ function MapContact() {
         </div>
         
         <p className="text-gray-400 text-base sm:text-lg leading-relaxed max-w-md">
-          We'd love to hear from you! As a software development company for
-remote teams and startups, we're happy to answer any questions,
+          We&apos;d love to hear from you! As a software development company for
+remote teams and startups, we&apos;re happy to answer any questions,
 feedback, or inquiries.
         </p>
         
@@ -59,7 +59,7 @@ feedback, or inquiries.
             </div>
             <div>
               <p className="text-gray-500 text-[0.65rem] sm:text-xs font-medium uppercase tracking-wider">Phone</p>
-              <p className="text-gray-300 text-sm sm:text-base group-hover:text-white transition-colors">+1 (555) 123-4567</p>
+              <p className="text-gray-300 text-sm sm:text-base group-hover:text-white transition-colors">+923294171505</p>
             </div>
           </div>
           
@@ -69,19 +69,20 @@ feedback, or inquiries.
             </div>
             <div>
               <p className="text-gray-500 text-[0.65rem] sm:text-xs font-medium uppercase tracking-wider">Email</p>
-              <p className="text-gray-300 text-sm sm:text-base group-hover:text-white transition-colors">contact@example.com</p>
+              <p className="text-gray-300 text-sm sm:text-base group-hover:text-white transition-colors">hello@spurvancelab.com</p>
+              <p className="text-gray-300 text-sm sm:text-base group-hover:text-white transition-colors">support@spurvancelabs.com</p>
             </div>
           </div>
         </div>
         
-        <button className="group cursor-pointer relative overflow-hidden bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-3 rounded-full font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/50 transition-all duration-300 text-sm sm:text-base">
+        <a href="mailto:hello@spurvancelab.com" className="inline-block group cursor-pointer relative overflow-hidden bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-3 rounded-full font-medium shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/50 transition-all duration-300 text-sm sm:text-base no-underline">
           <span className="relative z-10 flex items-center gap-2">
             <FaRegEnvelope className="text-base sm:text-lg" />
             Contact Us
           </span>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300"></div>
-        </button>
+        </a>
       </div>
     </div>
   )

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('interviewers')
-      .insert({ name: name.trim() })
+      .insert({ id: crypto.randomUUID(), name: name.trim(), created_at: new Date().toISOString() })
       .select()
       .single();
 

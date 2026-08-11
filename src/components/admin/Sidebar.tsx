@@ -6,7 +6,8 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { ROLES } from '@/lib/lms/roles';
-import { canManageUsers, canCreateContent, canManageAdmins, canAccessLMSAdmin, canAccessProjectsAdmin } from '@/lib/lms/permissions';
+import { canManageUsers, canCreateContent, canManageAdmins, canAccessProjectsAdmin } from '@/lib/lms/permissions';
+import { useAdminUnreadCount } from '@/hooks/useAdminNotificationQueries';
 
 const icons: Record<string, ReactNode> = {
   dashboard: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>,
@@ -23,6 +24,8 @@ const icons: Record<string, ReactNode> = {
   csv: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" /></svg>,
   shield: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>,
   projects: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 6.75a.75.75 0 00-.75.75V18a.75.75 0 00.75.75h16.5a.75.75 0 00.75-.75V7.5a.75.75 0 00-.75-.75H3.75zM3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm5.25 3.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5zm0 3h4.5a.75.75 0 010 1.5h-4.5a.75.75 0 010-1.5z" /></svg>,
+  courses: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>,
+  bell: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>,
 };
 
 interface NavItem {
@@ -82,6 +85,7 @@ function getNavItems(role: string): SidebarItem[] {
     { type: 'section', label: 'Overview' },
     { type: 'link', href: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { type: 'link', href: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
+    { type: 'link', href: '/admin/notifications', label: 'Notifications', icon: 'bell' },
     { type: 'section', label: 'Management' },
     {
       type: 'group', label: 'Jobs', icon: 'jobs', href: '/admin/jobs', children: [
@@ -107,15 +111,12 @@ function getNavItems(role: string): SidebarItem[] {
     },
     { type: 'link', href: '/admin/interviewers', label: 'Interviewers', icon: 'interviewers' },
     { type: 'link', href: '/admin/users', label: 'Users', icon: 'users' },
+    { type: 'link', href: '/lms/instructor/dashboard', label: 'Instructor', icon: 'courses' },
   ];
 
   const adminManagementItems: SidebarItem[] = [
     { type: 'section', label: 'Admin' },
     { type: 'link', href: '/admin/admins', label: 'Admin Management', icon: 'shield' },
-  ];
-
-  const lmsAdminItems: SidebarItem[] = [
-    { type: 'link', href: '/lms/admin', label: 'LMS Admin', icon: 'shield' },
   ];
 
   const projectsAdminItems: SidebarItem[] = [
@@ -135,9 +136,6 @@ function getNavItems(role: string): SidebarItem[] {
   const middleItems: SidebarItem[] = [];
   if (canManageAdmins(role)) {
     middleItems.push(...adminManagementItems);
-  }
-  if (canAccessLMSAdmin(role)) {
-    middleItems.push(...lmsAdminItems);
   }
   if (canAccessProjectsAdmin(role)) {
     middleItems.push(...projectsAdminItems);
@@ -198,7 +196,13 @@ export default function Sidebar() {
       .catch(() => {});
   }, []);
 
-  const navItems = getNavItems(userRole);
+  const unreadCount = useAdminUnreadCount();
+
+  const navItems = getNavItems(userRole).map((item) =>
+    item.type === 'link' && item.href === '/admin/notifications'
+      ? { ...item, badge: unreadCount > 0 ? unreadCount : undefined }
+      : item
+  );
 
   const handleLogout = async () => {
     try {

@@ -67,12 +67,12 @@ export default function Portfolio() {
     const handleResize = () => {
       setVisibleSlides(getVisibleSlides());
     };
+    const raf = requestAnimationFrame(() => setVisibleSlides(getVisibleSlides()));
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    setVisibleSlides(getVisibleSlides());
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const updateStep = useCallback(() => {
@@ -185,7 +185,7 @@ Handcrafted digital experiences — explore our custom software development port
                         {project.title}
                       </h3>
                       <Link
-                        href="/products" 
+                        href="/landing/products" 
                         className="inline-flex items-center gap-[0.4rem] md:mb-5 max-sm:mb-5 sm:gap-[0.6rem] text-white text-[0.75rem] sm:text-[0.85rem] font-medium no-underline px-4 sm:px-6 py-1.5 sm:py-2 border border-white/15 rounded-[30px] transition-[0.4s_ease] tracking-[0.02em] bg-white/5 backdrop-blur-[10px] hover:bg-white/10 hover:border-white/30 hover:gap-4"
                       >
                         View Project <i className="fas fa-arrow-right text-[0.7rem] transition-[0.3s_ease] group-hover:translate-x-1"></i>

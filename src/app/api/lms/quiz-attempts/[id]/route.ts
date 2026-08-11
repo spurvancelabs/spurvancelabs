@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireAuth } from '@/lib/lms/utils'
-import { ROLES } from '@/lib/lms/roles'
+import { isAdminRole } from '@/lib/lms/roles'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params
     const attempt = await prisma.quizAttempt.findUnique({ where: { id } })
     if (!attempt) return NextResponse.json({ error: 'Attempt not found' }, { status: 404 })
-    if (attempt.studentId !== user.id && user.role !== ROLES.ADMIN) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (attempt.studentId !== user.id && !isAdminRole(user.role)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     return NextResponse.json(attempt)
   } catch (error: any) {
     if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

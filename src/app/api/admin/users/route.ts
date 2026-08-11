@@ -19,13 +19,11 @@ export async function GET() {
       .from('admin_users')
       .select('user_id, role');
 
-    const adminSet = new Set((adminUsers || []).map((a) => a.user_id));
+    const adminRoleMap = new Map((adminUsers || []).map((a) => [a.user_id, a.role]));
 
-    const nonAdminUsers = (users || []).filter((u) => !adminSet.has(u.id));
-
-    const enriched = nonAdminUsers.map((u) => ({
+    const enriched = (users || []).map((u) => ({
       ...u,
-      role: u.type || 'USER',
+      role: adminRoleMap.get(u.id) || u.type || 'USER',
     }));
 
     return NextResponse.json({ users: enriched });
