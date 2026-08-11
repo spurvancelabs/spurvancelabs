@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireAdmin } from '@/lib/lms/utils'
+import { requireInstructor } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -15,9 +15,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAdmin()
+    await requireInstructor()
     const { id } = await params
     const body = await req.json()
+    const { name, slug } = body
+    if (name || slug) {
+      const or: any[] = []
+      if (name) or.push({ name })
+      if (slug) or.push({ slug })
+      const existing = await prisma.category.findFirst({
+        where: {
+          id: { not: id },
+          OR: or,
+        },
+      })
+      if (existing) {
+        return NextResponse.json({ error: 'Category already exists' }, { status: 409 })
+      }
+    }
     const category = await prisma.category.update({ where: { id }, data: body })
     return NextResponse.json(category)
   } catch (error: any) {
@@ -28,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAdmin()
+    await requireInstructor()
     const { id } = await params
     await prisma.category.delete({ where: { id } })
     return NextResponse.json({ success: true })

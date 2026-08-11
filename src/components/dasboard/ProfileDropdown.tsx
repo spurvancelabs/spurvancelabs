@@ -7,18 +7,24 @@ import { ArrowLeftStartOnRectangleIcon, Cog6ToothIcon, UserIcon } from '@heroico
 import toast from 'react-hot-toast';
 import Image from 'next/image';
 
-export default function ProfileDropdown() {
+interface ProfileDropdownProps {
+  user?: { name?: string | null; email?: string | null; image?: string | null } | null
+}
+
+export default function ProfileDropdown({ user: userProp }: ProfileDropdownProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const hasUserProp = !!userProp
 const [user, setUser] = useState({
-  name: '',
-  email: '',
-  image: '',
+  name: userProp?.name ?? '',
+  email: userProp?.email ?? '',
+  image: userProp?.image ?? '',
 })
 
 useEffect(() => {
+  if (hasUserProp) return
   async function fetchUser() {
     try {
       const response = await fetch('/api/auth/me')
@@ -38,7 +44,7 @@ useEffect(() => {
   }
 
   fetchUser()
-}, [])
+}, [hasUserProp])
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {

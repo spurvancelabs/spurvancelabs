@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireInstructor, slugify } from '@/lib/lms/utils'
-import { ROLES } from '@/lib/lms/roles'
+import { isAdminRole } from '@/lib/lms/roles'
 
 const courseInclude = {
-  instructor: { select: { id: true, email: true } },
   category: { select: { id: true, name: true, slug: true } },
   modules: {
     orderBy: { sortOrder: 'asc' as const },
@@ -38,12 +37,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const existing = await prisma.course.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ error: 'Course not found' }, { status: 404 })
-    if (user.role !== ROLES.ADMIN && existing.instructorId !== user.id) {
+    if (!isAdminRole(user.role) && existing.instructorId !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const body = await req.json()
-    if (body.status === 'PUBLISHED' && user.role !== ROLES.ADMIN) {
+    if (body.status === 'PUBLISHED' && !isAdminRole(user.role)) {
       return NextResponse.json({ error: 'Only admins can publish courses' }, { status: 403 })
     }
     const data: any = { ...body }
@@ -65,7 +64,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { id } = await params
     const existing = await prisma.course.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ error: 'Course not found' }, { status: 404 })
-    if (user.role !== ROLES.ADMIN && existing.instructorId !== user.id) {
+    if (!isAdminRole(user.role) && existing.instructorId !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     await prisma.course.delete({ where: { id } })

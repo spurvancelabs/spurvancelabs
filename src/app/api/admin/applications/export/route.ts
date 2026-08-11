@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (!type || type === 'job') {
       let query = supabase
         .from('job_applications')
-        .select('*, jobs!inner(title)')
+        .select('*, jobs(title)')
         .order('created_at', { ascending: false });
       if (status) query = query.eq('status', status);
       if (jobId) query = query.eq('job_id', jobId);
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     if (!type || type === 'internship') {
       let query = supabase
         .from('internship_applications')
-        .select('*, internships!inner(title)')
+        .select('*, internships(title)')
         .order('created_at', { ascending: false });
       if (status) query = query.eq('status', status);
       if (internshipId) query = query.eq('internship_id', internshipId);

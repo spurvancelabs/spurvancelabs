@@ -17,16 +17,16 @@ export const Hero: React.FC<HeroProps> = ({
         {/* Left Content */}
           <div className="w-full md:w-[70%] sm:w-[70%] md:ml-10 text-left space-y-4 sm:space-y-6">
           <h1 className="text-[1.5rem] sm:text-3xl md:text-[2.5rem] lg:text-5xl font-bold tracking-tight text-white spacing-less leading-tight">
-            Software Development Company
-            for Remote Teams and Startups
+            We Design, Build &amp; Scale Software
+            for Startups and Remote Teams
           </h1>
           <p className="text-[0.8rem] sm:text-sm md:text-[0.95rem] lg:text-base text-gray-400 font-light max-w-lg leading-relaxed">
             Spurvancelab is a full-stack custom software development company helping 
               startups and remote teams design, build, and scale software, websites, and mobile 
 apps. From idea to launch, we turn your roadmap into a working product —
 without the overhead of building an in-house engineering team          </p>
-          <Link href="/about" className="inline-block px-4 py-1 bg-white text-black rounded-full font-medium text-sm sm:text-base md:text-lg hover:bg-gray-300 transition-colors duration-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
-            Learn more
+          <Link href="/landing/contact" className="inline-block px-4 py-1 bg-white text-black rounded-full font-medium text-sm sm:text-base md:text-lg hover:bg-gray-300 transition-colors duration-200 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+            Get Started
           </Link>
         </div>
 

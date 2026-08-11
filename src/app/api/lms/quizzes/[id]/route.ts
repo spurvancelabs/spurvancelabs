@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireInstructor, requireAuth } from '@/lib/lms/utils'
-import { ROLES } from '@/lib/lms/roles'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -12,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       include: {
         questions: {
           orderBy: { sortOrder: 'asc' },
-          select: user.isInstructor || user.role === ROLES.ADMIN
+          select: user.isInstructor
             ? undefined
             : { id: true, type: true, question: true, options: true, points: true, sortOrder: true },
         },

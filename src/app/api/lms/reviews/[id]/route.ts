@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireAuth } from '@/lib/lms/utils'
-import { ROLES } from '@/lib/lms/roles'
+import { isAdminRole } from '@/lib/lms/roles'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,7 +11,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const review = await prisma.review.findUnique({ where: { id } })
     if (!review) return NextResponse.json({ error: 'Review not found' }, { status: 404 })
-    if (review.studentId !== user.id && user.role !== ROLES.ADMIN) {
+    if (review.studentId !== user.id && !isAdminRole(user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     if (rating && (rating < 1 || rating > 5)) {
@@ -37,7 +37,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const review = await prisma.review.findUnique({ where: { id } })
     if (!review) return NextResponse.json({ error: 'Review not found' }, { status: 404 })
-    if (review.studentId !== user.id && user.role !== ROLES.ADMIN) {
+    if (review.studentId !== user.id && !isAdminRole(user.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

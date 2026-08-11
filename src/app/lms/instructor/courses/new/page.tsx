@@ -30,6 +30,7 @@ export default function NewCoursePage() {
   const [categoryId, setCategoryId] = useState('')
   const [isFree, setIsFree] = useState(true)
   const [price, setPrice] = useState('')
+  const [status, setStatus] = useState<'DRAFT' | 'PUBLISHED'>('DRAFT')
 
   const { data: categories } = useQuery<CategoryData[]>({
     queryKey: ['lms-categories'],
@@ -100,6 +101,7 @@ export default function NewCoursePage() {
       categoryId: categoryId || undefined,
       isFree,
       price: isFree ? undefined : (price ? parseFloat(price) : undefined),
+      status,
     })
   }
 
@@ -240,11 +242,26 @@ export default function NewCoursePage() {
             </div>
           )}
 
+          <div>
+            <label className="block text-sm text-gray-400 mb-1.5">Status</label>
+            <select
+              value={status}
+              onChange={e => setStatus(e.target.value as 'DRAFT' | 'PUBLISHED')}
+              className="w-full bg-zinc-900 border border-white/[0.08] rounded-xl px-4 py-2.5 text-gray-300 focus:outline-none focus:border-amber-500/50 text-sm"
+            >
+              <option value="DRAFT">Draft</option>
+              <option value="PUBLISHED">Published</option>
+            </select>
+            {status === 'PUBLISHED' && (
+              <p className="text-xs text-emerald-400 mt-1.5">This course will be published and visible to all students immediately.</p>
+            )}
+          </div>
+
           <div className="flex items-center gap-2 rounded-lg bg-blue-500/5 border border-blue-500/10 px-4 py-3">
             <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-xs text-blue-300">Courses are created as draft and must be approved by an admin before being published.</p>
+            <p className="text-xs text-blue-300">Draft courses are hidden until reviewed and published. Published courses are visible to all users.</p>
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -273,12 +290,12 @@ export default function NewCoursePage() {
         </div>
       )}
 
-      {step === 3 && <ReviewStep courseId={courseId} title={title} description={description} level={level} isFree={isFree} price={price} onBack={() => setStep(2)} />}
+      {step === 3 && <ReviewStep courseId={courseId} title={title} description={description} level={level} isFree={isFree} price={price} status={status} onBack={() => setStep(2)} />}
     </div>
   )
 }
 
-function ReviewStep({ courseId, title, description, level, isFree, price, onBack }: { courseId: string | null; title: string; description: string; level: string; isFree: boolean; price: string; onBack: () => void }) {
+function ReviewStep({ courseId, title, description, level, isFree, price, status, onBack }: { courseId: string | null; title: string; description: string; level: string; isFree: boolean; price: string; status: string; onBack: () => void }) {
   const router = useRouter()
   const queryClient = useQueryClient()
 
@@ -316,6 +333,12 @@ function ReviewStep({ courseId, title, description, level, isFree, price, onBack
       toast.error('Add at least one module with lessons before submitting')
       return
     }
+    if (status === 'PUBLISHED') {
+      toast.success('Course saved and published')
+      queryClient.invalidateQueries({ queryKey: ['instructor-courses'] })
+      router.push('/lms/instructor/courses')
+      return
+    }
     completeMutation.mutate()
   }
 
@@ -346,6 +369,10 @@ function ReviewStep({ courseId, title, description, level, isFree, price, onBack
               <span className="text-gray-500 text-sm">Price</span>
               <span className="text-white text-sm">{isFree ? 'Free' : `$${parseFloat(price || '0').toFixed(2)}`}</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500 text-sm">Status</span>
+              <span className={`text-sm font-medium ${status === 'PUBLISHED' ? 'text-emerald-400' : 'text-gray-400'}`}>{status === 'PUBLISHED' ? 'Published' : 'Draft'}</span>
+            </div>
           </div>
         </div>
 
@@ -371,7 +398,11 @@ function ReviewStep({ courseId, title, description, level, isFree, price, onBack
         <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p className="text-xs text-blue-300">After saving, the course will be submitted for admin review and approval.</p>
+        {status === 'PUBLISHED' ? (
+          <p className="text-xs text-blue-300">This course will be published and immediately visible to all students.</p>
+        ) : (
+          <p className="text-xs text-blue-300">After saving, the course will be submitted for review and can be published from the editor.</p>
+        )}
       </div>
 
       <div className="flex gap-3">

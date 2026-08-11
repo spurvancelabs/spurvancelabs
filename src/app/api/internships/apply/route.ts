@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { AdminNotificationService } from '@/lib/admin-notifications/service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -85,6 +86,18 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message || 'Failed to submit application' }, { status: 500 });
+    }
+
+    try {
+      await AdminNotificationService.notifyAdmins({
+        type: 'application',
+        title: 'New internship application',
+        message: `${name} (${email}) applied for an internship`,
+        priority: 'medium',
+        link: `/admin/applications/${data.id}?type=internship`,
+      });
+    } catch (notificationError) {
+      console.error('Failed to notify admins about internship application:', notificationError);
     }
 
     return NextResponse.json({ success: true, application: data }, { status: 201 });

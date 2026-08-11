@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { randomUUID } from 'crypto';
+import { AdminNotificationService } from '@/lib/admin-notifications/service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,6 +83,18 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message || 'Failed to submit application' }, { status: 500 });
+    }
+
+    try {
+      await AdminNotificationService.notifyAdmins({
+        type: 'application',
+        title: 'New job application',
+        message: `${name} (${email}) applied for a job`,
+        priority: 'medium',
+        link: `/admin/applications/${data.id}?type=job`,
+      });
+    } catch (notificationError) {
+      console.error('Failed to notify admins about job application:', notificationError);
     }
 
     return NextResponse.json({ success: true, application: data }, { status: 201 });

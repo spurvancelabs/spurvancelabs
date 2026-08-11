@@ -82,6 +82,14 @@ export default function NewApplicationPage() {
       toast.error('Name and email are required');
       return;
     }
+    if (type === 'job' && !form.job_id) {
+      toast.error('Please select a job posting');
+      return;
+    }
+    if (type === 'internship' && !form.internship_id) {
+      toast.error('Please select an internship posting');
+      return;
+    }
     setSaving(true);
     try {
       const payload = { ...form, type };

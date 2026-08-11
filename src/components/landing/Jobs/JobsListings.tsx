@@ -43,13 +43,18 @@ export default function JobsListings({ searchQuery }: Props) {
   const filteredJobs = (activeDepartment === 'All' 
     ? jobs 
     : jobs.filter(job => job.department === activeDepartment)
-  ).filter(job =>
-    !searched ||
-    job.title.toLowerCase().includes(searched) ||
-    job.skills.some(s => s.toLowerCase().includes(searched)) ||
-    job.location.toLowerCase().includes(searched) ||
-    job.description.toLowerCase().includes(searched)
-  );
+  ).filter(job => {
+    if (!searched) return true;
+    const searchable = [
+      job.title,
+      job.department,
+      job.type,
+      job.location,
+      job.description,
+      ...(Array.isArray(job.skills) ? job.skills : []),
+    ].filter(Boolean).join(' ').toLowerCase();
+    return searchable.includes(searched);
+  });
 
   useEffect(() => {
     if (!filteredJobs.length) return;

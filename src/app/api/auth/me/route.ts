@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import { getSupabaseAdminClient } from '@/lib/supabase/server'
-import { ROLES } from '@/lib/lms/roles'
+import { ROLES, isAdminRole } from '@/lib/lms/roles'
 
 export async function GET() {
   try {
@@ -31,7 +31,7 @@ export async function GET() {
 
     const { data: adminUser } = await supabase
       .from('admin_users')
-      .select('role, is_instructor')
+      .select('role')
       .eq('user_id', payload.userId)
       .single()
 
@@ -46,20 +46,17 @@ export async function GET() {
         email: payload.email,
         image: null,
         role: adminUser!.role,
-        isInstructor: !!adminUser!.is_instructor,
+        isInstructor: isAdminRole(adminUser!.role),
       })
     }
 
     let role = user.type ?? ROLES.USER
-    let isInstructor = user.type === ROLES.INSTRUCTOR
 
     if (adminUser?.role) {
       role = adminUser.role
     }
 
-    if (adminUser?.is_instructor) {
-      isInstructor = true
-    }
+    const isInstructor = isAdminRole(role)
 
     return NextResponse.json({
       id: user.id,

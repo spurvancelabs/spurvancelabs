@@ -103,6 +103,16 @@ export default function Services() {
           </div>
         ))}
       </div>
+
+      <div className="mt-14 text-center">
+        <Link
+          href="/landing/contact"
+          className="inline-flex items-center gap-3 px-10 py-4 bg-white text-black rounded-[50px] text-[1rem] font-semibold no-underline transition-[0.4s_cubic-bezier(0.25,0.46,0.45,0.94)] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(255,255,255,0.15)]"
+        >
+          Talk to Our Team
+          <i className="fas fa-arrow-right text-[0.9rem]"></i>
+        </Link>
+      </div>
     </section>
   );
 }

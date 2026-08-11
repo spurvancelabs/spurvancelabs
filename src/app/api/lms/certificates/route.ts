@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireAuth, requireAdmin } from '@/lib/lms/utils'
-import { ROLES } from '@/lib/lms/roles'
+import { requireAuth } from '@/lib/lms/utils'
+import { isAdminRole } from '@/lib/lms/roles'
 
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth()
-    const where: any = user.role === ROLES.ADMIN ? {} : { studentId: user.id }
+    const where: any = isAdminRole(user.role) ? {} : { studentId: user.id }
     const certificates = await prisma.certificate.findMany({
       where,
       orderBy: { issuedAt: 'desc' },

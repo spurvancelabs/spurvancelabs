@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { verifyToken } from '@/lib/auth';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
-import { ROLES, hasMinRole } from '@/lib/lms/roles';
+import { isAdminRole } from '@/lib/lms/roles';
 import InstructorSidebar from '@/components/lms/InstructorSidebar';
 
 export const dynamic = 'force-dynamic';
@@ -32,23 +32,13 @@ export default async function InstructorLayout({ children }: { children: React.R
 
   const supabase = getSupabaseAdminClient();
 
-  const { data: user } = await supabase
-    .from('users')
-    .select('type')
-    .eq('id', decoded.userId)
-    .single();
-
   const { data: adminUser } = await supabase
     .from('admin_users')
-    .select('role, is_instructor')
+    .select('role')
     .eq('user_id', decoded.userId)
     .single();
 
-  if (user?.type === ROLES.INSTRUCTOR || adminUser?.is_instructor) {
-    return <InstructorShell>{children}</InstructorShell>;
-  }
-
-  if (adminUser?.role && hasMinRole(adminUser.role, ROLES.ADMIN)) {
+  if (adminUser?.role && isAdminRole(adminUser.role)) {
     return <InstructorShell>{children}</InstructorShell>;
   }
 

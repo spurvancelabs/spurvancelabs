@@ -38,7 +38,7 @@ function Header() {
   }, [])
 
   const isStudent = role === ROLES.USER || role === null
-  const isInstructor = isInstructorFlag || role === ROLES.INSTRUCTOR
+  const isInstructor = isInstructorFlag
 
   const instructorLinks = [
     { href: '/lms/instructor/dashboard', label: 'Dashboard' },

@@ -13,7 +13,7 @@ function HeroService() {
         </div>
 
         {/* Cards Container */}
-        <div className='mt-6 z-20 relative left-1/7 w-full overflow-x-auto pb-4 max-sm:pb-6'>
+        <div className='mt-6 z-20 relative left-[100px] w-full overflow-x-auto pb-4 max-sm:pb-6'>
           <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 px-4 sm:px-8 min-w-0'>
             {/* Card 1 */}
             <div className='w-80 max-sm:w-[85%] sm:min-w-[280px] h-80 flex items-center justify-center shrink-0 rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl shadow-black/50 hover:shadow-white/5 transition-all duration-700 group hover:scale-105 hover:-translate-y-2'>

@@ -4,11 +4,9 @@ import { requireInstructor } from '@/lib/lms/utils'
 
 export async function GET() {
   try {
-    const user = await requireInstructor()
-    const instructorId = user.id
+    await requireInstructor()
 
     const courses = await prisma.course.findMany({
-      where: { instructorId },
       select: {
         id: true,
         title: true,
@@ -17,6 +15,7 @@ export async function GET() {
         price: true,
         thumbnail: true,
         level: true,
+        isComplete: true,
         createdAt: true,
         _count: { select: { enrollments: true, modules: true, reviews: true } },
         reviews: { select: { rating: true } },
@@ -26,19 +25,19 @@ export async function GET() {
 
     const courseIds = courses.map((c: { id: string }) => c.id)
 
-    const totalEnrollments = await prisma.enrollment.count({
-      where: { courseId: { in: courseIds } },
-    })
+    const totalEnrollments = courseIds.length
+      ? await prisma.enrollment.count({ where: { courseId: { in: courseIds } } })
+      : 0
 
-    const completedEnrollments = await prisma.enrollment.count({
-      where: { courseId: { in: courseIds }, status: 'COMPLETED' },
-    })
+    const completedEnrollments = courseIds.length
+      ? await prisma.enrollment.count({ where: { courseId: { in: courseIds }, status: 'COMPLETED' } })
+      : 0
 
-    const activeEnrollments = await prisma.enrollment.count({
-      where: { courseId: { in: courseIds }, status: 'ACTIVE' },
-    })
+    const activeEnrollments = courseIds.length
+      ? await prisma.enrollment.count({ where: { courseId: { in: courseIds }, status: 'ACTIVE' } })
+      : 0
 
-    const totalRevenue = courses.reduce((sum: number, c: { price: string | number; _count: { enrollments: number } }) => sum + Number(c.price ?? 0) * c._count.enrollments, 0)
+    const totalRevenue = courses.reduce((sum: number, c: any) => sum + Number(c.price ?? 0) * c._count.enrollments, 0)
 
     const avgRatings = courses.map((c: { id: string; reviews: { rating: number }[] }) => {
       const ratings = c.reviews.map((r: { rating: number }) => r.rating)
@@ -62,32 +61,36 @@ export async function GET() {
         reviewCount: avgRatings.find(r => r.courseId === c.id)?.count ?? 0,
       }))
 
-    const recentEnrollments = await prisma.enrollment.findMany({
-      where: { courseId: { in: courseIds } },
-      select: {
-        id: true,
-        studentId: true,
-        status: true,
-        enrolledAt: true,
-        course: { select: { id: true, title: true } },
-      },
-      orderBy: { enrolledAt: 'desc' },
-      take: 5,
-    })
+    const recentEnrollments = courseIds.length
+      ? await prisma.enrollment.findMany({
+          where: { courseId: { in: courseIds } },
+          select: {
+            id: true,
+            studentId: true,
+            status: true,
+            enrolledAt: true,
+            course: { select: { id: true, title: true } },
+          },
+          orderBy: { enrolledAt: 'desc' },
+          take: 5,
+        })
+      : []
 
-    const recentReviews = await prisma.review.findMany({
-      where: { courseId: { in: courseIds } },
-      select: {
-        id: true,
-        studentId: true,
-        rating: true,
-        comment: true,
-        createdAt: true,
-        course: { select: { id: true, title: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    })
+    const recentReviews = courseIds.length
+      ? await prisma.review.findMany({
+          where: { courseId: { in: courseIds } },
+          select: {
+            id: true,
+            studentId: true,
+            rating: true,
+            comment: true,
+            createdAt: true,
+            course: { select: { id: true, title: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+        })
+      : []
 
     const allStudentIds = [
       ...new Set([
@@ -135,6 +138,9 @@ export async function GET() {
     activity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     const recentActivity = activity.slice(0, 10)
 
+    const pendingCourses = courses.filter((c: { status: string; isComplete: boolean }) => c.status === 'DRAFT' && c.isComplete).length
+    const completionRate = totalEnrollments > 0 ? Math.round((completedEnrollments / totalEnrollments) * 100) : 0
+
     return NextResponse.json({
       totalCourses: courses.length,
       publishedCourses: courses.filter((c: { status: string }) => c.status === 'PUBLISHED').length,
@@ -143,7 +149,7 @@ export async function GET() {
       completedEnrollments,
       pendingCourses,
       completionRate,
-      totalRevenue: courses.reduce((sum, c) => sum + Number(c.price ?? 0) * c._count.enrollments, 0),
+      totalRevenue,
       avgRatings,
       topCourses,
       recentActivity,

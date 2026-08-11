@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import type { CourseData, EnrollmentData } from '@/lib/lms/types'
 
-export default function AdminAnalyticsPage() {
+export default function AnalyticsPage() {
   const { data: coursesRes } = useQuery<{ data: CourseData[] }>({
     queryKey: ['lms-analytics-courses'],
     queryFn: () => fetch('/api/lms/courses?limit=100').then(r => r.json()),

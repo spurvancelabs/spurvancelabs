@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import ApplicationStatusBadge from '@/components/admin/ApplicationStatusBadge';
 import { canCreateContent, canEditContent, canDeleteContent } from '@/lib/lms/permissions';
+import { toDateInputValue } from '@/lib/dates';
 
 const statusOptions = ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'ACCEPTED'];
 
@@ -383,7 +384,7 @@ export default function ApplicationStatusPage() {
                     <td className="px-2 sm:px-4 py-2 sm:py-3">
                       <input
                         type="date"
-                        value={app.interview_date ? app.interview_date.split('T')[0] : ''}
+                        value={toDateInputValue(app.interview_date)}
                         onChange={(e) => interviewMutation.mutate({ appId: app.id, interview_date: e.target.value || undefined, type: app.applicationType })}
                         className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-1 sm:px-2 py-0.5 sm:py-1 text-white text-[9px] sm:text-xs focus:outline-none focus:border-blue-500 w-full min-w-[100px] sm:min-w-[120px]"
                       />

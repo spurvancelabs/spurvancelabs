@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer, requireEditor } from '@/lib/lms/utils';
+import { normalizeDateInput } from '@/lib/dates';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (!type || type === 'job') {
       let query = supabase
         .from('job_applications')
-        .select('*, jobs!inner(title)')
+        .select('*, jobs(title)')
         .order('created_at', { ascending: false });
 
       if (status) query = query.eq('status', status);
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
     if (!type || type === 'internship') {
       let query = supabase
         .from('internship_applications')
-        .select('*, internships!inner(title)')
+        .select('*, internships(title)')
         .order('created_at', { ascending: false });
 
       if (status) query = query.eq('status', status);
@@ -65,6 +66,12 @@ export async function POST(request: NextRequest) {
     if (!name || !email) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
+    if (type === 'job' && !job_id) {
+      return NextResponse.json({ error: 'Please select a job posting' }, { status: 400 });
+    }
+    if (type === 'internship' && !internship_id) {
+      return NextResponse.json({ error: 'Please select an internship posting' }, { status: 400 });
+    }
 
     const table = type === 'job' ? 'job_applications' : 'internship_applications';
     const idField = type === 'job' ? 'job_id' : 'internship_id';
@@ -78,6 +85,7 @@ export async function POST(request: NextRequest) {
       : [...internshipFields, ...commonFields];
 
     const insertData: Record<string, any> = {
+      id: crypto.randomUUID(),
       name,
       email,
       status: status || 'PENDING',
@@ -93,7 +101,16 @@ export async function POST(request: NextRequest) {
 
     if (phone) insertData.phone = phone;
     if (interviewer_name) insertData.interviewer_name = interviewer_name;
-    if (interview_date) insertData.interview_date = interview_date;
+    const normalizedDate = normalizeDateInput(interview_date);
+    if (normalizedDate !== undefined) insertData.interview_date = normalizedDate;
+
+    const dateFields = ['start_date', 'graduation_date', 'available_start_date', 'interview_date'];
+    for (const key of Object.keys(insertData)) {
+      if (dateFields.includes(key)) {
+        const normalized = normalizeDateInput(insertData[key]);
+        insertData[key] = normalized ?? null;
+      }
+    }
     if (job_id) insertData[idField] = job_id;
     if (internship_id) insertData[idField] = internship_id;
 

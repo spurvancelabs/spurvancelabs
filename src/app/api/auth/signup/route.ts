@@ -3,6 +3,7 @@ import { z, ZodError } from 'zod'
 import { rateLimiter } from '@/lib/rate-limit'
 import { supabase } from '@/lib/supabase'
 import { ROLES } from '@/lib/lms/roles'
+import { AdminNotificationService } from '@/lib/admin-notifications/service'
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -63,6 +64,18 @@ emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/verify-email`,
     }
 
     // ✅ SUCCESS RESPONSE
+    try {
+      await AdminNotificationService.notifyAdmins({
+        type: 'registration',
+        title: 'New user registered',
+        message: `${name} (${email}) signed up`,
+        priority: 'medium',
+        link: '/admin/users',
+      });
+    } catch (notificationError) {
+      console.error('Failed to notify admins about registration:', notificationError);
+    }
+
     return NextResponse.json(
       {
         success: true,

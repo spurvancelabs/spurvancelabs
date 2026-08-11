@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import type { CategoryData } from '@/lib/lms/types'
 
-export default function AdminCategoriesPage() {
+export default function CategoriesPage() {
   const queryClient = useQueryClient()
 
   const { data: categories, isLoading } = useQuery<CategoryData[]>({
@@ -14,23 +14,43 @@ export default function AdminCategoriesPage() {
   })
 
   const createMutation = useMutation({
-    mutationFn: (body: { name: string; slug: string }) =>
-      fetch('/api/lms/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    mutationFn: async (body: { name: string; slug: string }) => {
+      const res = await fetch('/api/lms/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      if (!res.ok) {
+        let message = 'Failed to create category'
+        try {
+          const json = await res.json()
+          if (json?.error) message = json.error
+        } catch {}
+        throw new Error(message)
+      }
+      return res.json()
+    },
     onSuccess: () => {
       toast.success('Category created')
       queryClient.invalidateQueries({ queryKey: ['lms-categories-admin'] })
     },
-    onError: () => toast.error('Failed to create category'),
+    onError: (err: Error) => toast.error(err.message),
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, body }: { id: string; body: { name: string; slug: string } }) =>
-      fetch(`/api/lms/categories/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+    mutationFn: async ({ id, body }: { id: string; body: { name: string; slug: string } }) => {
+      const res = await fetch(`/api/lms/categories/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      if (!res.ok) {
+        let message = 'Failed to update category'
+        try {
+          const json = await res.json()
+          if (json?.error) message = json.error
+        } catch {}
+        throw new Error(message)
+      }
+      return res.json()
+    },
     onSuccess: () => {
       toast.success('Category updated')
       queryClient.invalidateQueries({ queryKey: ['lms-categories-admin'] })
     },
-    onError: () => toast.error('Failed to update category'),
+    onError: (err: Error) => toast.error(err.message),
   })
 
   const deleteMutation = useMutation({

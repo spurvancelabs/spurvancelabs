@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     const instructorId = searchParams.get('instructorId')
     const search = searchParams.get('search')
     const isCompleteParam = searchParams.get('isComplete')
+    const scope = searchParams.get('scope')
 
     const where: any = {}
     if (status) where.status = status
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
     if (search) where.title = { contains: search, mode: 'insensitive' }
     if (isCompleteParam === 'true') where.isComplete = true
     else if (isCompleteParam === 'false') where.isComplete = false
-    if (!instructorId && !isCompleteParam) {
+    if (scope !== 'admin' && !instructorId && !isCompleteParam) {
       where.OR = [
         { status: { not: 'DRAFT' } },
         { isComplete: true },
@@ -51,12 +52,14 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireInstructor()
     const body = await req.json()
-    const { title, description, thumbnail, categoryId, level, price, isFree } = body
+    const { title, description, thumbnail, categoryId, level, price, isFree, status } = body
     let slug = body.slug
     if (!slug) slug = slugify(title)
 
     const existing = await prisma.course.findUnique({ where: { slug } })
     if (existing) slug = `${slug}-${Date.now()}`
+
+    const courseStatus = status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT'
 
     const course = await prisma.course.create({
       data: {
@@ -68,7 +71,8 @@ export async function POST(req: NextRequest) {
         level,
         price: price ? parseFloat(price) : null,
         isFree: isFree ?? false,
-        status: 'DRAFT',
+        status: courseStatus,
+        publishedAt: courseStatus === 'PUBLISHED' ? new Date() : undefined,
         isComplete: false,
         instructorId: user.id,
       },
