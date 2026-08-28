@@ -35,6 +35,18 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdminClient();
 
+    // Check if any admin user already exists
+    const { count, error: countError } = await supabase
+      .from('admin_users')
+      .select('*', { count: 'exact', head: true });
+
+    if (count && count > 0) {
+      return NextResponse.json(
+        { error: 'Forbidden. Admin setup is already complete.' },
+        { status: 403 }
+      );
+    }
+
     const { data: { users: authUsers }, error: listError } = await supabase.auth.admin.listUsers();
     const existingAuthUser = authUsers?.find(u => u.email === email);
 

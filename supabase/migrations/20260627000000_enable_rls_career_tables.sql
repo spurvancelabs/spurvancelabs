@@ -11,15 +11,15 @@ CREATE POLICY "Anyone can view jobs" ON public.jobs
 
 DROP POLICY IF EXISTS "Authenticated users can insert jobs" ON public.jobs;
 CREATE POLICY "Authenticated users can insert jobs" ON public.jobs
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Authenticated users can update jobs" ON public.jobs;
 CREATE POLICY "Authenticated users can update jobs" ON public.jobs
-  FOR UPDATE USING (auth.role() = 'authenticated');
+  FOR UPDATE USING (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Authenticated users can delete jobs" ON public.jobs;
 CREATE POLICY "Authenticated users can delete jobs" ON public.jobs
-  FOR DELETE USING (auth.role() = 'authenticated');
+  FOR DELETE USING (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
 -- Internships: same as jobs
 DROP POLICY IF EXISTS "Anyone can view internships" ON public.internships;
@@ -28,15 +28,15 @@ CREATE POLICY "Anyone can view internships" ON public.internships
 
 DROP POLICY IF EXISTS "Authenticated users can insert internships" ON public.internships;
 CREATE POLICY "Authenticated users can insert internships" ON public.internships
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Authenticated users can update internships" ON public.internships;
 CREATE POLICY "Authenticated users can update internships" ON public.internships
-  FOR UPDATE USING (auth.role() = 'authenticated');
+  FOR UPDATE USING (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Authenticated users can delete internships" ON public.internships;
 CREATE POLICY "Authenticated users can delete internships" ON public.internships
-  FOR DELETE USING (auth.role() = 'authenticated');
+  FOR DELETE USING (EXISTS (SELECT 1 FROM public.admin_users WHERE user_id = auth.uid()));
 
 -- Job applications: anyone can insert (submit application), only the owner can view/update/delete their own
 DROP POLICY IF EXISTS "Anyone can submit job applications" ON public.job_applications;
