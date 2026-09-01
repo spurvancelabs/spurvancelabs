@@ -118,10 +118,10 @@ export default function LMSCatalogPage() {
                 <h3 className="text-white font-semibold text-base group-hover:text-blue-400 transition-colors line-clamp-2">
                   {course.title}
                 </h3>
-                <p className="text-gray-500 text-xs mt-1 line-clamp-2">
+                <p className="text-gray-400 text-xs mt-1 line-clamp-2">
                   {course.description}
                 </p>
-                <div className="flex items-center gap-4 mt-4 text-gray-500 text-xs">
+                <div className="flex items-center gap-4 mt-4 text-gray-400 text-xs">
                   <span className="flex items-center gap-1">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -142,7 +142,7 @@ export default function LMSCatalogPage() {
       )}
 
       {!isLoading && data?.data?.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
+        <div className="text-center py-20 text-gray-400">
           <p className="text-lg">No courses found</p>
           <p className="text-sm mt-1">Try adjusting your filters</p>
         </div>

@@ -21,15 +21,10 @@ export async function GET() {
       .select('id, email, name')
       .in('id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']);
 
-    const userMap = new Map<string, any>((usersData || []).map((u: any) => [u.id, u]));
+    const userMap = new Map((usersData || []).map((u: any) => [u.id, u]));
 
-    const authUserMap = new Map<string, any>();
-    for (let page = 1; ; page++) {
-      const { data: pageData, error: pageError } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-      if (pageError) throw pageError;
-      for (const authUser of pageData.users || []) authUserMap.set(authUser.id, authUser);
-      if (!pageData.users || pageData.users.length < 1000) break;
-    }
+    const { data: { users: authUsers } } = await supabase.auth.admin.listUsers();
+    const authUserMap = new Map((authUsers || []).map((u: any) => [u.id, u]));
 
     const admins = (adminData || []).map((a: any) => {
       const user = userMap.get(a.user_id) || {};
@@ -49,21 +44,17 @@ export async function GET() {
 
     return NextResponse.json({ admins });
   } catch (error: any) {
-    if (error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json({ error: error.message }, { status: 401 });
     }
-    if (error.message === 'Forbidden') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-    console.error('Admin management error', error)
-    return NextResponse.json({ error: 'Unable to complete the administrator operation. Please try again.' }, { status: 500 });
+    console.error('Admin list failed:', error);
+    return NextResponse.json({ error: 'Unable to load admin accounts. Please try again.' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  let newlyCreatedAuthUserId: string | null = null
   try {
-    const currentAdmin = await requireSuperAdmin();
+    await requireSuperAdmin();
 
     const { email, password, role, isInstructor } = await request.json();
     if (!email) {
@@ -77,17 +68,8 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdminClient();
 
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return NextResponse.json({ error: 'A valid email address is required.' }, { status: 400 });
-    }
-    const normalizedEmail = email.trim().toLowerCase();
-    let existingAuthUser: any = null;
-    for (let page = 1; ; page++) {
-      const { data: pageData, error: listError } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-      if (listError) throw listError;
-      existingAuthUser = (pageData.users || []).find(u => u.email?.toLowerCase() === normalizedEmail) || null;
-      if (existingAuthUser || !pageData.users || pageData.users.length < 1000) break;
-    }
+    const { data: { users: authUsers }, error: listError } = await supabase.auth.admin.listUsers();
+    const existingAuthUser = authUsers?.find(u => u.email === email);
 
     let userId: string;
 
@@ -99,7 +81,7 @@ export async function POST(request: NextRequest) {
       }
 
       const { data: authUser, error: createError } = await supabase.auth.admin.createUser({
-        email: normalizedEmail,
+        email,
         password,
         email_confirm: true,
         user_metadata: { name: email.split('@')[0] },
@@ -109,10 +91,15 @@ export async function POST(request: NextRequest) {
       if (!authUser?.user) throw new Error('Failed to create user');
 
       userId = authUser.user.id;
-      newlyCreatedAuthUserId = userId
     }
 
-    await ensurePublicUserRecord(userId, { email, name: email.split('@')[0] })
+    const authUser = existingAuthUser || (await supabase.auth.admin.getUserById(userId)).data.user
+    await ensurePublicUserRecord({
+      id: userId,
+      email: authUser?.email || email,
+      name: authUser?.user_metadata?.name || email.split('@')[0],
+      image: authUser?.user_metadata?.avatar_url || null,
+    })
 
     const { data: existingAdmin } = await supabase
       .from('admin_users')
@@ -121,10 +108,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingAdmin) {
-      if (newlyCreatedAuthUserId) {
-        const { error: cleanupError } = await supabase.auth.admin.deleteUser(newlyCreatedAuthUserId)
-        if (cleanupError) console.error('Failed to clean up unexpected duplicate Auth user', cleanupError)
-      }
       return NextResponse.json({ error: 'User is already an admin' }, { status: 409 });
     }
 
@@ -134,32 +117,21 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       role: newRole,
       is_instructor: !!isInstructor,
-      created_by: currentAdmin.id,
       created_at: now,
       updated_at: now,
     });
 
-    if (insertError) {
-      console.error('Failed to create admin record', insertError)
-      throw insertError
-    }
+    if (insertError) throw insertError;
 
     return NextResponse.json({
       message: `${email} added as ${newRole}${!existingAuthUser ? ' — password set' : ''}`,
     }, { status: 201 });
   } catch (error: any) {
-    if (error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json({ error: error.message }, { status: 401 });
     }
-    if (error.message === 'Forbidden') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-    if (newlyCreatedAuthUserId) {
-      const supabase = getSupabaseAdminClient()
-      const { error: cleanupError } = await supabase.auth.admin.deleteUser(newlyCreatedAuthUserId)
-      if (cleanupError) console.error('Failed to clean up orphaned Auth user', cleanupError)
-    }
-    console.error('Admin management error', error)
-    return NextResponse.json({ error: 'Unable to complete the administrator operation. Please try again.' }, { status: 500 });
+    if (error?.code === '23503' || error?.code === 'P2003') return NextResponse.json({ error: 'The selected admin user could not be linked to a valid user record.' }, { status: 400 });
+    console.error('Admin creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create the admin account. Please try again.' }, { status: 500 });
   }
 }
