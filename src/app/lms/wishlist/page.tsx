@@ -28,7 +28,7 @@ export default function WishlistPage() {
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : !data?.length ? (
-        <div className="text-center py-20 text-gray-500">
+        <div className="text-center py-20 text-gray-400">
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
           </svg>
@@ -73,8 +73,8 @@ export default function WishlistPage() {
                   <h3 className="text-white font-semibold text-base group-hover:text-red-400 transition-colors line-clamp-2">
                     {c.title}
                   </h3>
-                  <p className="text-gray-500 text-xs mt-1 line-clamp-2">{c.description}</p>
-                  <div className="flex items-center gap-4 mt-4 text-gray-500 text-xs">
+                  <p className="text-gray-400 text-xs mt-1 line-clamp-2">{c.description}</p>
+                  <div className="flex items-center gap-4 mt-4 text-gray-400 text-xs">
                     <span>{c._count?.modules || 0} modules</span>
                     <span>{c._count?.enrollments || 0} students</span>
                   </div>

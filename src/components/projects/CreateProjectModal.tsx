@@ -30,15 +30,20 @@ export default function CreateProjectModal({
 
   const handleNameChange = (v: string) => {
     setName(v);
-    if (!key || key === generateKey(name)) {
+    const previousGeneratedKey = generateKey(name);
+    if (!key || key === previousGeneratedKey) {
       setKey(generateKey(v));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !key.trim()) {
-      setError('Name and key are required');
+    if (!name.trim()) {
+      setError('Project name is required');
+      return;
+    }
+    if (key.trim() && !/^[A-Za-z0-9]{1,10}$/.test(key.trim())) {
+      setError('Project key must be 1–10 letters or numbers');
       return;
     }
     setLoading(true);
@@ -48,7 +53,7 @@ export default function CreateProjectModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name: name.trim(), description: description.trim(), key: key.trim().toUpperCase(), color }),
+        body: JSON.stringify({ name: name.trim(), description: description.trim(), key: key.trim() ? key.trim().toUpperCase() : undefined, color }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -90,16 +95,16 @@ export default function CreateProjectModal({
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Project Key *</label>
+            <label className="block text-sm text-gray-400 mb-1.5">Project Key <span className="text-gray-500">(optional)</span></label>
             <input
               type="text"
               value={key}
               onChange={e => setKey(e.target.value.toUpperCase().slice(0, 10))}
               className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm font-mono outline-none focus:border-blue-500/50"
-              placeholder="MAP"
+              placeholder="Auto-generated from name"
               maxLength={10}
             />
-            <p className="text-[11px] text-gray-400 mt-1">Used as ticket prefix (e.g., {key || 'MAP'}-1)</p>
+            <p className="text-[11px] text-gray-600 mt-1">Used as ticket prefix (e.g., {key || 'MAP'}-1)</p>
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1.5">Description</label>

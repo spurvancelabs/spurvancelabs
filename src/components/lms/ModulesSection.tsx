@@ -5,8 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import type { ModuleData, LessonData } from '@/lib/lms/types'
 import { QuizBuilder } from './QuizBuilder'
-import { uploadLmsMedia } from '@/lib/lms/upload-client'
-import { LessonPlayer } from './LessonPlayer'
+import { uploadLmsMedia, validateLmsUpload } from '@/lib/lms/upload'
 
 export function ModulesSection({ courseId, variant = 'instructor' }: { courseId?: string; variant?: 'instructor' | 'admin' }) {
   const queryClient = useQueryClient()
@@ -161,26 +160,9 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
     enabled: !!moduleId,
   })
 
-  const createLesson = useMutation({
-    mutationFn: async (body: Record<string, unknown>) => {
-      const res = await fetch('/api/lms/lessons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      if (!res.ok) { const data = await res.json().catch(() => ({})); throw new Error(data.error || 'Failed to add lesson') }
-      return res.json()
-    },
-    onSuccess: () => {
-      toast.success('Lesson added')
-      queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
-      queryClient.invalidateQueries({ queryKey: ['lms-modules', courseId] })
-    },
-    onError: () => toast.error('Failed to add lesson'),
-  })
-
   const updateLesson = useMutation({
-    mutationFn: async (body: Record<string, unknown>) => {
-      const res = await fetch(`/api/lms/lessons/${body.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body.data) })
-      if (!res.ok) { const data = await res.json().catch(() => ({})); throw new Error(data.error || 'Failed to update lesson') }
-      return res.json()
-    },
+    mutationFn: (body: Record<string, unknown>) =>
+      fetch(`/api/lms/lessons/${body.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body.data) }),
     onSuccess: () => {
       toast.success('Lesson updated')
       queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
@@ -212,6 +194,25 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
   })
   const [videoUploading, setVideoUploading] = useState(false)
 
+  const createLesson = useMutation({
+    mutationFn: async (body: Record<string, unknown>) => {
+      const res = await fetch('/api/lms/lessons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Failed to add lesson')
+      return data as LessonData
+    },
+    onSuccess: (lesson) => {
+      toast.success('Lesson added')
+      queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
+      queryClient.invalidateQueries({ queryKey: ['lms-modules', courseId] })
+      if (lesson.type === 'VIDEO') {
+        setEditorLessonId(lesson.id)
+        setEditorForm({ title: lesson.title, type: lesson.type, description: '', content: '', videoUrl: '', duration: '' })
+      }
+    },
+    onError: (error) => toast.error(error.message || 'Failed to add lesson'),
+  })
+
   const openEditor = (lesson: LessonData) => {
     setEditorLessonId(lesson.id)
     setEditorForm({
@@ -241,21 +242,24 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const validationError = validateLmsUpload(file, 'video')
+    if (validationError) { toast.error(validationError); e.target.value = ''; return }
     setVideoUploading(true)
     try {
-      if (!editorLessonId) throw new Error('Save the lesson before uploading a video.')
-      const { url } = await uploadLmsMedia(file, 'video', editorLessonId)
+      const url = await uploadLmsMedia(file, 'video')
       setEditorForm(f => ({ ...f, videoUrl: url }))
-    } catch {
-      toast.error('Upload failed')
+      toast.success('Video uploaded')
+    } catch (error: any) {
+      toast.error(error?.message || 'Upload failed')
     } finally {
       setVideoUploading(false)
+      e.target.value = ''
     }
   }
 
   const addLesson = () => {
     if (!newLessonTitle.trim()) { toast.error('Enter a lesson title'); return }
-    createLesson.mutate({ moduleId, title: newLessonTitle.trim(), type: newLessonType, content: newLessonType === 'TEXT' || newLessonType === 'ASSIGNMENT' ? '' : null })
+    createLesson.mutate({ moduleId, title: newLessonTitle.trim(), type: newLessonType })
     setNewLessonTitle('')
   }
 
@@ -285,9 +289,9 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
             </button>
           </div>
 
-          {lesson.type === 'VIDEO' && lesson.videoUrl && (
-            <div className="px-4 pb-3 pl-12">
-              <LessonPlayer videoUrl={lesson.videoUrl} />
+          {lesson.type === 'VIDEO' && lesson.videoUrl && editorLessonId !== lesson.id && (
+            <div className="px-4 pb-3">
+              <video src={lesson.videoUrl} controls preload="metadata" className="w-full max-h-72 rounded-lg bg-black" />
             </div>
           )}
 
@@ -346,7 +350,7 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
                   </div>
                   {videoUploading && <span className={`text-[11px] mt-1 block ${variant === 'admin' ? 'text-blue-400' : 'text-amber-400'}`}>Uploading...</span>}
                   {editorForm.videoUrl && (
-                    <LessonPlayer videoUrl={editorForm.videoUrl} className="mt-2 max-h-40" />
+                    <video src={editorForm.videoUrl} controls className="mt-2 w-full max-h-40 rounded-lg bg-black" />
                   )}
                 </div>
               )}

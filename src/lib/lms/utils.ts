@@ -72,35 +72,6 @@ export async function getAuthUser(): Promise<AuthUser | null> {
   }
 }
 
-
-export async function ensurePublicUserRecord(userId: string, fallback?: { email?: string | null; name?: string | null; image?: string | null }) {
-  const supabase = getSupabaseAdminClient()
-  const { data, error } = await supabase.auth.admin.getUserById(userId)
-  if (error) throw error
-
-  const authUser = data.user
-  if (!authUser) throw new Error('Auth user not found')
-
-  const metadata = authUser.user_metadata || {}
-  return prisma.user.upsert({
-    where: { id: userId },
-    create: {
-      id: userId,
-      email: authUser.email ?? fallback?.email ?? null,
-      name: metadata.name ?? fallback?.name ?? null,
-      image: metadata.avatar_url ?? fallback?.image ?? null,
-      type: metadata.role ?? ROLES.USER,
-      emailVerified: !!authUser.email_confirmed_at,
-    },
-    update: {
-      email: authUser.email ?? fallback?.email ?? undefined,
-      name: metadata.name ?? fallback?.name ?? undefined,
-      image: metadata.avatar_url ?? fallback?.image ?? undefined,
-      emailVerified: !!authUser.email_confirmed_at,
-    },
-  })
-}
-
 export async function requireAuth(): Promise<AuthUser> {
   const user = await getAuthUser()
   if (!user) throw new Error('Unauthorized')
@@ -155,4 +126,23 @@ export function slugify(text: string): string {
     .replace(/[\s_]+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+export async function ensurePublicUserRecord(user: { id: string; email?: string | null; name?: string | null; image?: string | null }): Promise<void> {
+  await prisma.user.upsert({
+    where: { id: user.id },
+    create: {
+      id: user.id,
+      email: user.email ?? null,
+      name: user.name ?? null,
+      image: user.image ?? null,
+      type: ROLES.USER,
+      emailVerified: true,
+    },
+    update: {
+      email: user.email ?? undefined,
+      name: user.name ?? undefined,
+      image: user.image ?? undefined,
+    },
+  })
 }

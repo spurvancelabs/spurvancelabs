@@ -79,7 +79,7 @@ export default function InstructorCoursesPage() {
           <option value="PUBLISHED">Published</option>
           <option value="ARCHIVED">Archived</option>
         </select>
-        <span className="text-sm text-gray-500 self-center ml-auto">
+        <span className="text-sm text-gray-400 self-center ml-auto">
           {data?.total ?? 0} course{(data?.total ?? 0) !== 1 ? 's' : ''}
         </span>
       </div>
@@ -89,12 +89,12 @@ export default function InstructorCoursesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Title</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Status</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Category</th>
-                <th className="text-center px-5 py-3 text-gray-500 font-medium">Modules</th>
-                <th className="text-center px-5 py-3 text-gray-500 font-medium">Students</th>
-                <th className="text-right px-5 py-3 text-gray-500 font-medium">Actions</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Title</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Status</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Category</th>
+                <th className="text-center px-5 py-3 text-gray-400 font-medium">Modules</th>
+                <th className="text-center px-5 py-3 text-gray-400 font-medium">Students</th>
+                <th className="text-right px-5 py-3 text-gray-400 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -107,7 +107,7 @@ export default function InstructorCoursesPage() {
                   </tr>
                 ))
               ) : courses.length === 0 ? (
-                <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-500">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:text-amber-300">Create one</Link></td></tr>
+                <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:text-amber-300">Create one</Link></td></tr>
               ) : (
                 courses.map((course) => (
                   <tr key={course.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
@@ -117,7 +117,7 @@ export default function InstructorCoursesPage() {
                         {course.status}
                       </span>
                       {course.status === 'DRAFT' && !course.isComplete && (
-                        <span className="text-[10px] text-gray-500 ml-2">in progress</span>
+                        <span className="text-[10px] text-gray-400 ml-2">in progress</span>
                       )}
                       {course.status === 'DRAFT' && course.isComplete && (
                         <span className="text-[10px] text-blue-400 ml-2">awaiting approval</span>

@@ -5,7 +5,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { LessonPlayer } from '@/components/lms/LessonPlayer'
 
 export default function LessonPage({ params }: { params: Promise<{ courseId: string; lessonId: string }> }) {
   const { courseId, lessonId } = use(params)
@@ -110,7 +109,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
         <div className="p-2">
           {course.modules?.map((mod: any) => (
             <div key={mod.id} className="mb-2">
-              <p className="text-[10px] text-gray-500 uppercase tracking-wider px-3 py-1.5 font-medium">{mod.title}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider px-3 py-1.5 font-medium">{mod.title}</p>
               {mod.lessons?.map((l: any) => {
                 const completed = progress?.find((p: any) => p.lessonId === l.id)?.completed
                 const active = l.id === lessonId
@@ -141,15 +140,22 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
       <main className="flex-1 bg-black overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Video */}
-          {lesson.type === 'VIDEO' && lesson.videoUrl && (
-            <LessonPlayer videoUrl={lesson.videoUrl} poster={course.thumbnail} className="mb-6 rounded-2xl" />
+          {lesson.videoUrl && (
+            <div className="aspect-video rounded-2xl overflow-hidden bg-zinc-900 mb-6">
+              <video
+                src={lesson.videoUrl}
+                controls
+                className="w-full h-full"
+                poster={course.thumbnail || undefined}
+              />
+            </div>
           )}
 
           {/* Content */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full uppercase">{lesson.type}</span>
-              {lesson.duration && <span className="text-[10px] text-gray-500">{lesson.duration} min</span>}
+              {lesson.duration && <span className="text-[10px] text-gray-400">{lesson.duration} min</span>}
             </div>
             <h1 className="text-2xl font-bold text-white mb-4">{lesson.title}</h1>
             {lesson.description && (
@@ -162,7 +168,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
             <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-6 mb-8">
               <h3 className="text-white font-semibold mb-2">{quiz.title}</h3>
               <p className="text-gray-400 text-sm mb-4">{quiz.description || 'Test your knowledge'}</p>
-              <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+              <div className="flex items-center gap-4 text-xs text-gray-400 mb-4">
                 <span>{quiz.questions?.length || 0} questions</span>
                 {quiz.timeLimit && <span>{quiz.timeLimit} min limit</span>}
                 <span>Pass: {quiz.passingScore}%</span>
@@ -186,7 +192,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
                 {quiz.questions?.map((q: any, i: number) => (
                   <div key={q.id} className="border border-white/[0.06] rounded-xl p-4">
                     <p className="text-white text-sm font-medium mb-3">
-                      {i + 1}. {q.question} <span className="text-gray-500 text-xs font-normal">({q.points} pt)</span>
+                      {i + 1}. {q.question} <span className="text-gray-400 text-xs font-normal">({q.points} pt)</span>
                     </p>
                     {q.type === 'multiple_choice' && q.options?.map((opt: any, oi: number) => (
                       <label key={oi} className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${
@@ -252,7 +258,7 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
                 <p className={`text-sm font-medium ${quizResult.passed ? 'text-emerald-300' : 'text-red-300'}`}>
                   {quizResult.passed ? 'Passed!' : 'Not passed'}
                 </p>
-                <p className="text-gray-500 text-xs mt-1">Passing score: {quiz.passingScore}%</p>
+                <p className="text-gray-400 text-xs mt-1">Passing score: {quiz.passingScore}%</p>
               </div>
             </div>
           )}
@@ -278,20 +284,20 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
                   </div>
                   {lesson.submission.feedback && (
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Feedback:</p>
+                      <p className="text-xs text-gray-400 mb-1">Feedback:</p>
                       <p className="text-sm text-gray-300 bg-zinc-800/50 rounded-xl p-3 border border-white/[0.06]">{lesson.submission.feedback}</p>
                     </div>
                   )}
-                  <p className="text-xs text-gray-500">Your submission:</p>
+                  <p className="text-xs text-gray-400">Your submission:</p>
                   <p className="text-sm text-gray-400 bg-zinc-800/50 rounded-xl p-3 border border-white/[0.06] whitespace-pre-wrap">{lesson.submission.content}</p>
                 </div>
               ) : lesson.submission?.status === 'SUBMITTED' ? (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">Submitted</span>
-                    <span className="text-xs text-gray-500">Waiting for grading</span>
+                    <span className="text-xs text-gray-400">Waiting for grading</span>
                   </div>
-                  <p className="text-xs text-gray-500 mb-1">Your submission:</p>
+                  <p className="text-xs text-gray-400 mb-1">Your submission:</p>
                   <p className="text-sm text-gray-400 bg-zinc-800/50 rounded-xl p-3 border border-white/[0.06] whitespace-pre-wrap">{lesson.submission.content}</p>
                 </div>
               ) : (
