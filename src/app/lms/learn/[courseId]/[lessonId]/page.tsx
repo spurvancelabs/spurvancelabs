@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { LessonPlayer } from '@/components/lms/LessonPlayer'
 
 export default function LessonPage({ params }: { params: Promise<{ courseId: string; lessonId: string }> }) {
   const { courseId, lessonId } = use(params)
@@ -140,15 +141,8 @@ export default function LessonPage({ params }: { params: Promise<{ courseId: str
       <main className="flex-1 bg-black overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Video */}
-          {lesson.videoUrl && (
-            <div className="aspect-video rounded-2xl overflow-hidden bg-zinc-900 mb-6">
-              <video
-                src={lesson.videoUrl}
-                controls
-                className="w-full h-full"
-                poster={course.thumbnail || undefined}
-              />
-            </div>
+          {lesson.type === 'VIDEO' && lesson.videoUrl && (
+            <LessonPlayer videoUrl={lesson.videoUrl} poster={course.thumbnail} className="mb-6 rounded-2xl" />
           )}
 
           {/* Content */}

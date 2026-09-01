@@ -39,7 +39,7 @@ export default function CertificatesPage() {
         </div>
       ) : !data?.length ? (
         <div className="text-center py-20 text-gray-500">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
           </svg>
           <p className="text-lg">No certificates yet</p>
@@ -63,7 +63,7 @@ export default function CertificatesPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 mb-3 text-[10px] font-mono text-gray-600 bg-white/[0.02] rounded-lg px-2 py-1.5 truncate">
+              <div className="flex items-center gap-1 mb-3 text-[10px] font-mono text-gray-400 bg-white/[0.02] rounded-lg px-2 py-1.5 truncate">
                 <span className="text-gray-500 mr-1">code:</span>
                 {cert.id?.slice(0, 12)}...
               </div>

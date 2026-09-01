@@ -1,16 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function CreateProjectModal({
   onClose,
   onCreated,
+  endpoint = '/api/projects',
 }: {
   onClose: () => void;
   onCreated?: (project: { id: string }) => void;
+  endpoint?: string;
 }) {
-  const router = useRouter();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [key, setKey] = useState('');
@@ -44,7 +44,7 @@ export default function CreateProjectModal({
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -99,7 +99,7 @@ export default function CreateProjectModal({
               placeholder="MAP"
               maxLength={10}
             />
-            <p className="text-[11px] text-gray-600 mt-1">Used as ticket prefix (e.g., {key || 'MAP'}-1)</p>
+            <p className="text-[11px] text-gray-400 mt-1">Used as ticket prefix (e.g., {key || 'MAP'}-1)</p>
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1.5">Description</label>

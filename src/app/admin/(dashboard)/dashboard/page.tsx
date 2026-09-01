@@ -397,7 +397,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-xs truncate">Application</p>
-                  <p className="text-gray-600 text-[10px]">{app.status} &middot; {app.type}</p>
+                  <p className="text-gray-500 text-[10px]">{app.status} &middot; {app.type}</p>
                 </div>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full border whitespace-nowrap ${
                   app.status === 'PENDING' ? 'text-yellow-400 border-yellow-500/20 bg-yellow-500/10' :
