@@ -1,7 +1,8 @@
-allowBuilds:
-  '@prisma/engines': false
-  prisma: false
-  sharp: false
-  tesseract.js: set this to true or false
-  unrs-resolver: false
-onlyBuiltDependencies: '@prisma/engines'
+packages:
+  - '.'
+
+# Keep install-script permissions compatible with pnpm 9/10.
+# Prisma Client is generated explicitly by the prebuild script.
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - sharp
