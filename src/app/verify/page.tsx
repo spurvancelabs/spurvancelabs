@@ -4,7 +4,6 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { createWorker } from 'tesseract.js'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -67,6 +66,7 @@ export default function VerifyPage() {
     }
     setOcrProgress('Initializing OCR...')
     try {
+      const { createWorker } = await import('tesseract.js')
       const worker = await createWorker('eng', 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') setOcrProgress(`Reading text... ${Math.round(m.progress * 100)}%`)
