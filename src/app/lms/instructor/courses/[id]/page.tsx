@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { ModulesSection } from '@/components/lms/ModulesSection'
+import { uploadLmsMedia } from '@/lib/lms/upload-client'
 import type { CourseData, CategoryData } from '@/lib/lms/types'
 
 export default function EditCoursePage({ params }: { params: Promise<{ id: string }> }) {
@@ -81,14 +82,9 @@ function CourseEditor({ courseId, course, categories }: { courseId: string; cour
     const file = e.target.files?.[0]
     if (!file) return
 
-    const formData = new FormData()
-    formData.append('file', file)
-
     setThumbnailUploading(true)
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!res.ok) { toast.error('Upload failed'); return }
-      const { url } = await res.json()
+      const { url } = await uploadLmsMedia(file, 'thumbnail', courseId)
       setThumbnail(url)
     } catch {
       toast.error('Upload failed')
@@ -182,11 +178,11 @@ function CourseEditor({ courseId, course, categories }: { courseId: string; cour
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-[11px] text-gray-600">Add thumbnail</span>
+                    <span className="text-[11px] text-gray-500">Add thumbnail</span>
                   </div>
                 )}
               </div>
-              <span className="text-[10px] text-gray-600 mt-1 block">16:9 ratio · 1280×720px · JPG, PNG, WebP or GIF · Max 5MB</span>
+              <span className="text-[10px] text-gray-500 mt-1 block">16:9 ratio · 1280×720px · JPG, PNG, WebP or GIF · Max 5MB</span>
               {thumbnail && (
                 <button type="button" onClick={e => { e.stopPropagation(); setThumbnail('') }} className="text-xs text-red-400 hover:text-red-300 mt-1.5">
                   Remove

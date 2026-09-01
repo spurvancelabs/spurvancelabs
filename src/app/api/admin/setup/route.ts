@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { ROLES } from '@/lib/lms/roles';
+import { ensurePublicUserRecord } from '@/lib/lms/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,6 +62,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'Admin user already exists. Login at /admin/login' });
       }
 
+      await ensurePublicUserRecord(existingAuthUser.id, { email: existingAuthUser.email, name });
       const now = new Date().toISOString();
       await supabase.from('admin_users').insert({
         id: crypto.randomUUID(),
@@ -77,12 +79,13 @@ export async function POST(request: NextRequest) {
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, skip_users_table: true },
+      user_metadata: { name },
     });
 
     if (createError) throw createError;
 
     if (authUser?.user) {
+      await ensurePublicUserRecord(authUser.user.id, { email, name });
       const now = new Date().toISOString();
       await supabase.from('admin_users').insert({
         id: crypto.randomUUID(),

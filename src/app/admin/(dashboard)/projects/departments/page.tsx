@@ -200,16 +200,28 @@ export default function AdminDepartmentsPage() {
       </div>
 
       <div className="rounded-xl bg-zinc-900 border border-white/[0.06] p-4 mb-6">
-        <label className="block text-xs text-gray-500 mb-2">Select Project</label>
-        <select
-          value={projectId}
-          onChange={e => { setProjectId(e.target.value); setExpandedDept(null); }}
-          className="w-full sm:w-96 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
-        >
-          {projects.map(p => (
-            <option key={p.id} value={p.id}>{p.name} ({p.key})</option>
-          ))}
-        </select>
+        {projects.length > 0 ? (
+          <>
+            <label className="block text-xs text-gray-400 mb-2">Select Project</label>
+            <select
+              value={projectId}
+              onChange={e => { setProjectId(e.target.value); setExpandedDept(null); }}
+              className="w-full sm:w-96 bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
+            >
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name} ({p.key})</option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <div>
+            <p className="text-gray-300 text-sm font-medium">Create a project before creating departments</p>
+            <p className="text-gray-400 text-xs mt-1 mb-3">Departments belong to a project, so there must be at least one project first.</p>
+            <a href="/admin/projects" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm px-4 py-2 rounded-lg font-medium transition-colors">
+              + Create Project
+            </a>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -305,7 +317,7 @@ export default function AdminDepartmentsPage() {
 
                   <div className="space-y-2">
                     {d.members.length === 0 && (
-                      <p className="text-gray-600 text-xs">No members yet</p>
+                      <p className="text-gray-500 text-xs">No members yet</p>
                     )}
                     {d.members.map(m => (
                       <div key={m.user.id} className="flex items-center gap-3 py-2 px-3 rounded-lg bg-white/[0.02]">

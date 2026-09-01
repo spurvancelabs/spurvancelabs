@@ -1,5 +1,4 @@
 'use client'
-
 import { use, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
@@ -208,7 +207,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                     <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
                       </svg>
                     </div>
@@ -320,17 +319,19 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                       {isExpanded && mod.lessons?.length > 0 && (
                         <div className="divide-y divide-white/[0.04] border-t border-white/[0.06]">
                           {mod.lessons.map((lesson: any, j: number) => (
-                            <div key={lesson.id} className="flex items-center gap-3 px-5 py-3 hover:bg-white/[0.02] transition-colors">
-                              <span className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-gray-500 font-mono flex-shrink-0">
-                                {LESSON_ICONS[lesson.type] || '•'}
-                              </span>
-                              <span className="flex-1 text-sm text-gray-300 truncate">{lesson.title}</span>
-                              {lesson.type && (
-                                <span className="text-[10px] text-gray-600 uppercase tracking-wider">{lesson.type}</span>
-                              )}
-                              {lesson.duration && (
-                                <span className="text-[10px] text-gray-600 flex-shrink-0">{lesson.duration}min</span>
-                              )}
+                            <div key={lesson.id} className="px-5 py-3 hover:bg-white/[0.02] transition-colors">
+                              <div className="flex items-center gap-3">
+                                <span className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-gray-400 font-mono flex-shrink-0">
+                                  {LESSON_ICONS[lesson.type] || '•'}
+                                </span>
+                                <span className="flex-1 text-sm text-gray-300 truncate">{lesson.title}</span>
+                                {lesson.type && (
+                                  <span className="text-[10px] text-gray-400 uppercase tracking-wider">{lesson.type}</span>
+                                )}
+                                {lesson.duration && (
+                                  <span className="text-[10px] text-gray-400 flex-shrink-0">{lesson.duration}min</span>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -368,7 +369,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                     <div className="text-5xl font-bold text-white">{avgRating.toFixed(1)}</div>
                     <div className="flex items-center justify-center gap-0.5 mt-1.5">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={`text-lg ${star <= Math.round(avgRating) ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                        <span key={star} className={`text-lg ${star <= Math.round(avgRating) ? 'text-yellow-400' : 'text-gray-500'}`}>★</span>
                       ))}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">Course Rating</p>
@@ -400,7 +401,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                       <button
                         key={star}
                         onClick={() => setReviewRating(star)}
-                        className={`text-2xl transition-all ${star <= reviewRating ? 'text-yellow-400' : 'text-gray-600'}`}
+                        className={`text-2xl transition-all ${star <= reviewRating ? 'text-yellow-400' : 'text-gray-500'}`}
                       >
                         ★
                       </button>
@@ -452,7 +453,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                       </div>
                       <div className="flex items-center gap-0.5">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} className={`text-sm ${star <= review.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                          <span key={star} className={`text-sm ${star <= review.rating ? 'text-yellow-400' : 'text-gray-500'}`}>★</span>
                         ))}
                       </div>
                     </div>

@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import CreateProjectModal from '@/components/projects/CreateProjectModal';
 
 interface Project {
   id: string;
@@ -26,8 +28,10 @@ const STATUS_BADGES: Record<string, string> = {
 const STATUSES = ['ACTIVE', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'];
 
 export default function AdminProjectsPage() {
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('ALL');
+  const [showCreate, setShowCreate] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-projects'],
@@ -63,6 +67,13 @@ export default function AdminProjectsPage() {
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="text-gray-400 text-sm mt-1">All projects across the platform</p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowCreate(true)}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors cursor-pointer"
+        >
+          <span className="text-lg leading-none">+</span> Create Project
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -100,7 +111,7 @@ export default function AdminProjectsPage() {
                 key={s}
                 onClick={() => setStatus(s)}
                 className={`text-[10px] px-3 py-1 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                  status === s ? 'bg-zinc-700 text-white' : 'text-gray-500 hover:text-gray-300'
+                  status === s ? 'bg-zinc-700 text-white' : 'text-gray-400 hover:text-gray-300'
                 }`}
               >
                 {s === 'ALL' ? 'All' : s.replace('_', ' ')}
@@ -117,13 +128,21 @@ export default function AdminProjectsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-500">No projects found</p>
+            <p className="text-gray-300 font-medium">No projects found</p>
+            <p className="text-gray-400 text-sm mt-1 mb-4">Create your first project to start organizing work.</p>
+            <button
+              type="button"
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors cursor-pointer"
+            >
+              + Create Your First Project
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[11px] text-gray-500 uppercase tracking-wider border-b border-white/[0.06]">
+                <tr className="text-[11px] text-gray-400 uppercase tracking-wider border-b border-white/[0.06]">
                   <th className="px-5 py-3 font-medium">Project</th>
                   <th className="px-5 py-3 font-medium">Owner</th>
                   <th className="px-5 py-3 font-medium">Status</th>
@@ -147,13 +166,13 @@ export default function AdminProjectsPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-white text-sm font-medium truncate max-w-[240px]">{p.name}</p>
-                          <p className="text-gray-500 text-[11px] font-mono">{p.key}</p>
+                          <p className="text-gray-400 text-[11px] font-mono">{p.key}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-3">
                       <p className="text-sm text-gray-300 truncate max-w-[180px]">{p.owner?.name || '—'}</p>
-                      <p className="text-gray-500 text-[11px] truncate max-w-[180px]">{p.owner?.email}</p>
+                      <p className="text-gray-400 text-[11px] truncate max-w-[180px]">{p.owner?.email}</p>
                     </td>
                     <td className="px-5 py-3">
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border whitespace-nowrap ${STATUS_BADGES[p.status] || STATUS_BADGES.ACTIVE}`}>
@@ -184,6 +203,17 @@ export default function AdminProjectsPage() {
           </div>
         )}
       </div>
+      {showCreate && (
+        <CreateProjectModal
+          endpoint="/api/admin/projects"
+          onClose={() => setShowCreate(false)}
+          onCreated={() => {
+            setShowCreate(false)
+            toast.success('Project created')
+            queryClient.invalidateQueries({ queryKey: ['admin-projects'] })
+          }}
+        />
+      )}
     </div>
   );
 }

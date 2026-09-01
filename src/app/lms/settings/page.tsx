@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { uploadLmsMedia } from '@/lib/lms/upload-client'
 import toast from 'react-hot-toast'
 
 export default function SettingsPage() {
@@ -38,11 +39,7 @@ export default function SettingsPage() {
     if (!file) return
     setUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!res.ok) throw new Error('Upload failed')
-      const { url } = await res.json()
+      const { url } = await uploadLmsMedia(file, 'avatar')
       setImage(url)
       toast.success('Avatar uploaded! Save to confirm')
     } catch {

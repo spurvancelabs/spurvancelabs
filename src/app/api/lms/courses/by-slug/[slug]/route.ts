@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
             },
           },
         },
-        _count: { select: { modules: true, enrollments: true } },
+        _count: { select: { modules: true, lessons: true, enrollments: true } },
       },
     })
     if (!course) return NextResponse.json({ error: 'Course not found' }, { status: 404 })

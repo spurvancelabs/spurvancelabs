@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireInstructor, slugify } from '@/lib/lms/utils'
+import { z } from 'zod'
+
+const courseCreateSchema = z.object({
+  title: z.string().trim().min(1).max(300),
+  slug: z.string().trim().min(1).max(300).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
+  description: z.string().trim().max(10000).optional().nullable(),
+  thumbnail: z.string().url().max(500).optional().nullable(),
+  categoryId: z.string().uuid().optional().nullable(),
+  level: z.string().trim().max(50).optional().nullable(),
+  duration: z.number().int().min(0).max(100000).optional().nullable(),
+  price: z.union([z.number().finite().min(0), z.string().trim().regex(/^\d+(?:\.\d{1,2})?$/)]).optional().nullable(),
+  isFree: z.boolean().optional(),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+})
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,7 +50,7 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: 'desc' },
         include: {
           category: { select: { id: true, name: true, slug: true } },
-          _count: { select: { modules: true, enrollments: true } },
+          _count: { select: { modules: true, lessons: true, enrollments: true } },
         },
       }),
       prisma.course.count({ where }),
@@ -51,7 +65,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireInstructor()
-    const body = await req.json()
+    const body = courseCreateSchema.parse(await req.json())
     const { title, description, thumbnail, categoryId, level, price, isFree, status } = body
     let slug = body.slug
     if (!slug) slug = slugify(title)
@@ -69,7 +83,7 @@ export async function POST(req: NextRequest) {
         thumbnail,
         categoryId,
         level,
-        price: price ? parseFloat(price) : null,
+        price: price == null ? null : Number(price),
         isFree: isFree ?? false,
         status: courseStatus,
         publishedAt: courseStatus === 'PUBLISHED' ? new Date() : undefined,
@@ -82,7 +96,9 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json(course, { status: 201 })
   } catch (error: any) {
-    if (error.message === 'Unauthorized' || error.message === 'Forbidden') return NextResponse.json({ error: error.message }, { status: 401 })
+    if (error instanceof z.ZodError) return NextResponse.json({ error: 'Invalid course data.' }, { status: 400 })
+    if (error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (error.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     return NextResponse.json({ error: 'Failed to create course' }, { status: 500 })
   }
 }
