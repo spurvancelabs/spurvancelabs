@@ -63,7 +63,7 @@ export default function AnalyticsPage() {
         <div className="rounded-xl bg-zinc-900 border border-white/[0.06] p-5">
           <h2 className="text-white font-semibold mb-4">Enrollments by Course</h2>
           {enrollmentsByCourse.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-gray-500 text-sm">No data yet</div>
+            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No data yet</div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={enrollmentsByCourse} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
@@ -84,7 +84,7 @@ export default function AnalyticsPage() {
         <div className="rounded-xl bg-zinc-900 border border-white/[0.06] p-5">
           <h2 className="text-white font-semibold mb-4">Most Popular Courses</h2>
           {mostPopular.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-gray-500 text-sm">No courses yet</div>
+            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">No courses yet</div>
           ) : (
             <div className="space-y-3">
               {mostPopular.map((course, i) => {
@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
                   <div key={course.id}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs text-gray-500 w-4 shrink-0">#{i + 1}</span>
+                        <span className="text-xs text-gray-400 w-4 shrink-0">#{i + 1}</span>
                         <span className="text-sm text-white truncate">{course.title}</span>
                       </div>
                       <span className="text-xs text-gray-400 shrink-0 ml-2">{count} enrollment{count !== 1 ? 's' : ''}</span>

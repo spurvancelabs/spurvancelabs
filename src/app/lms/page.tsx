@@ -89,7 +89,7 @@ export default function LMSCatalogPage() {
                 {course.thumbnail ? (
                   <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-600">
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
                     <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
                     </svg>
@@ -118,10 +118,10 @@ export default function LMSCatalogPage() {
                 <h3 className="text-white font-semibold text-base group-hover:text-blue-400 transition-colors line-clamp-2">
                   {course.title}
                 </h3>
-                <p className="text-gray-500 text-xs mt-1 line-clamp-2">
+                <p className="text-gray-400 text-xs mt-1 line-clamp-2">
                   {course.description}
                 </p>
-                <div className="flex items-center gap-4 mt-4 text-gray-500 text-xs">
+                <div className="flex items-center gap-4 mt-4 text-gray-400 text-xs">
                   <span className="flex items-center gap-1">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -142,7 +142,7 @@ export default function LMSCatalogPage() {
       )}
 
       {!isLoading && data?.data?.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
+        <div className="text-center py-20 text-gray-400">
           <p className="text-lg">No courses found</p>
           <p className="text-sm mt-1">Try adjusting your filters</p>
         </div>

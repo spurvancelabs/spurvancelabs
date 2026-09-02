@@ -93,7 +93,7 @@ export default function InstructorDashboardPage() {
           <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
           <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] divide-y divide-white/[0.06]">
             {data.recentActivity?.length === 0 && (
-              <p className="text-gray-500 text-sm p-6 text-center">No recent activity.</p>
+              <p className="text-gray-400 text-sm p-6 text-center">No recent activity.</p>
             )}
             {data.recentActivity?.map((item: any, i: number) => (
               <div key={i} className="flex items-start gap-3 p-4">
@@ -108,7 +108,7 @@ export default function InstructorDashboardPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-300">{item.message}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{new Date(item.date).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{new Date(item.date).toLocaleDateString()}</p>
                 </div>
               </div>
             ))}
@@ -120,7 +120,7 @@ export default function InstructorDashboardPage() {
           <h2 className="text-lg font-semibold text-white mb-4">Recent Reviews</h2>
           <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] divide-y divide-white/[0.06]">
             {data.recentReviews?.length === 0 && (
-              <p className="text-gray-500 text-sm p-6 text-center">No reviews yet.</p>
+              <p className="text-gray-400 text-sm p-6 text-center">No reviews yet.</p>
             )}
             {data.recentReviews?.map((review: any) => (
               <div key={review.id} className="p-4">
@@ -129,15 +129,15 @@ export default function InstructorDashboardPage() {
                     {(review.student?.name || review.student?.email || '?')[0].toUpperCase()}
                   </div>
                   <span className="text-sm text-gray-300">{review.student?.name || review.student?.email || 'Anonymous'}</span>
-                  <span className="text-xs text-gray-500 ml-auto">{new Date(review.createdAt).toLocaleDateString()}</span>
+                  <span className="text-xs text-gray-400 ml-auto">{new Date(review.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-0.5 mb-1">
                   {[1, 2, 3, 4, 5].map(star => (
-                    <svg key={star} className={`w-3.5 h-3.5 ${star <= review.rating ? 'text-amber-400' : 'text-gray-600'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <svg key={star} className={`w-3.5 h-3.5 ${star <= review.rating ? 'text-amber-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
-                  <span className="text-xs text-gray-500 ml-1">on {review.course?.title}</span>
+                  <span className="text-xs text-gray-400 ml-1">on {review.course?.title}</span>
                 </div>
                 {review.comment && (
                   <p className="text-sm text-gray-400 mt-1 line-clamp-2">{review.comment}</p>
@@ -156,7 +156,7 @@ export default function InstructorDashboardPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.topCourses?.length === 0 && (
-            <p className="text-gray-500 text-sm col-span-full py-8 text-center">No courses yet.</p>
+            <p className="text-gray-400 text-sm col-span-full py-8 text-center">No courses yet.</p>
           )}
           {data.topCourses?.map((course: any) => (
             <Link
@@ -165,7 +165,7 @@ export default function InstructorDashboardPage() {
               className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-amber-500/30 transition-all group"
             >
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xs text-gray-500 shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center text-xs text-gray-400 shrink-0 overflow-hidden">
                   {course.thumbnail ? (
                     <img src={course.thumbnail} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -181,7 +181,7 @@ export default function InstructorDashboardPage() {
                   }`}>{course.status}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
+              <div className="flex items-center gap-3 text-xs text-gray-400">
                 <span>{course.enrollmentCount} students</span>
                 <span>{course.moduleCount} modules</span>
                 {course.reviewCount > 0 && (

@@ -99,7 +99,7 @@ export default function CategoriesPage() {
       <div className="rounded-xl bg-zinc-900 border border-white/[0.06] p-4 mb-6">
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="block text-xs text-gray-500 mb-1">Name</label>
+            <label className="block text-xs text-gray-400 mb-1">Name</label>
             <input
               type="text"
               value={newName}
@@ -110,7 +110,7 @@ export default function CategoriesPage() {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs text-gray-500 mb-1">Slug</label>
+            <label className="block text-xs text-gray-400 mb-1">Slug</label>
             <input
               type="text"
               value={newSlug}
@@ -135,10 +135,10 @@ export default function CategoriesPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Name</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Slug</th>
-                <th className="text-center px-5 py-3 text-gray-500 font-medium">Courses</th>
-                <th className="text-right px-5 py-3 text-gray-500 font-medium">Actions</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Name</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Slug</th>
+                <th className="text-center px-5 py-3 text-gray-400 font-medium">Courses</th>
+                <th className="text-right px-5 py-3 text-gray-400 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -151,7 +151,7 @@ export default function CategoriesPage() {
                   </tr>
                 ))
               ) : categories?.length === 0 ? (
-                <tr><td colSpan={4} className="px-5 py-8 text-center text-gray-500">No categories yet</td></tr>
+                <tr><td colSpan={4} className="px-5 py-8 text-center text-gray-400">No categories yet</td></tr>
               ) : (
                 categories?.map((cat) => (
                   <tr key={cat.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
@@ -169,7 +169,7 @@ export default function CategoriesPage() {
                         <td className="px-5 py-2 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button onClick={() => saveEdit(cat.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Save</button>
-                            <button onClick={() => setEditingId(null)} className="text-xs text-gray-500 hover:text-white">Cancel</button>
+                            <button onClick={() => setEditingId(null)} className="text-xs text-gray-400 hover:text-white">Cancel</button>
                           </div>
                         </td>
                       </>

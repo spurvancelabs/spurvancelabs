@@ -127,3 +127,22 @@ export function slugify(text: string): string {
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
+
+export async function ensurePublicUserRecord(user: { id: string; email?: string | null; name?: string | null; image?: string | null }): Promise<void> {
+  await prisma.user.upsert({
+    where: { id: user.id },
+    create: {
+      id: user.id,
+      email: user.email ?? null,
+      name: user.name ?? null,
+      image: user.image ?? null,
+      type: ROLES.USER,
+      emailVerified: true,
+    },
+    update: {
+      email: user.email ?? undefined,
+      name: user.name ?? undefined,
+      image: user.image ?? undefined,
+    },
+  })
+}

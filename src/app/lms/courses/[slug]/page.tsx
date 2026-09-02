@@ -147,7 +147,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
               )}
 
               {/* Stats Row */}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-400">
                 <div className="flex items-center gap-1.5">
                   <span className="text-yellow-400 text-base">★</span>
                   <span className="text-white font-medium">{avgRating.toFixed(1)}</span>
@@ -208,7 +208,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                     <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
                       </svg>
                     </div>
@@ -242,7 +242,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
 
                   {/* Course Includes */}
                   <div className="pt-3 border-t border-white/[0.06]">
-                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">This course includes:</h4>
+                    <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">This course includes:</h4>
                     <ul className="space-y-2.5">
                       <li className="flex items-start gap-2.5 text-sm text-gray-400">
                         <svg className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
             <section>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-white">Course Curriculum</h2>
-                <span className="text-sm text-gray-500">{course._count?.modules || 0} modules &middot; {totalLessons} lessons</span>
+                <span className="text-sm text-gray-400">{course._count?.modules || 0} modules &middot; {totalLessons} lessons</span>
               </div>
               <div className="space-y-3">
                 {course.modules?.map((mod: any, i: number) => {
@@ -304,13 +304,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors text-left"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="text-xs text-gray-500 font-mono flex-shrink-0">Module {i + 1}</span>
+                          <span className="text-xs text-gray-400 font-mono flex-shrink-0">Module {i + 1}</span>
                           <h3 className="text-white font-medium text-sm truncate">{mod.title}</h3>
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
-                          <span className="text-xs text-gray-500">{mod.lessons?.length || 0} lessons</span>
+                          <span className="text-xs text-gray-400">{mod.lessons?.length || 0} lessons</span>
                           <svg
-                            className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -321,15 +321,15 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         <div className="divide-y divide-white/[0.04] border-t border-white/[0.06]">
                           {mod.lessons.map((lesson: any, j: number) => (
                             <div key={lesson.id} className="flex items-center gap-3 px-5 py-3 hover:bg-white/[0.02] transition-colors">
-                              <span className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-gray-500 font-mono flex-shrink-0">
+                              <span className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-gray-400 font-mono flex-shrink-0">
                                 {LESSON_ICONS[lesson.type] || '•'}
                               </span>
                               <span className="flex-1 text-sm text-gray-300 truncate">{lesson.title}</span>
                               {lesson.type && (
-                                <span className="text-[10px] text-gray-600 uppercase tracking-wider">{lesson.type}</span>
+                                <span className="text-[10px] text-gray-400 uppercase tracking-wider">{lesson.type}</span>
                               )}
                               {lesson.duration && (
-                                <span className="text-[10px] text-gray-600 flex-shrink-0">{lesson.duration}min</span>
+                                <span className="text-[10px] text-gray-400 flex-shrink-0">{lesson.duration}min</span>
                               )}
                             </div>
                           ))}
@@ -339,7 +339,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                   )
                 })}
                 {(!course.modules || course.modules.length === 0) && (
-                  <p className="text-sm text-gray-500 text-center py-8">No curriculum available yet.</p>
+                  <p className="text-sm text-gray-400 text-center py-8">No curriculum available yet.</p>
                 )}
               </div>
             </section>
@@ -350,7 +350,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                 <div>
                   <h2 className="text-xl font-bold text-white">Reviews</h2>
                   {totalReviews > 0 && (
-                    <p className="text-sm text-gray-500 mt-1">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</p>
+                    <p className="text-sm text-gray-400 mt-1">{totalReviews} review{totalReviews !== 1 ? 's' : ''}</p>
                   )}
                 </div>
                 <button
@@ -368,10 +368,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                     <div className="text-5xl font-bold text-white">{avgRating.toFixed(1)}</div>
                     <div className="flex items-center justify-center gap-0.5 mt-1.5">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={`text-lg ${star <= Math.round(avgRating) ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                        <span key={star} className={`text-lg ${star <= Math.round(avgRating) ? 'text-yellow-400' : 'text-gray-400'}`}>★</span>
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Course Rating</p>
+                    <p className="text-xs text-gray-400 mt-1">Course Rating</p>
                   </div>
                   <div className="flex-1 space-y-1.5">
                     {[5, 4, 3, 2, 1].map((star) => {
@@ -384,7 +384,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                           <div className="flex-1 h-2 rounded-full bg-zinc-800 overflow-hidden">
                             <div className="h-full rounded-full bg-yellow-400/70 transition-all" style={{ width: `${pct}%` }} />
                           </div>
-                          <span className="text-gray-500 text-xs w-8 text-right">{count}</span>
+                          <span className="text-gray-400 text-xs w-8 text-right">{count}</span>
                         </div>
                       )
                     })}
@@ -400,12 +400,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                       <button
                         key={star}
                         onClick={() => setReviewRating(star)}
-                        className={`text-2xl transition-all ${star <= reviewRating ? 'text-yellow-400' : 'text-gray-600'}`}
+                        className={`text-2xl transition-all ${star <= reviewRating ? 'text-yellow-400' : 'text-gray-400'}`}
                       >
                         ★
                       </button>
                     ))}
-                    <span className="text-xs text-gray-500 ml-2">{reviewRating}/5</span>
+                    <span className="text-xs text-gray-400 ml-2">{reviewRating}/5</span>
                   </div>
                   <textarea
                     value={reviewComment}
@@ -429,7 +429,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
               <div className="space-y-4">
                 {reviewsData?.reviews?.length === 0 && !showReviewForm && (
                   <div className="text-center py-12 border border-dashed border-white/[0.06] rounded-xl">
-                    <p className="text-gray-500 text-sm">No reviews yet. Be the first to share your experience!</p>
+                    <p className="text-gray-400 text-sm">No reviews yet. Be the first to share your experience!</p>
                   </div>
                 )}
                 {reviewsData?.reviews?.map((review: any) => (
@@ -447,12 +447,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         </div>
                         <div>
                           <p className="text-sm text-white font-medium">{review.student?.name || 'Anonymous'}</p>
-                          <p className="text-[10px] text-gray-500">{new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                          <p className="text-[10px] text-gray-400">{new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-0.5">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} className={`text-sm ${star <= review.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                          <span key={star} className={`text-sm ${star <= review.rating ? 'text-yellow-400' : 'text-gray-400'}`}>★</span>
                         ))}
                       </div>
                     </div>
@@ -470,7 +470,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
             {/* Instructor Card */}
             {course.instructor && (
               <section className="rounded-2xl bg-zinc-900/40 border border-white/[0.06] p-6">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Instructor</h3>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Instructor</h3>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 rounded-full bg-zinc-700 overflow-hidden flex-shrink-0">
                     {course.instructor.image ? (
@@ -483,7 +483,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                   </div>
                   <div>
                     <p className="text-white font-semibold text-base">{course.instructor.name || 'Unknown'}</p>
-                    <p className="text-xs text-gray-500">Course Creator</p>
+                    <p className="text-xs text-gray-400">Course Creator</p>
                   </div>
                 </div>
               </section>
@@ -492,7 +492,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
             {/* Description (sidebar on desktop) */}
             {course.description && (
               <section className="rounded-2xl bg-zinc-900/40 border border-white/[0.06] p-6">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Description</h3>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Description</h3>
                 <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">{course.description}</p>
               </section>
             )}

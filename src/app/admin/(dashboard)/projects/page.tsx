@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import CreateProjectModal from '@/components/projects/CreateProjectModal';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 
 interface Project {
@@ -28,6 +29,8 @@ const STATUSES = ['ACTIVE', 'ON_HOLD', 'COMPLETED', 'ARCHIVED'];
 export default function AdminProjectsPage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('ALL');
+  const [showCreate, setShowCreate] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-projects'],
@@ -63,6 +66,12 @@ export default function AdminProjectsPage() {
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="text-gray-400 text-sm mt-1">All projects across the platform</p>
         </div>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+        >
+          <span className="text-lg leading-none">+</span> Create Project
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -117,7 +126,13 @@ export default function AdminProjectsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-500">No projects found</p>
+            <p className="text-gray-400 mb-4">No projects found</p>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+            >
+              Create Your First Project
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -184,6 +199,13 @@ export default function AdminProjectsPage() {
           </div>
         )}
       </div>
+      {showCreate && (
+        <CreateProjectModal
+          endpoint="/api/admin/projects"
+          onClose={() => setShowCreate(false)}
+          onCreated={() => { setShowCreate(false); queryClient.invalidateQueries({ queryKey: ['admin-projects'] }); }}
+        />
+      )}
     </div>
   );
 }

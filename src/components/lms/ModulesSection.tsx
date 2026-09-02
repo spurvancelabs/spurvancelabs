@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import type { ModuleData, LessonData } from '@/lib/lms/types'
 import { QuizBuilder } from './QuizBuilder'
+import { uploadLmsMedia, validateLmsUpload } from '@/lib/lms/upload'
 
 export function ModulesSection({ courseId, variant = 'instructor' }: { courseId?: string; variant?: 'instructor' | 'admin' }) {
   const queryClient = useQueryClient()
@@ -74,7 +75,7 @@ export function ModulesSection({ courseId, variant = 'instructor' }: { courseId?
       <div>
         <h2 className="text-lg font-semibold text-white mb-4">Modules & Lessons</h2>
         <div className="rounded-xl bg-zinc-900/60 border border-white/[0.06] p-8 text-center">
-          <p className="text-gray-500 text-sm">Complete the course info first to add modules and lessons.</p>
+          <p className="text-gray-400 text-sm">Complete the course info first to add modules and lessons.</p>
         </div>
       </div>
     )
@@ -93,7 +94,7 @@ export function ModulesSection({ courseId, variant = 'instructor' }: { courseId?
           {modules?.map((mod) => (
             <div key={mod.id} className="rounded-xl bg-zinc-900/60 border border-white/[0.06]">
               <div className="flex items-center gap-3 px-4 py-3">
-                <svg className="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
                 </svg>
                 {editingModuleId === mod.id ? (
@@ -109,18 +110,18 @@ export function ModulesSection({ courseId, variant = 'instructor' }: { courseId?
                 ) : (
                   <span className="flex-1 text-white text-sm">{mod.title}</span>
                 )}
-                <span className="text-xs text-gray-500">{mod._count?.lessons ?? 0} lessons</span>
-                <button onClick={() => startEditModule(mod)} className="text-gray-500 hover:text-white transition-colors">
+                <span className="text-xs text-gray-400">{mod._count?.lessons ?? 0} lessons</span>
+                <button onClick={() => startEditModule(mod)} className="text-gray-400 hover:text-white transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </button>
-                <button onClick={() => { if (window.confirm(`Delete module "${mod.title}"?`)) deleteModule.mutate(mod.id) }} className="text-gray-500 hover:text-red-400 transition-colors">
+                <button onClick={() => { if (window.confirm(`Delete module "${mod.title}"?`)) deleteModule.mutate(mod.id) }} className="text-gray-400 hover:text-red-400 transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
-                <button onClick={() => setExpandedModuleId(expandedModuleId === mod.id ? null : mod.id)} className="text-gray-500 hover:text-white transition-colors">
+                <button onClick={() => setExpandedModuleId(expandedModuleId === mod.id ? null : mod.id)} className="text-gray-400 hover:text-white transition-colors">
                   <svg className={`w-4 h-4 transition-transform ${expandedModuleId === mod.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -159,16 +160,14 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
     enabled: !!moduleId,
   })
 
-  const createLesson = useMutation({
-    mutationFn: (body: Record<string, unknown>) =>
-      fetch('/api/lms/lessons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
-    onSuccess: () => {
-      toast.success('Lesson added')
-      queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
-      queryClient.invalidateQueries({ queryKey: ['lms-modules', courseId] })
-    },
-    onError: () => toast.error('Failed to add lesson'),
-  })
+  const syncModuleLessonCount = (lessonModuleId: string, count: number) => {
+    queryClient.setQueryData<ModuleData[]>(['lms-modules', courseId], (current) =>
+      current?.map((module) => module.id === lessonModuleId
+        ? { ...module, _count: { ...(module._count || { lessons: 0 }), lessons: count } }
+        : module
+      )
+    )
+  }
 
   const updateLesson = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
@@ -182,13 +181,23 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
   })
 
   const deleteLesson = useMutation({
-    mutationFn: (id: string) => fetch(`/api/lms/lessons/${id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      toast.success('Lesson deleted')
-      queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
-      queryClient.invalidateQueries({ queryKey: ['lms-modules', courseId] })
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/lms/lessons/${id}`, { method: 'DELETE' })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || 'Failed to delete lesson')
+      return data as { moduleId: string; moduleLessonCount: number }
     },
-    onError: () => toast.error('Failed to delete lesson'),
+    onSuccess: async (data) => {
+      toast.success('Lesson deleted')
+      if (data.moduleId === moduleId && Number.isInteger(data.moduleLessonCount)) {
+        syncModuleLessonCount(moduleId, data.moduleLessonCount)
+      }
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['lms-lessons', moduleId], type: 'active' }),
+        queryClient.refetchQueries({ queryKey: ['lms-modules', courseId], type: 'active' }),
+      ])
+    },
+    onError: (error) => toast.error(error.message || 'Failed to delete lesson'),
   })
 
   const [newLessonTitle, setNewLessonTitle] = useState('')
@@ -203,6 +212,28 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
     duration: '',
   })
   const [videoUploading, setVideoUploading] = useState(false)
+
+  const createLesson = useMutation({
+    mutationFn: async (body: Record<string, unknown>) => {
+      const res = await fetch('/api/lms/lessons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Failed to add lesson')
+      return data as LessonData & { moduleLessonCount: number }
+    },
+    onSuccess: async (lesson) => {
+      toast.success('Lesson added')
+      syncModuleLessonCount(moduleId, lesson.moduleLessonCount)
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['lms-lessons', moduleId], type: 'active' }),
+        queryClient.refetchQueries({ queryKey: ['lms-modules', courseId], type: 'active' }),
+      ])
+      if (lesson.type === 'VIDEO') {
+        setEditorLessonId(lesson.id)
+        setEditorForm({ title: lesson.title, type: lesson.type, description: '', content: '', videoUrl: '', duration: '' })
+      }
+    },
+    onError: (error) => toast.error(error.message || 'Failed to add lesson'),
+  })
 
   const openEditor = (lesson: LessonData) => {
     setEditorLessonId(lesson.id)
@@ -233,18 +264,18 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const formData = new FormData()
-    formData.append('file', file)
+    const validationError = validateLmsUpload(file, 'video')
+    if (validationError) { toast.error(validationError); e.target.value = ''; return }
     setVideoUploading(true)
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!res.ok) { toast.error('Upload failed'); return }
-      const { url } = await res.json()
+      const url = await uploadLmsMedia(file, 'video')
       setEditorForm(f => ({ ...f, videoUrl: url }))
-    } catch {
-      toast.error('Upload failed')
+      toast.success('Video uploaded')
+    } catch (error: any) {
+      toast.error(error?.message || 'Upload failed')
     } finally {
       setVideoUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -263,33 +294,39 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
       {lessons?.map((lesson) => (
         <div key={lesson.id}>
           <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02]">
-            <svg className="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span className="flex-1 text-gray-300 text-sm">{lesson.title}</span>
-            <span className="hidden sm:inline text-[10px] text-gray-500 uppercase">{lesson.type}</span>
-            <button onClick={() => openEditor(lesson)} className="text-gray-500 hover:text-white transition-colors" title="Edit content">
+            <span className="hidden sm:inline text-[10px] text-gray-400 uppercase">{lesson.type}</span>
+            <button onClick={() => openEditor(lesson)} className="text-gray-400 hover:text-white transition-colors" title="Edit content">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
-            <button onClick={() => { if (window.confirm(`Delete lesson "${lesson.title}"?`)) deleteLesson.mutate(lesson.id) }} className="text-gray-500 hover:text-red-400 transition-colors">
+            <button onClick={() => { if (window.confirm(`Delete lesson "${lesson.title}"?`)) deleteLesson.mutate(lesson.id) }} className="text-gray-400 hover:text-red-400 transition-colors">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
           </div>
 
+          {lesson.type === 'VIDEO' && lesson.videoUrl && editorLessonId !== lesson.id && (
+            <div className="px-4 pb-3">
+              <video src={lesson.videoUrl} controls preload="metadata" className="w-full max-h-72 rounded-lg bg-black" />
+            </div>
+          )}
+
           {editorLessonId === lesson.id && (
             <div className="border-t border-white/[0.04] px-4 py-3 space-y-3 bg-zinc-900/40">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-gray-500 mb-1">Title</label>
+                  <label className="block text-[11px] text-gray-400 mb-1">Title</label>
                   <input type="text" value={editorForm.title} onChange={e => setEditorForm(f => ({ ...f, title: e.target.value }))}
                     className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'}`} />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-gray-500 mb-1">Type</label>
+                  <label className="block text-[11px] text-gray-400 mb-1">Type</label>
                   <select value={editorForm.type} onChange={e => setEditorForm(f => ({ ...f, type: e.target.value }))}
                     className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-gray-300 text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'}`}>
                     <option value="TEXT">Text</option>
@@ -301,14 +338,14 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
               </div>
 
               <div>
-                <label className="block text-[11px] text-gray-500 mb-1">Description</label>
+                <label className="block text-[11px] text-gray-400 mb-1">Description</label>
                 <textarea value={editorForm.description} onChange={e => setEditorForm(f => ({ ...f, description: e.target.value }))} rows={2}
                   className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'} resize-none`} />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-gray-500 mb-1">Duration (min)</label>
+                  <label className="block text-[11px] text-gray-400 mb-1">Duration (min)</label>
                   <input type="number" min="0" value={editorForm.duration} onChange={e => setEditorForm(f => ({ ...f, duration: e.target.value }))}
                     className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'}`} />
                 </div>
@@ -316,7 +353,7 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
 
               {editorForm.type === 'TEXT' && (
                 <div>
-                  <label className="block text-[11px] text-gray-500 mb-1">Content</label>
+                  <label className="block text-[11px] text-gray-400 mb-1">Content</label>
                   <textarea value={editorForm.content} onChange={e => setEditorForm(f => ({ ...f, content: e.target.value }))} rows={5}
                     className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'} resize-none font-mono`} />
                 </div>
@@ -324,7 +361,7 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
 
               {editorForm.type === 'VIDEO' && (
                 <div>
-                  <label className="block text-[11px] text-gray-500 mb-1">Video URL</label>
+                  <label className="block text-[11px] text-gray-400 mb-1">Video URL</label>
                   <div className="flex gap-2">
                     <input type="url" value={editorForm.videoUrl} onChange={e => setEditorForm(f => ({ ...f, videoUrl: e.target.value }))} placeholder="https://example.com/video.mp4"
                       className={`flex-1 bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'}`} />
@@ -346,7 +383,7 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
 
               {editorForm.type === 'ASSIGNMENT' && (
                 <div>
-                  <label className="block text-[11px] text-gray-500 mb-1">Instructions</label>
+                  <label className="block text-[11px] text-gray-400 mb-1">Instructions</label>
                   <textarea value={editorForm.content} onChange={e => setEditorForm(f => ({ ...f, content: e.target.value }))} rows={4}
                     className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'} resize-none`} />
                 </div>

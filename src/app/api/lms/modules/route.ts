@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
       orderBy: { sortOrder: 'asc' },
       include: {
         lessons: { orderBy: { sortOrder: 'asc' }, include: { _count: { select: { quizzes: true } } } },
+        _count: { select: { lessons: true } },
       },
     })
     return NextResponse.json(modules)

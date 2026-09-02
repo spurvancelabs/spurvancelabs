@@ -30,7 +30,7 @@ export default function ProfilePage() {
 
   if (!data) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center text-gray-500">
+      <div className="max-w-4xl mx-auto px-4 py-20 text-center text-gray-400">
         <p>Please log in to view your profile.</p>
       </div>
     )
@@ -72,7 +72,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">My Learning</p>
-            <p className="text-gray-500 text-xs mt-0.5">Continue your courses</p>
+            <p className="text-gray-400 text-xs mt-0.5">Continue your courses</p>
           </div>
         </Link>
         <Link href="/lms/certificates" className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-blue-500/30 transition-all flex items-center gap-4">
@@ -83,7 +83,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">Certificates</p>
-            <p className="text-gray-500 text-xs mt-0.5">View your earned certificates</p>
+            <p className="text-gray-400 text-xs mt-0.5">View your earned certificates</p>
           </div>
         </Link>
         <Link href="/lms/wishlist" className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-blue-500/30 transition-all flex items-center gap-4">
@@ -94,7 +94,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">Wishlist</p>
-            <p className="text-gray-500 text-xs mt-0.5">Courses saved for later</p>
+            <p className="text-gray-400 text-xs mt-0.5">Courses saved for later</p>
           </div>
         </Link>
         <Link href="/lms" className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-blue-500/30 transition-all flex items-center gap-4">
@@ -105,7 +105,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">Browse Courses</p>
-            <p className="text-gray-500 text-xs mt-0.5">Explore new topics</p>
+            <p className="text-gray-400 text-xs mt-0.5">Explore new topics</p>
           </div>
         </Link>
       </div>

@@ -28,8 +28,8 @@ export default function WishlistPage() {
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : !data?.length ? (
-        <div className="text-center py-20 text-gray-500">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center py-20 text-gray-400">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
           </svg>
           <p className="text-lg">Your wishlist is empty</p>
@@ -51,7 +51,7 @@ export default function WishlistPage() {
                   {c.thumbnail ? (
                     <img src={c.thumbnail} alt={c.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-600">
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
                       <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
                       </svg>
@@ -73,8 +73,8 @@ export default function WishlistPage() {
                   <h3 className="text-white font-semibold text-base group-hover:text-red-400 transition-colors line-clamp-2">
                     {c.title}
                   </h3>
-                  <p className="text-gray-500 text-xs mt-1 line-clamp-2">{c.description}</p>
-                  <div className="flex items-center gap-4 mt-4 text-gray-500 text-xs">
+                  <p className="text-gray-400 text-xs mt-1 line-clamp-2">{c.description}</p>
+                  <div className="flex items-center gap-4 mt-4 text-gray-400 text-xs">
                     <span>{c._count?.modules || 0} modules</span>
                     <span>{c._count?.enrollments || 0} students</span>
                   </div>
