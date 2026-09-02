@@ -39,8 +39,11 @@ export async function POST(req: NextRequest) {
 
     const { projectId, name, description, color } = await req.json();
 
-    if (!projectId || !name?.trim()) {
-      return NextResponse.json({ error: 'projectId and name are required' }, { status: 400 });
+    if (!projectId) {
+      return NextResponse.json({ error: 'Please select a project before creating a department.' }, { status: 400 });
+    }
+    if (!name?.trim()) {
+      return NextResponse.json({ error: 'Department name is required.' }, { status: 400 });
     }
 
     const project = await prisma.project.findUnique({ where: { id: projectId } });

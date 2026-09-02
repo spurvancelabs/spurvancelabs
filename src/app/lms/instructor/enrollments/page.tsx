@@ -37,7 +37,7 @@ export default function InstructorEnrollmentsPage() {
 
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <div className="relative flex-1 max-w-xs">
-          <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
           <input
@@ -68,7 +68,7 @@ export default function InstructorEnrollmentsPage() {
             <option key={c.id} value={c.id}>{c.title}</option>
           ))}
         </select>
-        <span className="text-sm text-gray-500 self-center ml-auto">
+        <span className="text-sm text-gray-400 self-center ml-auto">
           {Array.isArray(enrollments) ? enrollments.length : 0} enrollment{enrollments?.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -78,11 +78,11 @@ export default function InstructorEnrollmentsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Course</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Student</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Status</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Progress</th>
-                <th className="text-left px-5 py-3 text-gray-500 font-medium">Enrolled</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Course</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Student</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Status</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Progress</th>
+                <th className="text-left px-5 py-3 text-gray-400 font-medium">Enrolled</th>
               </tr>
             </thead>
             <tbody>
@@ -95,7 +95,7 @@ export default function InstructorEnrollmentsPage() {
                   </tr>
                 ))
               ) : !enrollments || enrollments.length === 0 ? (
-                <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-500">No enrollments found</td></tr>
+                <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-400">No enrollments found</td></tr>
               ) : (
                 enrollments.map((enr) => (
                   <tr key={enr.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
@@ -107,7 +107,7 @@ export default function InstructorEnrollmentsPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-gray-300 truncate">{enr.student?.name || '—'}</p>
-                          <p className="text-gray-500 text-xs truncate">{enr.student?.email || '—'}</p>
+                          <p className="text-gray-400 text-xs truncate">{enr.student?.email || '—'}</p>
                         </div>
                       </div>
                     </td>

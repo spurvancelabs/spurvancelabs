@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { uploadLmsMedia } from '@/lib/lms/upload'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -38,15 +39,11 @@ export default function SettingsPage() {
     if (!file) return
     setUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!res.ok) throw new Error('Upload failed')
-      const { url } = await res.json()
+      const url = await uploadLmsMedia(file, 'avatar')
       setImage(url)
       toast.success('Avatar uploaded! Save to confirm')
-    } catch {
-      toast.error('Failed to upload avatar')
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to upload avatar')
     } finally {
       setUploading(false)
     }
@@ -105,7 +102,7 @@ export default function SettingsPage() {
               {image ? (
                 <img src={image} alt="" className="w-full h-full object-cover" />
               ) : (
-                <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
               )}

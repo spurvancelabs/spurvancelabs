@@ -65,7 +65,7 @@ export default function InstructorSidebar() {
             <img src="/spurvance-logo-removebg-preview.png" alt="Spurvance" className="w-8 h-8 object-contain" />
             <div>
               <span className="text-white text-sm font-semibold block leading-tight">LMS</span>
-              <span className="text-[10px] text-gray-500">Course Management</span>
+              <span className="text-[10px] text-gray-400">Course Management</span>
             </div>
           </Link>
         </div>

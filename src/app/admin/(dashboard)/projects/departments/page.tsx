@@ -78,6 +78,10 @@ export default function AdminDepartmentsPage() {
   };
 
   const openCreate = () => {
+    if (!projectId) {
+      toast.error('Create a project first, then add a department.');
+      return;
+    }
     setSelectedDept(null);
     setFormName('');
     setFormDesc('');

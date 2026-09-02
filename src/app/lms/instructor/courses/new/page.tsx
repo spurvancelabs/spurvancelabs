@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { ModulesSection } from '@/components/lms/ModulesSection'
 import type { CategoryData, ModuleData } from '@/lib/lms/types'
+import { uploadLmsMedia, validateLmsUpload } from '@/lib/lms/upload'
 
 const steps = [
   { num: 1, label: 'Course Info' },
@@ -60,20 +61,19 @@ export default function NewCoursePage() {
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
-    const formData = new FormData()
-    formData.append('file', file)
+    const validationError = validateLmsUpload(file, 'thumbnail')
+    if (validationError) { toast.error(validationError); e.target.value = ''; return }
 
     setThumbnailUploading(true)
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      if (!res.ok) { toast.error('Upload failed'); return }
-      const { url } = await res.json()
+      const url = await uploadLmsMedia(file, 'thumbnail')
       setThumbnail(url)
-    } catch {
-      toast.error('Upload failed')
+      toast.success('Thumbnail uploaded')
+    } catch (error: any) {
+      toast.error(error?.message || 'Upload failed')
     } finally {
       setThumbnailUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -131,10 +131,10 @@ export default function NewCoursePage() {
       <div className="flex items-center gap-3 mb-6" onClick={e => { const target = (e.target as HTMLElement).closest('[data-step]'); if (target) setStep(Number(target.getAttribute('data-step'))); }}>
         {steps.map(s => (
           <div key={s.num} data-step={s.num} className="flex items-center gap-2 cursor-pointer group">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${step >= s.num ? 'bg-amber-600 text-white' : 'bg-zinc-800 text-gray-500'} group-hover:opacity-80`}>
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${step >= s.num ? 'bg-amber-600 text-white' : 'bg-zinc-800 text-gray-400'} group-hover:opacity-80`}>
               {s.num}
             </div>
-            <span className={`text-sm hidden sm:inline transition-colors ${step >= s.num ? 'text-white' : 'text-gray-500'} group-hover:text-amber-400`}>{s.label}</span>
+            <span className={`text-sm hidden sm:inline transition-colors ${step >= s.num ? 'text-white' : 'text-gray-400'} group-hover:text-amber-400`}>{s.label}</span>
             {s.num < steps.length && <div className={`w-8 h-px mx-1 ${step > s.num ? 'bg-amber-600' : 'bg-zinc-700'}`} />}
           </div>
         ))}
@@ -170,7 +170,7 @@ export default function NewCoursePage() {
           <div>
             <label className="block text-sm text-gray-400 mb-1.5">Thumbnail</label>
             <label className="cursor-pointer group block">
-              <div className="relative w-52 h-28 rounded-lg border-2 border-dashed border-white/[0.12] bg-zinc-900/50 flex items-center justify-center text-gray-500 group-hover:border-amber-500/50 group-hover:text-amber-400 transition-colors overflow-hidden">
+              <div className="relative w-52 h-28 rounded-lg border-2 border-dashed border-white/[0.12] bg-zinc-900/50 flex items-center justify-center text-gray-400 group-hover:border-amber-500/50 group-hover:text-amber-400 transition-colors overflow-hidden">
                 {thumbnail ? (
                   <img src={thumbnail} alt="Thumbnail" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
@@ -178,11 +178,11 @@ export default function NewCoursePage() {
                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-[11px] text-gray-600">Add thumbnail</span>
+                    <span className="text-[11px] text-gray-400">Add thumbnail</span>
                   </div>
                 )}
               </div>
-              <span className="text-[10px] text-gray-600 mt-1 block">16:9 ratio · 1280×720px · JPG, PNG, WebP or GIF · Max 5MB</span>
+              <span className="text-[10px] text-gray-400 mt-1 block">16:9 ratio · 1280×720px · JPG, PNG, WebP or GIF · Max 5MB</span>
               {thumbnail && (
                 <button type="button" onClick={e => { e.stopPropagation(); setThumbnail('') }} className="text-xs text-red-400 hover:text-red-300 mt-1.5">
                   Remove
@@ -354,23 +354,23 @@ function ReviewStep({ courseId, title, description, level, isFree, price, status
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Title</span>
+              <span className="text-gray-400 text-sm">Title</span>
               <span className={`text-sm font-medium ${title.trim() ? 'text-white' : 'text-red-400'}`}>{title.trim() || '(not set)'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Description</span>
+              <span className="text-gray-400 text-sm">Description</span>
               <span className={`text-sm ${description.trim() ? 'text-white' : 'text-red-400'}`}>{description.trim() ? description : '(not set)'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Level</span>
+              <span className="text-gray-400 text-sm">Level</span>
               <span className="text-white text-sm capitalize">{level}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Price</span>
+              <span className="text-gray-400 text-sm">Price</span>
               <span className="text-white text-sm">{isFree ? 'Free' : `$${parseFloat(price || '0').toFixed(2)}`}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Status</span>
+              <span className="text-gray-400 text-sm">Status</span>
               <span className={`text-sm font-medium ${status === 'PUBLISHED' ? 'text-emerald-400' : 'text-gray-400'}`}>{status === 'PUBLISHED' ? 'Published' : 'Draft'}</span>
             </div>
           </div>
@@ -383,11 +383,11 @@ function ReviewStep({ courseId, title, description, level, isFree, price, status
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Modules</span>
+              <span className="text-gray-400 text-sm">Modules</span>
               <span className={`text-sm font-medium ${moduleCount > 0 ? 'text-white' : 'text-red-400'}`}>{moduleCount}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Lessons</span>
+              <span className="text-gray-400 text-sm">Lessons</span>
               <span className={`text-sm font-medium ${lessonCount > 0 ? 'text-white' : 'text-red-400'}`}>{lessonCount}</span>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
-import { requireSuperAdmin } from '@/lib/lms/utils';
+import { requireSuperAdmin, ensurePublicUserRecord } from '@/lib/lms/utils';
 import { ROLES } from '@/lib/lms/roles';
 
 export async function GET() {
@@ -47,7 +47,8 @@ export async function GET() {
     if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
-    return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
+    console.error('Admin list failed:', error);
+    return NextResponse.json({ error: 'Unable to load admin accounts. Please try again.' }, { status: 500 });
   }
 }
 
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
         email,
         password,
         email_confirm: true,
-        user_metadata: { name: email.split('@')[0], skip_users_table: true },
+        user_metadata: { name: email.split('@')[0] },
       });
 
       if (createError) throw createError;
@@ -91,6 +92,14 @@ export async function POST(request: NextRequest) {
 
       userId = authUser.user.id;
     }
+
+    const authUser = existingAuthUser || (await supabase.auth.admin.getUserById(userId)).data.user
+    await ensurePublicUserRecord({
+      id: userId,
+      email: authUser?.email || email,
+      name: authUser?.user_metadata?.name || email.split('@')[0],
+      image: authUser?.user_metadata?.avatar_url || null,
+    })
 
     const { data: existingAdmin } = await supabase
       .from('admin_users')
@@ -121,6 +130,8 @@ export async function POST(request: NextRequest) {
     if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
       return NextResponse.json({ error: error.message }, { status: 401 });
     }
-    return NextResponse.json({ error: error?.message || 'Something went wrong' }, { status: 500 });
+    if (error?.code === '23503' || error?.code === 'P2003') return NextResponse.json({ error: 'The selected admin user could not be linked to a valid user record.' }, { status: 400 });
+    console.error('Admin creation failed:', error);
+    return NextResponse.json({ error: 'Unable to create the admin account. Please try again.' }, { status: 500 });
   }
 }

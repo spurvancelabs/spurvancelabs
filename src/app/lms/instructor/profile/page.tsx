@@ -29,7 +29,7 @@ export default function InstructorProfilePage() {
 
   if (!data) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center text-gray-500">
+      <div className="max-w-4xl mx-auto px-4 py-20 text-center text-gray-400">
         <p>Please log in to view your profile.</p>
       </div>
     )
@@ -64,7 +64,7 @@ export default function InstructorProfilePage() {
       <h2 className="text-lg font-semibold text-white mb-4">Your Courses ({data.courses?.length ?? 0})</h2>
       <div className="space-y-3 mb-8">
         {data.courses?.length === 0 && (
-          <p className="text-gray-500 text-sm py-8 text-center">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:underline">Create your first course</Link></p>
+          <p className="text-gray-400 text-sm py-8 text-center">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:underline">Create your first course</Link></p>
         )}
         {data.courses?.map((course: any) => (
           <Link
@@ -73,7 +73,7 @@ export default function InstructorProfilePage() {
             className="block rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-4 hover:border-amber-500/30 transition-all"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center text-xs text-gray-500 shrink-0 overflow-hidden">
+              <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center text-xs text-gray-400 shrink-0 overflow-hidden">
                 {course.thumbnail ? (
                   <img src={course.thumbnail} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -84,7 +84,7 @@ export default function InstructorProfilePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white font-medium text-sm truncate">{course.title}</p>
-                <p className="text-gray-500 text-xs mt-0.5">
+                <p className="text-gray-400 text-xs mt-0.5">
                   {course._count?.modules ?? 0} modules &middot; {course._count?.enrollments ?? 0} students
                   {course.level && <span> &middot; {course.level}</span>}
                 </p>
@@ -113,7 +113,7 @@ export default function InstructorProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">Dashboard</p>
-            <p className="text-gray-500 text-xs mt-0.5">View your stats</p>
+            <p className="text-gray-400 text-xs mt-0.5">View your stats</p>
           </div>
         </Link>
         <Link href="/lms/instructor/courses" className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-amber-500/30 transition-all flex items-center gap-4">
@@ -122,7 +122,7 @@ export default function InstructorProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">Manage Courses</p>
-            <p className="text-gray-500 text-xs mt-0.5">Create & edit courses</p>
+            <p className="text-gray-400 text-xs mt-0.5">Create & edit courses</p>
           </div>
         </Link>
         <Link href="/lms/instructor/enrollments" className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] p-5 hover:border-amber-500/30 transition-all flex items-center gap-4">
@@ -131,7 +131,7 @@ export default function InstructorProfilePage() {
           </div>
           <div>
             <p className="text-white font-medium text-sm">Enrollments</p>
-            <p className="text-gray-500 text-xs mt-0.5">View student enrollments</p>
+            <p className="text-gray-400 text-xs mt-0.5">View student enrollments</p>
           </div>
         </Link>
       </div>
