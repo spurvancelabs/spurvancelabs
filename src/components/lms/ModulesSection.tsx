@@ -160,6 +160,15 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
     enabled: !!moduleId,
   })
 
+  const syncModuleLessonCount = (lessonModuleId: string, count: number) => {
+    queryClient.setQueryData<ModuleData[]>(['lms-modules', courseId], (current) =>
+      current?.map((module) => module.id === lessonModuleId
+        ? { ...module, _count: { ...(module._count || { lessons: 0 }), lessons: count } }
+        : module
+      )
+    )
+  }
+
   const updateLesson = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
       fetch(`/api/lms/lessons/${body.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body.data) }),
@@ -172,13 +181,23 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
   })
 
   const deleteLesson = useMutation({
-    mutationFn: (id: string) => fetch(`/api/lms/lessons/${id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      toast.success('Lesson deleted')
-      queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
-      queryClient.invalidateQueries({ queryKey: ['lms-modules', courseId] })
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/lms/lessons/${id}`, { method: 'DELETE' })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || 'Failed to delete lesson')
+      return data as { moduleId: string; moduleLessonCount: number }
     },
-    onError: () => toast.error('Failed to delete lesson'),
+    onSuccess: async (data) => {
+      toast.success('Lesson deleted')
+      if (data.moduleId === moduleId && Number.isInteger(data.moduleLessonCount)) {
+        syncModuleLessonCount(moduleId, data.moduleLessonCount)
+      }
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['lms-lessons', moduleId], type: 'active' }),
+        queryClient.refetchQueries({ queryKey: ['lms-modules', courseId], type: 'active' }),
+      ])
+    },
+    onError: (error) => toast.error(error.message || 'Failed to delete lesson'),
   })
 
   const [newLessonTitle, setNewLessonTitle] = useState('')
@@ -199,12 +218,15 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
       const res = await fetch('/api/lms/lessons', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Failed to add lesson')
-      return data as LessonData
+      return data as LessonData & { moduleLessonCount: number }
     },
-    onSuccess: (lesson) => {
+    onSuccess: async (lesson) => {
       toast.success('Lesson added')
-      queryClient.invalidateQueries({ queryKey: ['lms-lessons', moduleId] })
-      queryClient.invalidateQueries({ queryKey: ['lms-modules', courseId] })
+      syncModuleLessonCount(moduleId, lesson.moduleLessonCount)
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['lms-lessons', moduleId], type: 'active' }),
+        queryClient.refetchQueries({ queryKey: ['lms-modules', courseId], type: 'active' }),
+      ])
       if (lesson.type === 'VIDEO') {
         setEditorLessonId(lesson.id)
         setEditorForm({ title: lesson.title, type: lesson.type, description: '', content: '', videoUrl: '', duration: '' })
