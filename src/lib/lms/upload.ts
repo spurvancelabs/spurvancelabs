@@ -33,11 +33,29 @@ export async function uploadLmsMedia(file: File, type: LmsUploadType): Promise<s
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) throw new Error(payload.error || 'Unable to prepare upload')
 
-  const { path, token, publicUrl, bucket } = payload
+  const { path, token, publicUrl, bucket, signedUrl } = payload
+  if (!path || !token || !publicUrl || !bucket || !signedUrl) {
+    throw new Error('Upload service returned an incomplete upload target')
+  }
+
   const { error } = await supabase.storage.from(bucket).uploadToSignedUrl(path, token, file, {
     contentType: file.type,
-    cacheControl: '3600',
+    cacheControl: '31536000',
   })
-  if (error) throw new Error(error.message || 'Upload failed')
+  if (error) {
+    console.error('LMS media upload failed:', error)
+    throw new Error(error.message || 'Upload failed')
+  }
+
+  const verifyResponse = await fetch('/api/upload/complete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path, contentType: file.type, size: file.size, type }),
+  })
+  const verifyPayload = await verifyResponse.json().catch(() => ({}))
+  if (!verifyResponse.ok || !verifyPayload.verified) {
+    throw new Error(verifyPayload.error || 'Upload could not be verified')
+  }
+
   return publicUrl
 }

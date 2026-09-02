@@ -46,8 +46,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     await requireInstructor()
     const { id } = await params
-    await prisma.lesson.delete({ where: { id } })
-    return NextResponse.json({ success: true })
+    const deleted = await prisma.lesson.delete({ where: { id }, select: { moduleId: true } })
+    const moduleLessonCount = await prisma.lesson.count({ where: { moduleId: deleted.moduleId } })
+    return NextResponse.json({ success: true, moduleId: deleted.moduleId, moduleLessonCount })
   } catch (error: any) {
     if (error.message === 'Unauthorized' || error.message === 'Forbidden') return NextResponse.json({ error: error.message }, { status: 401 })
     return NextResponse.json({ error: 'Failed to delete lesson' }, { status: 500 })
