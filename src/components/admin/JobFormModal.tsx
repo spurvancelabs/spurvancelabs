@@ -32,6 +32,7 @@ const defaultForm: JobFormData = {
 
 export default function JobFormModal({ isOpen, onClose, onSubmit, initialData, isLoading }: JobFormModalProps) {
   const [form, setForm] = useState<JobFormData>(defaultForm);
+  const [errors, setErrors] = useState<Partial<Record<keyof JobFormData, string>>>({});
 
   useEffect(() => {
     if (initialData) {
@@ -39,16 +40,33 @@ export default function JobFormModal({ isOpen, onClose, onSubmit, initialData, i
     } else {
       setForm(defaultForm);
     }
+    setErrors({});
   }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
+  const validate = (): boolean => {
+    const newErrors: Partial<Record<keyof JobFormData, string>> = {};
+    if (!form.title.trim()) newErrors.title = 'Title is required';
+    if (!form.department.trim()) newErrors.department = 'Department is required';
+    if (!form.type.trim()) newErrors.type = 'Type is required';
+    if (!form.location.trim()) newErrors.location = 'Location is required';
+    if (!form.description.trim()) newErrors.description = 'Description is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (errors[name as keyof JobFormData]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     onSubmit(form);
   };
 
@@ -62,17 +80,19 @@ export default function JobFormModal({ isOpen, onClose, onSubmit, initialData, i
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-white text-xl cursor-pointer">✕</button>
         </div>
-        <form className="flex-1 overflow-y-auto modal-scroll p-6 space-y-4">
+        <form id="job-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto modal-scroll p-6 space-y-4" noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-gray-400 text-sm mb-1">Title *</label>
-              <input type="text" name="title" required value={form.title} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+              <input type="text" name="title" value={form.title} onChange={handleChange}
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 ${errors.title ? 'border-red-500/60' : 'border-[#2a2a2a]'}`} />
+              {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title}</p>}
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Department *</label>
-              <input type="text" name="department" required value={form.department} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+              <input type="text" name="department" value={form.department} onChange={handleChange}
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 ${errors.department ? 'border-red-500/60' : 'border-[#2a2a2a]'}`} />
+              {errors.department && <p className="text-red-400 text-xs mt-1">{errors.department}</p>}
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Type *</label>
@@ -85,8 +105,9 @@ export default function JobFormModal({ isOpen, onClose, onSubmit, initialData, i
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Location *</label>
-              <input type="text" name="location" required value={form.location} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+              <input type="text" name="location" value={form.location} onChange={handleChange}
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 ${errors.location ? 'border-red-500/60' : 'border-[#2a2a2a]'}`} />
+              {errors.location && <p className="text-red-400 text-xs mt-1">{errors.location}</p>}
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Salary (display)</label>
@@ -119,8 +140,9 @@ export default function JobFormModal({ isOpen, onClose, onSubmit, initialData, i
             </div>
             <div className="md:col-span-2">
               <label className="block text-gray-400 text-sm mb-1">Description *</label>
-              <textarea name="description" required rows={4} value={form.description} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 resize-vertical" />
+              <textarea name="description" rows={4} value={form.description} onChange={handleChange}
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 resize-vertical ${errors.description ? 'border-red-500/60' : 'border-[#2a2a2a]'}`} />
+              {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
             </div>
             <div className="md:col-span-2">
               <label className="block text-gray-400 text-sm mb-1">Icon URL</label>
@@ -135,7 +157,7 @@ export default function JobFormModal({ isOpen, onClose, onSubmit, initialData, i
               className="flex-1 bg-[#1a1a1a] text-gray-400 border border-[#2a2a2a] px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#2a2a2a] hover:text-white transition-all cursor-pointer">
               Cancel
             </button>
-            <button type="button" disabled={isLoading} onClick={handleSubmit}
+            <button type="submit" form="job-form" disabled={isLoading}
               className="flex-1 bg-blue-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-600 transition-all cursor-pointer disabled:opacity-50">
               {isLoading ? 'Saving...' : initialData ? 'Update Job' : 'Create Job'}
             </button>
