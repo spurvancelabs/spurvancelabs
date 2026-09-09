@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ProjectSidebar from '@/components/projects/ProjectSidebar';
 import ProjectHeader from '@/components/projects/ProjectHeader';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
+import EditProjectModal from '@/components/projects/EditProjectModal';
 import { STATUS_COLORS } from '@/lib/projects/types';
 
 interface Project {
@@ -30,6 +31,11 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [editProject, setEditProject] = useState<Project | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const fetchProjects = () => {
     fetch('/api/projects')
@@ -45,6 +51,30 @@ export default function ProjectsPage() {
   };
 
   useEffect(() => { fetchProjects(); }, []);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const res = await fetch(`/api/projects/${deleteTarget.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setDeleteError(data.error || 'Failed to delete project');
+        setDeleting(false);
+        return;
+      }
+      setProjects(prev => prev.filter(p => p.id !== deleteTarget.id));
+      setDeleteTarget(null);
+      setDeleting(false);
+    } catch {
+      setDeleteError('Something went wrong');
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-zinc-950">
@@ -97,19 +127,17 @@ export default function ProjectsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {projects.map(project => (
+                <div key={project.id} className="relative group">
                 <Link
-                  key={project.id}
                   href={`/projects/${project.id}/board`}
-                  className="group bg-zinc-900 border border-white/[0.06] rounded-xl p-5 hover:border-blue-500/30 transition-all"
+                  className="block bg-zinc-900 border border-white/[0.06] rounded-xl p-5 hover:border-blue-500/30 transition-all"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: project.color || '#6366f1' }}
-                      />
-                      <span className="text-xs font-mono text-gray-500">{project.key}</span>
-                    </div>
+                  <div className="flex items-center gap-2 mb-3 pr-8">
+                    <div
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: project.color || '#6366f1' }}
+                    />
+                    <span className="text-xs font-mono text-gray-500">{project.key}</span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full border ${STATUS_BADGES[project.status] || STATUS_BADGES.ACTIVE}`}>
                       {project.status.replace('_', ' ')}
                     </span>
@@ -135,16 +163,95 @@ export default function ProjectsPage() {
                     </span>
                   </div>
                 </Link>
+                <div className="absolute top-3.5 right-3.5">
+                  <button
+                    type="button"
+                    aria-label="Project actions"
+                    onClick={() => setMenuOpenId(menuOpenId === project.id ? null : project.id)}
+                    className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 6.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
+                    </svg>
+                  </button>
+                  {menuOpenId === project.id && (
+                    <div className="absolute right-0 top-full mt-1 w-32 bg-zinc-800 border border-white/10 rounded-lg shadow-xl py-1 z-50">
+                      <button
+                        type="button"
+                        onClick={() => { setEditProject(project); setMenuOpenId(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                        </svg>
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setDeleteTarget(project); setDeleteError(''); setMenuOpenId(null); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+                </div>
               ))}
             </div>
           )}
         </main>
       </div>
+      {menuOpenId && (
+        <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
+      )}
       {showCreate && (
         <CreateProjectModal
           onClose={() => setShowCreate(false)}
           onCreated={(p) => { setShowCreate(false); fetchProjects(); }}
         />
+      )}
+      {editProject && (
+        <EditProjectModal
+          project={editProject}
+          onClose={() => setEditProject(null)}
+          onUpdated={() => { setEditProject(null); fetchProjects(); }}
+        />
+      )}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-white/[0.06] rounded-2xl w-full max-w-md shadow-2xl p-5">
+            <h2 className="text-lg font-semibold text-white mb-2">Delete project</h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Are you sure you want to delete <span className="text-white font-medium">{deleteTarget.name}</span>?
+              This permanently removes the project and all its tickets, sprints and data. This action cannot be undone.
+            </p>
+            {deleteError && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-2 rounded-lg mb-4">{deleteError}</div>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setDeleteTarget(null); setDeleteError(''); }}
+                disabled={deleting}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {deleting ? 'Deleting...' : 'Delete Project'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
