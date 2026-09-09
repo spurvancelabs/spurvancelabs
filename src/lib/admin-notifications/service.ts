@@ -105,21 +105,23 @@ export class AdminNotificationService {
 
     const { count: total, error: totalError } = await supabase
       .from('admin_notifications')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('recipient_user_id', recipientUserId);
 
     if (totalError) {
-      throw new Error(`Failed to fetch admin notification stats: ${totalError.message}`);
+      console.error('Error fetching admin notification total count:', totalError);
+      return { total: 0, unread: 0 };
     }
 
     const { count: unread, error: unreadError } = await supabase
       .from('admin_notifications')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('recipient_user_id', recipientUserId)
       .eq('read', false);
 
     if (unreadError) {
-      throw new Error(`Failed to fetch admin notification stats: ${unreadError.message}`);
+      console.error('Error fetching admin notification unread count:', unreadError);
+      return { total: total || 0, unread: 0 };
     }
 
     return {

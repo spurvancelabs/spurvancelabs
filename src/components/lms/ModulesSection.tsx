@@ -202,6 +202,7 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
 
   const [newLessonTitle, setNewLessonTitle] = useState('')
   const [newLessonType, setNewLessonType] = useState<'TEXT' | 'VIDEO' | 'QUIZ' | 'ASSIGNMENT'>('TEXT')
+  const [newQuizTitle, setNewQuizTitle] = useState('')
   const [editorLessonId, setEditorLessonId] = useState<string | null>(null)
   const [editorForm, setEditorForm] = useState({
     title: '',
@@ -281,8 +282,12 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
 
   const addLesson = () => {
     if (!newLessonTitle.trim()) { toast.error('Enter a lesson title'); return }
-    createLesson.mutate({ moduleId, title: newLessonTitle.trim(), type: newLessonType })
+    if (newLessonType === 'QUIZ' && !newQuizTitle.trim()) { toast.error('Enter a quiz title to create a quiz lesson'); return }
+    const body: Record<string, unknown> = { moduleId, title: newLessonTitle.trim(), type: newLessonType }
+    if (newLessonType === 'QUIZ') body.quiz = { title: newQuizTitle.trim() }
+    createLesson.mutate(body)
     setNewLessonTitle('')
+    setNewQuizTitle('')
   }
 
   if (isLoading) {
@@ -425,6 +430,19 @@ function LessonsList({ moduleId, courseId, variant }: { moduleId: string; course
           Add
         </button>
       </div>
+
+      {newLessonType === 'QUIZ' && (
+        <div className="px-4 pb-3">
+          <input
+            type="text"
+            value={newQuizTitle}
+            onChange={e => setNewQuizTitle(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addLesson()}
+            placeholder="Quiz title (required)"
+            className={`w-full bg-zinc-800 border border-white/[0.08] rounded-lg px-3 py-1.5 text-white placeholder-gray-500 text-xs focus:outline-none ${variant === 'admin' ? 'focus:border-blue-500/50' : 'focus:border-amber-500/50'}`}
+          />
+        </div>
+      )}
     </div>
   )
 }
