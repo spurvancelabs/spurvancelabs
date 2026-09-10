@@ -64,30 +64,36 @@ export default function ApplicationDetailModal({ isOpen, onClose, application, j
   const isJob = application.applicationType === 'job';
 
   const startEdit = () => {
-    setForm({
+    const common: Record<string, any> = {
       name: application.name,
       email: application.email,
       phone: application.phone || '',
-      current_company: application.current_company || '',
-      current_position: application.current_position || '',
-      years_of_experience: application.years_of_experience || '',
       linkedin_url: application.linkedin_url || '',
-      portfolio_url: application.portfolio_url || '',
-      salary_expectation: application.salary_expectation || '',
-      start_date: application.start_date || '',
       work_authorization: application.work_authorization || '',
       referral_source: application.referral_source || '',
       additional_info: application.additional_info || '',
-      university: application.university || '',
-      major: application.major || '',
-      year_of_study: application.year_of_study || '',
-      graduation_date: application.graduation_date || '',
-      gpa: application.gpa || '',
-      github_url: application.github_url || '',
-      available_start_date: application.available_start_date || '',
-      availability_duration: application.availability_duration || '',
       cover_letter: application.cover_letter || '',
-    });
+    };
+    const typeSpecific = isJob
+      ? {
+          current_company: application.current_company || '',
+          current_position: application.current_position || '',
+          years_of_experience: application.years_of_experience || '',
+          portfolio_url: application.portfolio_url || '',
+          salary_expectation: application.salary_expectation || '',
+          start_date: application.start_date || '',
+        }
+      : {
+          university: application.university || '',
+          major: application.major || '',
+          year_of_study: application.year_of_study || '',
+          graduation_date: application.graduation_date || '',
+          gpa: application.gpa || '',
+          github_url: application.github_url || '',
+          available_start_date: application.available_start_date || '',
+          availability_duration: application.availability_duration || '',
+        };
+    setForm({ ...common, ...typeSpecific });
     setEditing(true);
   };
 
@@ -95,10 +101,20 @@ export default function ApplicationDetailModal({ isOpen, onClose, application, j
     setSaving(true);
     try {
       const type = application.applicationType;
+      const payload: Record<string, any> = { ...form, type };
+      if (isJob) {
+        delete payload.university; delete payload.major; delete payload.year_of_study;
+        delete payload.graduation_date; delete payload.gpa; delete payload.github_url;
+        delete payload.available_start_date; delete payload.availability_duration;
+      } else {
+        delete payload.current_company; delete payload.current_position;
+        delete payload.years_of_experience; delete payload.portfolio_url;
+        delete payload.salary_expectation; delete payload.start_date;
+      }
       const res = await fetch(`/api/admin/applications/${application.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, type }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Failed to update');
       toast.success('Application updated');
@@ -261,11 +277,6 @@ export default function ApplicationDetailModal({ isOpen, onClose, application, j
                 <EditField label="Work Authorization" value={form.work_authorization} onChange={(v) => setForm({ ...form, work_authorization: v })} />
                 <EditField label="Referral Source" value={form.referral_source} onChange={(v) => setForm({ ...form, referral_source: v })} />
               </div>
-              <div className="space-y-3">
-                <h4 className="text-gray-300 text-sm font-semibold border-b border-white/5 pb-2">Additional Info</h4>
-                <EditField label="Available Start Date" value={form.available_start_date} onChange={(v) => setForm({ ...form, available_start_date: v })} type="date" />
-                <EditField label="Availability Duration" value={form.availability_duration} onChange={(v) => setForm({ ...form, availability_duration: v })} />
-              </div>
             </div>
           )}
 
@@ -277,11 +288,6 @@ export default function ApplicationDetailModal({ isOpen, onClose, application, j
                 <InfoRow label="Start Date" value={application.start_date ? new Date(application.start_date).toLocaleDateString() : null} />
                 <InfoRow label="Work Authorization" value={application.work_authorization} />
                 <InfoRow label="Referral Source" value={application.referral_source} />
-              </div>
-              <div className="space-y-3">
-                <h4 className="text-gray-300 text-sm font-semibold border-b border-white/5 pb-2">Internship Details</h4>
-                <InfoRow label="Available Start Date" value={application.available_start_date ? new Date(application.available_start_date).toLocaleDateString() : null} />
-                <InfoRow label="Availability Duration" value={application.availability_duration} />
               </div>
             </div>
           )}

@@ -76,10 +76,39 @@ export default function EditApplicationPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const commonFields = {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        linkedin_url: form.linkedin_url,
+        work_authorization: form.work_authorization,
+        referral_source: form.referral_source,
+        cover_letter: form.cover_letter,
+        additional_info: form.additional_info,
+      };
+      const typeFields = isJob
+        ? {
+            current_company: form.current_company,
+            current_position: form.current_position,
+            years_of_experience: form.years_of_experience,
+            portfolio_url: form.portfolio_url,
+            salary_expectation: form.salary_expectation,
+            start_date: form.start_date,
+          }
+        : {
+            university: form.university,
+            major: form.major,
+            year_of_study: form.year_of_study,
+            graduation_date: form.graduation_date,
+            gpa: form.gpa,
+            github_url: form.github_url,
+            available_start_date: form.available_start_date,
+            availability_duration: form.availability_duration,
+          };
       const res = await fetch(`/api/admin/applications/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, type }),
+        body: JSON.stringify({ ...commonFields, ...typeFields, type }),
       });
       if (!res.ok) throw new Error('Failed to save');
       toast.success('Application updated');

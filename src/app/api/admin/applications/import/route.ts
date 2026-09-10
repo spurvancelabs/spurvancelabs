@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
 
       const now = new Date().toISOString();
       const insertData: Record<string, any> = {
+        id: crypto.randomUUID(),
         name: record.Name || 'Unknown',
         email: record.Email || 'unknown@example.com',
         status: VALID_STATUSES.includes(record.Status) ? record.Status : 'PENDING',
