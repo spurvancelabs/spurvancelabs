@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
+import EditProjectModal from '@/components/projects/EditProjectModal';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 
@@ -30,7 +31,32 @@ export default function AdminProjectsPage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('ALL');
   const [showCreate, setShowCreate] = useState(false);
+  const [editProject, setEditProject] = useState<Project | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const queryClient = useQueryClient();
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const res = await fetch(`/api/admin/projects/${deleteTarget.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setDeleteError(err.error || 'Failed to delete project');
+        setDeleting(false);
+        return;
+      }
+      setDeleteTarget(null);
+      setDeleting(false);
+      queryClient.invalidateQueries({ queryKey: ['admin-projects'] });
+    } catch {
+      setDeleteError('Something went wrong');
+      setDeleting(false);
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-projects'],
@@ -182,15 +208,29 @@ export default function AdminProjectsPage() {
                       {new Date(p.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <Link
-                        href={`/projects/${p.id}/board`}
-                        className="text-blue-400 hover:text-blue-300 text-sm inline-flex items-center gap-1"
-                      >
-                        Open
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                        </svg>
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/projects/${p.id}/board`}
+                          className="text-blue-400 hover:text-blue-300 text-sm inline-flex items-center gap-1"
+                        >
+                          Open
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                          </svg>
+                        </Link>
+                        <button
+                          onClick={() => setEditProject(p)}
+                          className="text-gray-400 hover:text-white text-sm cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => { setDeleteTarget(p); setDeleteError(''); }}
+                          className="text-red-400 hover:text-red-300 text-sm cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -205,6 +245,46 @@ export default function AdminProjectsPage() {
           onClose={() => setShowCreate(false)}
           onCreated={() => { setShowCreate(false); queryClient.invalidateQueries({ queryKey: ['admin-projects'] }); }}
         />
+      )}
+      {editProject && (
+        <EditProjectModal
+          project={editProject}
+          endpoint={`/api/admin/projects/${editProject.id}`}
+          onClose={() => setEditProject(null)}
+          onUpdated={() => { setEditProject(null); queryClient.invalidateQueries({ queryKey: ['admin-projects'] }); }}
+        />
+      )}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-white/[0.06] rounded-2xl w-full max-w-md shadow-2xl p-5">
+            <h2 className="text-lg font-semibold text-white mb-2">Delete project</h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Are you sure you want to delete <span className="text-white font-medium">{deleteTarget.name}</span>?
+              This permanently removes the project and all its tickets, sprints and data. This action cannot be undone.
+            </p>
+            {deleteError && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-2 rounded-lg mb-4">{deleteError}</div>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setDeleteTarget(null); setDeleteError(''); }}
+                disabled={deleting}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {deleting ? 'Deleting...' : 'Delete Project'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

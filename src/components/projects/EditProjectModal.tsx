@@ -15,10 +15,12 @@ export default function EditProjectModal({
   project,
   onClose,
   onUpdated,
+  endpoint,
 }: {
   project: EditableProject;
   onClose: () => void;
   onUpdated?: (project: { id: string }) => void;
+  endpoint?: string;
 }) {
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description ?? '');
@@ -36,7 +38,7 @@ export default function EditProjectModal({
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/projects/${project.id}`, {
+      const res = await fetch(endpoint || `/api/projects/${project.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
