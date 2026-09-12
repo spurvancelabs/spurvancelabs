@@ -107,17 +107,33 @@ export default function NewCoursePage() {
 
   const handleStep2Next = async (cid: string) => {
     try {
-      const res = await fetch(`/api/lms/modules?courseId=${cid}`)
-      const modules = await res.json()
+      // Fetch fresh content from the server before allowing the user to review.
+      // The endpoint returns both the lesson relation and Prisma's `_count`.
+      // Prefer the relation length so validation is based on the records returned
+      // by this request, not on a potentially stale/mismatched count value.
+      const res = await fetch(`/api/lms/modules?courseId=${cid}`, { cache: 'no-store' })
+      if (!res.ok) {
+        throw new Error('Failed to fetch course content')
+      }
+
+      const modules: ModuleData[] = await res.json()
       if (!Array.isArray(modules) || modules.length === 0) {
         toast.error('Add at least one module before reviewing')
         return
       }
-      const totalLessons = modules.reduce((sum: number, m: any) => sum + (m._count?.lessons ?? 0), 0)
+
+      const totalLessons = modules.reduce((sum, module) => {
+        const lessonCount = Array.isArray(module.lessons)
+          ? module.lessons.length
+          : module._count?.lessons ?? 0
+        return sum + lessonCount
+      }, 0)
+
       if (totalLessons === 0) {
         toast.error('Add at least one lesson before reviewing')
         return
       }
+
       setStep(3)
     } catch {
       toast.error('Failed to check course content')
@@ -301,11 +317,20 @@ function ReviewStep({ courseId, title, description, level, isFree, price, status
 
   const { data: modules } = useQuery<ModuleData[]>({
     queryKey: ['lms-modules', courseId],
-    queryFn: () => fetch(`/api/lms/modules?courseId=${courseId}`).then(r => r.json()),
+    queryFn: async () => {
+      const response = await fetch(`/api/lms/modules?courseId=${courseId}`, { cache: 'no-store' })
+      if (!response.ok) throw new Error('Failed to fetch modules')
+      return response.json()
+    },
     enabled: !!courseId,
   })
 
-  const totalLessons = modules?.reduce((sum, m) => sum + (m._count?.lessons ?? 0), 0) ?? 0
+  const totalLessons = modules?.reduce((sum, module) => {
+    const lessonCount = Array.isArray(module.lessons)
+      ? module.lessons.length
+      : module._count?.lessons ?? 0
+    return sum + lessonCount
+  }, 0) ?? 0
 
   const completeMutation = useMutation({
     mutationFn: () =>
