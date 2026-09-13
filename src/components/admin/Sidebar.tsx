@@ -111,7 +111,6 @@ function getNavItems(role: string): SidebarItem[] {
     },
     { type: 'link', href: '/admin/interviewers', label: 'Interviewers', icon: 'interviewers' },
     { type: 'link', href: '/admin/users', label: 'Users', icon: 'users' },
-    { type: 'link', href: '/lms/instructor/dashboard', label: 'Instructor', icon: 'courses' },
   ];
 
   const adminManagementItems: SidebarItem[] = [
@@ -133,6 +132,12 @@ function getNavItems(role: string): SidebarItem[] {
     { type: 'link', href: '/admin/settings', label: 'Settings', icon: 'settings' },
   ];
 
+  const otherDashboardsItems: SidebarItem[] = [
+    { type: 'section', label: 'Other Dashboards' },
+    { type: 'link', href: '/lms/instructor/dashboard', label: 'LMS', icon: 'courses' },
+    { type: 'link', href: '/projects', label: 'Project Management', icon: 'projects' },
+  ];
+
   const middleItems: SidebarItem[] = [];
   if (canManageAdmins(role)) {
     middleItems.push(...adminManagementItems);
@@ -140,7 +145,7 @@ function getNavItems(role: string): SidebarItem[] {
   if (canAccessProjectsAdmin(role)) {
     middleItems.push(...projectsAdminItems);
   }
-  const allItems = [...baseItems, ...middleItems, ...settingsItem];
+  const allItems = [...baseItems, ...middleItems, ...otherDashboardsItems, ...settingsItem];
   return filterNavItems(allItems, role);
 }
 

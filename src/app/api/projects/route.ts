@@ -1,24 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth';
+import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { getAvailableProjectKey } from '@/lib/projects/key';
 
-async function getAuthUserId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) return null;
-  const payload = await verifyToken(token);
-  if (!payload?.userId) return null;
-  return payload.userId;
-}
-
 export async function GET() {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (!access.ok) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const projects = await prisma.project.findMany({
       where: {
@@ -42,10 +33,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (!access.ok) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const body = await req.json();
     const { name, description, key, color } = body;

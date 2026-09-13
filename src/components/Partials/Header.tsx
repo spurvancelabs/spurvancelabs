@@ -6,7 +6,7 @@ import ProfileDropdown from '../dasboard/ProfileDropdown'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { ROLES } from '@/lib/lms/roles'
+import { ROLES, isStudentRole } from '@/lib/lms/roles'
 
 const navLinks = [
   { href: '/lms', label: 'Courses' },
@@ -37,8 +37,10 @@ function Header() {
     check()
   }, [])
 
-  const isStudent = role === ROLES.USER || role === null
+  const isStudent = role === null || isStudentRole(role)
   const isInstructor = isInstructorFlag
+
+  const studentLinks = navLinks.filter((link) => link.href !== '/projects' || role === ROLES.MEMBER)
 
   const instructorLinks = [
     { href: '/lms/instructor/dashboard', label: 'Dashboard' },
@@ -65,7 +67,7 @@ function Header() {
               </span>
             </Link>
             <nav className="hidden md:flex items-center gap-5">
-              {(isStudent ? navLinks : isInstructor ? instructorLinks : []).map(link => (
+              {(isStudent ? studentLinks : isInstructor ? instructorLinks : []).map(link => (
                 <Link
                   key={link.href}
                   href={link.href}

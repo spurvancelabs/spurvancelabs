@@ -40,6 +40,7 @@ export default function ProjectsPage() {
   const fetchProjects = () => {
     fetch('/api/projects')
       .then(r => {
+        if (r.status === 403) { window.location.href = '/dashboard'; return; }
         if (!r.ok) { window.location.href = '/login'; return; }
         return r.json();
       })

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { verifyToken } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { ROLES, hasMinRole, roleLevel, isAdminRole } from '@/lib/lms/roles'
+import { ROLES, hasMinRole, roleLevel, isAdminRole, isStudentRole } from '@/lib/lms/roles'
 import { getSupabaseAdminClient } from '@/lib/supabase/server'
 
 export interface AuthUser {
@@ -114,7 +114,7 @@ export async function requireInstructor(): Promise<AuthUser> {
 
 export async function requireStudent(): Promise<AuthUser> {
   const user = await requireAuth()
-  if (user.role !== ROLES.USER && !hasMinRole(user.role, ROLES.VIEWER)) throw new Error('Forbidden')
+  if (!isStudentRole(user.role) && !hasMinRole(user.role, ROLES.VIEWER)) throw new Error('Forbidden')
   return user
 }
 

@@ -1,27 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth';
+import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { canProject } from '@/lib/projects/permissions';
-
-async function getAuthUserId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) return null;
-  const payload = await verifyToken(token);
-  if (!payload?.userId) return null;
-  return payload.userId;
-}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string; sprintId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (!access.ok) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const { projectId, sprintId } = await params;
 
@@ -66,10 +57,11 @@ export async function PUT(
   { params }: { params: Promise<{ projectId: string; sprintId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (!access.ok) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const { projectId, sprintId } = await params;
 
@@ -149,10 +141,11 @@ export async function DELETE(
   { params }: { params: Promise<{ projectId: string; sprintId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (!access.ok) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const { projectId, sprintId } = await params;
 
