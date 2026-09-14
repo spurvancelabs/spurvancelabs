@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const access = await getProjectAccess();
-    if (!access.ok) {
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
@@ -48,7 +48,7 @@ export async function POST(
 ) {
   try {
     const access = await getProjectAccess();
-    if (!access.ok) {
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;

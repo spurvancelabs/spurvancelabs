@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { type User } from '@supabase/supabase-js'
 import { rateLimiter } from '@/lib/rate-limit'
 
 const forgotPasswordSchema = z.object({
@@ -45,7 +46,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const user = data.users.find(
+    const authUsers = (data?.users ?? []) as User[]
+    const user = authUsers.find(
       (u) => u.email?.toLowerCase() === email.toLowerCase()
     )
 

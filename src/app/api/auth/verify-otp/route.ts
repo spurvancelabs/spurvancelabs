@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z, ZodError } from 'zod'
 import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { type User } from '@supabase/supabase-js'
 import { rateLimiter } from '@/lib/rate-limit'
 
 const verifyOTPSchema = z.object({
@@ -37,7 +38,8 @@ export async function POST(request: Request) {
 
     const { data } = await supabaseAdmin().auth.admin.listUsers({ page: 1, perPage: 1000 })
 
-    const user = data?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase())
+    const authUsers = (data?.users ?? []) as User[]
+    const user = authUsers.find((u) => u.email?.toLowerCase() === email.toLowerCase())
 
     if (!user) {
       rateLimiter.increment(ip)

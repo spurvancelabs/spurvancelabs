@@ -6,7 +6,7 @@ import { getAvailableProjectKey } from '@/lib/projects/key';
 export async function GET() {
   try {
     const access = await getProjectAccess();
-    if (!access.ok) {
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
@@ -34,7 +34,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const access = await getProjectAccess();
-    if (!access.ok) {
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;

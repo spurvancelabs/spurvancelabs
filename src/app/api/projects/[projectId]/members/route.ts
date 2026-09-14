@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { canProject, isValidProjectRole } from '@/lib/projects/permissions';
+import type { ProjectRole } from '@prisma/client';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const access = await getProjectAccess();
-    if (!access.ok) {
+const access = await getProjectAccess();
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
@@ -47,8 +48,8 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const access = await getProjectAccess();
-    if (!access.ok) {
+const access = await getProjectAccess();
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
@@ -76,7 +77,7 @@ export async function POST(
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    const finalRole = newRole && isValidProjectRole(newRole) ? newRole : 'DEVELOPER';
+    const finalRole = (newRole && isValidProjectRole(newRole) ? newRole : 'DEVELOPER') as ProjectRole;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -112,8 +113,8 @@ export async function DELETE(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const access = await getProjectAccess();
-    if (!access.ok) {
+const access = await getProjectAccess();
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
@@ -166,8 +167,8 @@ export async function PATCH(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const access = await getProjectAccess();
-    if (!access.ok) {
+const access = await getProjectAccess();
+    if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
@@ -216,7 +217,7 @@ export async function PATCH(
 
     const member = await prisma.projectMember.update({
       where: { projectId_userId: { projectId, userId: targetUserId } },
-      data: { role: newRole },
+      data: { role: newRole as ProjectRole },
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
       },
