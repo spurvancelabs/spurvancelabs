@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import type { LessonType } from '@prisma/client'
 import { requireInstructor } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest) {
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
       const sortOrder = (maxOrder?.sortOrder ?? -1) + 1
 
       const lesson = await tx.lesson.create({
-        data: { moduleId, title: title.trim(), type: lessonType, sortOrder },
+        data: { moduleId, title: title.trim(), type: lessonType as LessonType, sortOrder },
         include: { quizzes: true },
       })
 
