@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireInstructor, slugify } from '@/lib/lms/utils'
+import { requireInstructorWriter, slugify } from '@/lib/lms/utils'
 import { isAdminRole } from '@/lib/lms/roles'
 
 const courseInclude = {
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireInstructor()
+    const user = await requireInstructorWriter()
     const { id } = await params
 
     const existing = await prisma.course.findUnique({ where: { id } })
@@ -60,7 +60,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireInstructor()
+    const user = await requireInstructorWriter()
     const { id } = await params
     const existing = await prisma.course.findUnique({ where: { id } })
     if (!existing) return NextResponse.json({ error: 'Course not found' }, { status: 404 })

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Partials/Header'
-import { isAdminRole } from '@/lib/lms/roles'
+import { isAdminRole, ROLES } from '@/lib/lms/roles'
 import "@/global.css"
 
 export default function DashboardPage() {
@@ -22,6 +22,8 @@ export default function DashboardPage() {
             router.replace('/lms/instructor/dashboard')
           } else if (user?.role && isAdminRole(user.role)) {
             router.replace('/admin/dashboard')
+          } else if (user?.role === ROLES.MEMBER) {
+            router.replace('/projects')
           }
         }
       } catch {}

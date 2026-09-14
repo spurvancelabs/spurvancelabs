@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProjectAccess } from '@/lib/projects/access';
+import { canCreateProject } from '@/lib/lms/permissions';
 import prisma from '@/lib/prisma';
 import { getAvailableProjectKey } from '@/lib/projects/key';
 
@@ -38,6 +39,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
     const userId = access.userId;
+
+    if (!canCreateProject(access.role)) {
+      return NextResponse.json({ error: 'Only admins can create projects' }, { status: 403 });
+    }
 
     const body = await req.json();
     const { name, description, key, color } = body;

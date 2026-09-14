@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireInstructor } from '@/lib/lms/utils'
+import { requireInstructorWriter } from '@/lib/lms/utils'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireInstructor()
+    const user = await requireInstructorWriter()
     const { id } = await params
     const { grade, feedback } = await req.json()
 

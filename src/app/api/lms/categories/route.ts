@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireInstructor } from '@/lib/lms/utils'
+import { requireInstructorWriter } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await requireInstructor()
+    await requireInstructorWriter()
     const body = await req.json()
     const { name, slug, description } = body
     if (!name || !slug) {

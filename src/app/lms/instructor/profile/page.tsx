@@ -1,8 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
-import { getRoleColor, getRoleLabel } from '@/lib/lms/roles'
+import { getRoleColor, getRoleLabel, ROLES } from '@/lib/lms/roles'
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -18,6 +19,14 @@ export default function InstructorProfilePage() {
     queryKey: ['instructor-profile'],
     queryFn: () => fetch('/api/lms/instructor/profile').then(r => r.json()),
   })
+
+  const [role, setRole] = useState<string | null>(null)
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d?.role) setRole(d.role) })
+      .catch(() => {})
+  }, [])
 
   if (isLoading) {
     return (
@@ -64,7 +73,11 @@ export default function InstructorProfilePage() {
       <h2 className="text-lg font-semibold text-white mb-4">Your Courses ({data.courses?.length ?? 0})</h2>
       <div className="space-y-3 mb-8">
         {data.courses?.length === 0 && (
-          <p className="text-gray-400 text-sm py-8 text-center">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:underline">Create your first course</Link></p>
+          role !== ROLES.VIEWER ? (
+            <p className="text-gray-400 text-sm py-8 text-center">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:underline">Create your first course</Link></p>
+          ) : (
+            <p className="text-gray-400 text-sm py-8 text-center">No courses available.</p>
+          )
         )}
         {data.courses?.map((course: any) => (
           <Link

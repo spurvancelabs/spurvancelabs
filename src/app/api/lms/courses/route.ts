@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireInstructor, slugify } from '@/lib/lms/utils'
+import { requireInstructorWriter, slugify } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest) {
   try {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireInstructor()
+    const user = await requireInstructorWriter()
     const body = await req.json()
     const { title, description, thumbnail, categoryId, level, price, isFree, status } = body
     let slug = body.slug

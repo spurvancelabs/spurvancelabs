@@ -7,6 +7,7 @@ import ProjectHeader from '@/components/projects/ProjectHeader';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import EditProjectModal from '@/components/projects/EditProjectModal';
 import { STATUS_COLORS } from '@/lib/projects/types';
+import { canCreateProject } from '@/lib/lms/permissions';
 
 interface Project {
   id: string;
@@ -30,6 +31,7 @@ const STATUS_BADGES: Record<string, string> = {
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [editProject, setEditProject] = useState<Project | null>(null);
@@ -51,7 +53,13 @@ export default function ProjectsPage() {
       .catch(() => { window.location.href = '/login'; });
   };
 
-  useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d?.role) setRole(d.role); })
+      .catch(() => {});
+    fetchProjects();
+  }, []);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -77,6 +85,8 @@ export default function ProjectsPage() {
     }
   };
 
+  const canCreate = !!role && canCreateProject(role);
+
   return (
     <div className="flex min-h-screen bg-zinc-950">
       <ProjectSidebar />
@@ -88,15 +98,17 @@ export default function ProjectsPage() {
               <h1 className="text-2xl font-bold text-white">Projects</h1>
               <p className="text-gray-400 text-sm mt-1">Manage your projects and track progress</p>
             </div>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              New Project
-            </button>
+            {canCreate && (
+              <button
+                onClick={() => setShowCreate(true)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                New Project
+              </button>
+            )}
           </div>
 
           {loading ? (
@@ -116,14 +128,16 @@ export default function ProjectsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
                 </svg>
               </div>
-              <h3 className="text-white text-lg font-medium mb-2">No projects yet</h3>
-              <p className="text-gray-400 text-sm mb-4">Create your first project to get started</p>
-              <button
-                onClick={() => setShowCreate(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-              >
-                Create Project
-              </button>
+              <h3 className="text-white text-lg font-medium mb-2">{canCreate ? 'No projects yet' : 'No assigned projects yet'}</h3>
+              <p className="text-gray-400 text-sm mb-4">{canCreate ? 'Create your first project to get started' : 'Projects will appear here when an admin grants you access'}</p>
+              {canCreate && (
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                >
+                  Create Project
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -164,6 +178,7 @@ export default function ProjectsPage() {
                     </span>
                   </div>
                 </Link>
+                {canCreate && (
                 <div className="absolute top-3.5 right-3.5">
                   <button
                     type="button"
@@ -200,6 +215,7 @@ export default function ProjectsPage() {
                     </div>
                   )}
                 </div>
+                )}
                 </div>
               ))}
             </div>

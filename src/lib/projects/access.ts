@@ -4,7 +4,7 @@ import { getAuthUser } from '@/lib/lms/utils';
 import { canAccessProjects } from '@/lib/lms/permissions';
 
 export type ProjectAccess =
-  | { ok: true; userId: string }
+  | { ok: true; userId: string; role: string }
   | { ok: false; status: 401 | 403 };
 
 export async function getProjectAccess(): Promise<ProjectAccess> {
@@ -18,5 +18,5 @@ export async function getProjectAccess(): Promise<ProjectAccess> {
   if (!auth) return { ok: false, status: 401 };
   if (!canAccessProjects(auth.role)) return { ok: false, status: 403 };
 
-  return { ok: true, userId: auth.id };
+  return { ok: true, userId: auth.id, role: auth.role };
 }

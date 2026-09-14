@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isProjectReadOnlyRole } from '@/lib/lms/permissions';
 import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { getNextTicketKey, isValidAssignee, isValidDepartment, isAssigneeInDepartment } from '@/lib/projects/utils';
@@ -84,6 +85,9 @@ export async function POST(
     const access = await getProjectAccess();
     if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
+    }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
     const userId = access.userId;
 

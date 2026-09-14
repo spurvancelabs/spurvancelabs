@@ -112,6 +112,14 @@ export async function requireInstructor(): Promise<AuthUser> {
   return user
 }
 
+export async function requireInstructorWriter(): Promise<AuthUser> {
+  const user = await requireInstructor()
+  if (user.role === ROLES.VIEWER) {
+    throw new Error('Forbidden')
+  }
+  return user
+}
+
 export async function requireStudent(): Promise<AuthUser> {
   const user = await requireAuth()
   if (!isStudentRole(user.role) && !hasMinRole(user.role, ROLES.VIEWER)) throw new Error('Forbidden')

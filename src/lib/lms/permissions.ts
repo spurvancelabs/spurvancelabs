@@ -82,6 +82,14 @@ export function canAccessProjects(role: string | null | undefined): boolean {
   return hasPermission(role, PERMISSIONS.ACCESS_PROJECTS);
 }
 
+export function canCreateProject(role: string | null | undefined): boolean {
+  return hasMinRole(role, ROLES.EDITOR);
+}
+
+export function isProjectReadOnlyRole(role: string | null | undefined): boolean {
+  return role === ROLES.VIEWER || role === ROLES.NANO_EDITOR;
+}
+
 export function getAssignableRoles(actorRole: string | null | undefined): string[] {
   if (!actorRole) return [];
   if (actorRole === ROLES.SUPER_ADMIN) {

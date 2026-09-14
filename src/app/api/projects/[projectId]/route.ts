@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isProjectReadOnlyRole } from '@/lib/lms/permissions';
 import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { canProject } from '@/lib/projects/permissions';
@@ -64,6 +65,9 @@ export async function PUT(
     if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
     const userId = access.userId;
 
     const { projectId } = await params;
@@ -120,6 +124,9 @@ export async function DELETE(
     const access = await getProjectAccess();
     if (access.ok === false) {
       return NextResponse.json({ error: 'Access denied' }, { status: access.status });
+    }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
     const userId = access.userId;
 
