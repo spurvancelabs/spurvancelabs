@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      const module = await tx.module.findUnique({ where: { id: moduleId }, select: { id: true } })
-      if (!module) return null
+      const foundModule = await tx.module.findUnique({ where: { id: moduleId }, select: { id: true } })
+      if (!foundModule) return null
 
       const maxOrder = await tx.lesson.findFirst({
         where: { moduleId },
