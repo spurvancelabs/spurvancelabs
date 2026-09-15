@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z, ZodError } from 'zod';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
 import { requireViewer, requireEditor } from '@/lib/lms/utils';
+
+const internshipSchema = z.object({
+  title: z.string().trim().min(1, 'Title is required'),
+  department: z.string().trim().min(1, 'Department is required'),
+  duration: z.string().trim().min(1, 'Duration is required'),
+  location: z.string().trim().min(1, 'Location is required'),
+  description: z.string().trim().min(1, 'Description is required'),
+  stipend: z.string().optional().default(''),
+  stipendAmount: z.number().int().nonnegative().nullable().optional().default(null),
+  skills: z.array(z.string()).optional().default([]),
+  icon: z.string().optional().default(''),
+  status: z.enum(['ACTIVE', 'CLOSED', 'DRAFT']).optional().default('ACTIVE'),
+}).strict();
 
 export async function GET() {
   try {
@@ -43,22 +57,35 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseAdminClient();
     const body = await request.json();
 
+    let parsed;
+    try {
+      parsed = internshipSchema.parse(body);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        return NextResponse.json(
+          { error: 'Validation failed', fields: err.flatten().fieldErrors },
+          { status: 400 }
+        );
+      }
+      throw err;
+    }
+
     const { data, error } = await supabase
       .from('internships')
       .insert({
         id: crypto.randomUUID(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        title: body.title,
-        department: body.department,
-        duration: body.duration,
-        location: body.location,
-        stipend: body.stipend || null,
-        stipendAmount: body.stipendAmount || null,
-        skills: body.skills || [],
-        description: body.description,
-        icon: body.icon || null,
-        status: body.status || 'ACTIVE',
+        title: parsed.title,
+        department: parsed.department,
+        duration: parsed.duration,
+        location: parsed.location,
+        stipend: parsed.stipend || null,
+        stipendAmount: parsed.stipendAmount || null,
+        skills: parsed.skills,
+        description: parsed.description,
+        icon: parsed.icon || null,
+        status: parsed.status,
       })
       .select()
       .single();

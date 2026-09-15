@@ -1,26 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth';
+import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
-
-async function getAuthUserId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) return null;
-  const payload = await verifyToken(token);
-  if (!payload?.userId) return null;
-  return payload.userId;
-}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const { projectId } = await params;
 

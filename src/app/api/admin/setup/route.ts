@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { type User } from '@supabase/supabase-js';
 import { ROLES } from '@/lib/lms/roles';
 
 export async function POST(request: NextRequest) {
@@ -47,7 +48,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: { users: authUsers }, error: listError } = await supabase.auth.admin.listUsers();
+    const { data, error: listError } = await supabase.auth.admin.listUsers();
+    const authUsers = (data?.users ?? []) as User[];
     const existingAuthUser = authUsers?.find(u => u.email === email);
 
     if (existingAuthUser) {

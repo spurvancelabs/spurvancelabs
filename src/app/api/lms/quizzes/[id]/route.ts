@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireInstructor, requireAuth } from '@/lib/lms/utils'
+import { requireInstructorWriter, requireAuth } from '@/lib/lms/utils'
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireInstructor()
+    await requireInstructorWriter()
     const { id } = await params
     const body = await req.json()
     const quiz = await prisma.quiz.update({ where: { id }, data: body })
@@ -41,7 +41,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireInstructor()
+    await requireInstructorWriter()
     const { id } = await params
     await prisma.quiz.delete({ where: { id } })
     return NextResponse.json({ success: true })

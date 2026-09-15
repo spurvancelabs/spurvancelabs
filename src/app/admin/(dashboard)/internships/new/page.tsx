@@ -11,17 +11,39 @@ const defaultForm = {
   description: '', icon: '', status: 'ACTIVE',
 };
 
+type FormErrors = Partial<Record<keyof typeof defaultForm, string>>;
+
+function validateForm(form: typeof defaultForm): FormErrors {
+  const errors: FormErrors = {};
+  if (!form.title.trim()) errors.title = 'Title is required';
+  if (!form.department.trim()) errors.department = 'Department is required';
+  if (!form.location.trim()) errors.location = 'Location is required';
+  if (!form.description.trim()) errors.description = 'Description is required';
+  return errors;
+}
+
 export default function NewInternshipPage() {
   const router = useRouter();
   const [form, setForm] = useState(defaultForm);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (errors[name as keyof typeof defaultForm]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validationErrors = validateForm(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
     setLoading(true);
     try {
       const payload = {
@@ -60,12 +82,14 @@ export default function NewInternshipPage() {
             <div className="md:col-span-2">
               <label className="block text-gray-400 text-sm mb-1">Title *</label>
               <input type="text" name="title" required value={form.title} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none ${errors.title ? 'border-red-500 focus:border-red-500' : 'border-[#2a2a2a] focus:border-blue-500'}`} />
+              {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title}</p>}
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Department *</label>
               <input type="text" name="department" required value={form.department} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none ${errors.department ? 'border-red-500 focus:border-red-500' : 'border-[#2a2a2a] focus:border-blue-500'}`} />
+              {errors.department && <p className="text-red-400 text-xs mt-1">{errors.department}</p>}
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Duration *</label>
@@ -79,7 +103,8 @@ export default function NewInternshipPage() {
             <div>
               <label className="block text-gray-400 text-sm mb-1">Location *</label>
               <input type="text" name="location" required value={form.location} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500" />
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none ${errors.location ? 'border-red-500 focus:border-red-500' : 'border-[#2a2a2a] focus:border-blue-500'}`} />
+              {errors.location && <p className="text-red-400 text-xs mt-1">{errors.location}</p>}
             </div>
             <div>
               <label className="block text-gray-400 text-sm mb-1">Stipend (display)</label>
@@ -108,7 +133,8 @@ export default function NewInternshipPage() {
             <div className="md:col-span-2">
               <label className="block text-gray-400 text-sm mb-1">Description *</label>
               <textarea name="description" required rows={4} value={form.description} onChange={handleChange}
-                className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 resize-vertical" />
+                className={`w-full bg-[#1a1a1a] border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none resize-vertical ${errors.description ? 'border-red-500 focus:border-red-500' : 'border-[#2a2a2a] focus:border-blue-500'}`} />
+              {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
             </div>
             <div className="md:col-span-2">
               <label className="block text-gray-400 text-sm mb-1">Icon URL</label>

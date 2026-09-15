@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import { ROLES } from '@/lib/lms/roles'
 import type { PaginatedResponse, CourseData } from '@/lib/lms/types'
 
 const statusStyles: Record<string, string> = {
@@ -16,6 +17,14 @@ export default function InstructorCoursesPage() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [role, setRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d?.role) setRole(d.role) })
+      .catch(() => {})
+  }, [])
 
   const params = new URLSearchParams()
   if (search) params.set('search', search)
@@ -52,12 +61,14 @@ export default function InstructorCoursesPage() {
           <h1 className="text-2xl font-bold text-white">Courses</h1>
           <p className="text-gray-400 text-sm mt-1">Manage all courses</p>
         </div>
+        {role !== ROLES.VIEWER && (
         <Link
           href="/lms/instructor/courses/new"
           className="px-4 py-2 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-500 transition-colors"
         >
           New Course
         </Link>
+      )}
       </div>
 
       <div className="flex gap-3 mb-6">
@@ -107,7 +118,11 @@ export default function InstructorCoursesPage() {
                   </tr>
                 ))
               ) : courses.length === 0 ? (
-                <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:text-amber-300">Create one</Link></td></tr>
+                role !== ROLES.VIEWER ? (
+                  <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">No courses yet. <Link href="/lms/instructor/courses/new" className="text-amber-400 hover:text-amber-300">Create one</Link></td></tr>
+                ) : (
+                  <tr><td colSpan={6} className="px-5 py-8 text-center text-gray-400">No courses available.</td></tr>
+                )
               ) : (
                 courses.map((course) => (
                   <tr key={course.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
@@ -128,6 +143,8 @@ export default function InstructorCoursesPage() {
                     <td className="px-5 py-3 text-center text-gray-400">{course._count?.enrollments ?? 0}</td>
                     <td className="px-5 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {role !== ROLES.VIEWER && (
+                        <>
                         <Link
                           href={`/lms/instructor/courses/${course.id}`}
                           className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors"
@@ -144,6 +161,8 @@ export default function InstructorCoursesPage() {
                         >
                           Delete
                         </button>
+                        </>
+                        )}
                       </div>
                     </td>
                   </tr>

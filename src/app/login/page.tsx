@@ -11,7 +11,7 @@ import GradientImage from '@/components/GradientImage';
 import toast from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
 import { loginUser } from '@/lib/api/auth';
-import { isAdminRole } from '@/lib/lms/roles';
+import { isAdminRole, ROLES } from '@/lib/lms/roles';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,6 +29,8 @@ const mutation = useMutation({
     toast.success('Logged in successfully');
     if (data?.user?.role && isAdminRole(data.user.role)) {
       router.push('/admin/dashboard');
+    } else if (data?.user?.role === ROLES.MEMBER) {
+      router.push('/projects');
     } else {
       router.push('/dashboard');
     }

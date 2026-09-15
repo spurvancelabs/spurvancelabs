@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdminClient } from '@/lib/supabase/server';
+import { type User } from '@supabase/supabase-js';
 import { requireSuperAdmin, ensurePublicUserRecord } from '@/lib/lms/utils';
 import { ROLES } from '@/lib/lms/roles';
 
@@ -68,7 +69,8 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdminClient();
 
-    const { data: { users: authUsers }, error: listError } = await supabase.auth.admin.listUsers();
+    const { data, error: listError } = await supabase.auth.admin.listUsers();
+    const authUsers = (data?.users ?? []) as User[];
     const existingAuthUser = authUsers?.find(u => u.email === email);
 
     let userId: string;

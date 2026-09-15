@@ -79,6 +79,7 @@ export const useAdminMarkAsRead = () => {
     mutationFn: markAdminNotificationsAsRead,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-notifications-infinite'] });
       queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
     },
   });
@@ -91,6 +92,7 @@ export const useAdminMarkAllAsRead = () => {
     mutationFn: markAllAdminNotificationsAsRead,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-notifications-infinite'] });
       queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
     },
   });
@@ -103,6 +105,7 @@ export const useAdminDeleteNotification = () => {
     mutationFn: deleteAdminNotification,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-notifications-infinite'] });
       queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
     },
   });
@@ -115,6 +118,7 @@ export const useAdminDeleteAllNotifications = () => {
     mutationFn: deleteAllAdminNotifications,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-notifications-infinite'] });
       queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
     },
   });

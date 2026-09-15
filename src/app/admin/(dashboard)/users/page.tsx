@@ -24,6 +24,12 @@ export default function AdminUsersPage() {
   const [editEmail, setEditEmail] = useState('');
   const [myRole, setMyRole] = useState<string>(ROLES.ADMIN);
   const [search, setSearch] = useState('');
+  const [showCreate, setShowCreate] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newRole, setNewRole] = useState('');
+  const [createError, setCreateError] = useState('');
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -119,6 +125,53 @@ export default function AdminUsersPage() {
     },
   });
 
+  const createMutation = useMutation({
+    mutationFn: async (payload: { name: string; email: string; password: string; role: string }) => {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to create user');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success('User created');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      closeCreate();
+    },
+    onError: (error: any) => {
+      setCreateError(error.message || 'Failed to create user');
+    },
+  });
+
+  const openCreate = () => {
+    setNewName('');
+    setNewEmail('');
+    setNewPassword('');
+    setNewRole(assignableRoles.includes(ROLES.USER) ? ROLES.USER : (assignableRoles[0] || ''));
+    setCreateError('');
+    setShowCreate(true);
+  };
+
+  const closeCreate = () => {
+    setShowCreate(false);
+    setCreateError('');
+  };
+
+  const submitCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateError('');
+    if (!newName.trim()) return setCreateError('Name is required');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail.trim())) return setCreateError('A valid email is required');
+    if (newPassword.length < 8) return setCreateError('Password must be at least 8 characters');
+    if (!newRole) return setCreateError('Please select a role');
+    createMutation.mutate({ name: newName.trim(), email: newEmail.trim(), password: newPassword, role: newRole });
+  };
+
   const users: User[] = data?.users || [];
   const total = users.length;
   const instructors = users.filter((u) => isAdminRole(u.role)).length;
@@ -146,9 +199,22 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white">Users</h1>
-        <p className="text-gray-400 text-sm mt-1">Manage platform users</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Users</h1>
+          <p className="text-gray-400 text-sm mt-1">Manage platform users</p>
+        </div>
+        {assignableRoles.length > 0 && (
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer shrink-0"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add New User
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
@@ -324,6 +390,85 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {showCreate && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-white/[0.06] rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-white/[0.06]">
+              <h2 className="text-lg font-semibold text-white">Add New User</h2>
+              <button onClick={closeCreate} className="text-gray-400 hover:text-white cursor-pointer">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={submitCreate} className="p-5 space-y-4">
+              {createError && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-2 rounded-lg">{createError}</div>
+              )}
+              <div>
+                <label className="block text-sm text-gray-400 mb-1.5">Name *</label>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
+                  placeholder="Jane Doe"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1.5">Email *</label>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
+                  placeholder="jane@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1.5">Password *</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
+                  placeholder="At least 8 characters"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1.5">Role</label>
+                <select
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value)}
+                  className="w-full bg-zinc-800 border border-white/[0.06] rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-blue-500/50"
+                >
+                  {roleOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeCreate}
+                  className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {createMutation.isPending ? 'Creating...' : 'Create User'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

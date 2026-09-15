@@ -12,6 +12,7 @@ export const PERMISSIONS = {
   ACCESS_LMS_ADMIN: 'access_lms_admin',
   ACCESS_LMS_INSTRUCTOR: 'access_lms_instructor',
   ACCESS_PROJECTS_ADMIN: 'access_projects_admin',
+  ACCESS_PROJECTS: 'access_projects',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -28,6 +29,7 @@ const PERMISSION_ROLES: Record<Permission, string[]> = {
   [PERMISSIONS.ACCESS_LMS_ADMIN]: [ROLES.SUPER_ADMIN],
   [PERMISSIONS.ACCESS_LMS_INSTRUCTOR]: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER],
   [PERMISSIONS.ACCESS_PROJECTS_ADMIN]: [ROLES.SUPER_ADMIN],
+  [PERMISSIONS.ACCESS_PROJECTS]: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.MEMBER],
 };
 
 export function hasPermission(role: string | null | undefined, permission: Permission): boolean {
@@ -76,13 +78,25 @@ export function canAccessProjectsAdmin(role: string | null | undefined): boolean
   return hasPermission(role, PERMISSIONS.ACCESS_PROJECTS_ADMIN);
 }
 
+export function canAccessProjects(role: string | null | undefined): boolean {
+  return hasPermission(role, PERMISSIONS.ACCESS_PROJECTS);
+}
+
+export function canCreateProject(role: string | null | undefined): boolean {
+  return hasMinRole(role, ROLES.EDITOR);
+}
+
+export function isProjectReadOnlyRole(role: string | null | undefined): boolean {
+  return role === ROLES.VIEWER || role === ROLES.NANO_EDITOR;
+}
+
 export function getAssignableRoles(actorRole: string | null | undefined): string[] {
   if (!actorRole) return [];
   if (actorRole === ROLES.SUPER_ADMIN) {
-    return [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.USER];
+    return [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.MEMBER, ROLES.USER];
   }
   if (actorRole === ROLES.ADMIN) {
-    return [ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.USER];
+    return [ROLES.EDITOR, ROLES.NANO_EDITOR, ROLES.VIEWER, ROLES.MEMBER, ROLES.USER];
   }
   return [];
 }

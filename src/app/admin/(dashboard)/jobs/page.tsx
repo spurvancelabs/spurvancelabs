@@ -37,6 +37,12 @@ export default function AdminJobsPage() {
 
   const createMutation = useMutation({
     mutationFn: async (formData: any) => {
+      const requiredFields = ['title', 'department', 'type', 'location', 'description'];
+      for (const field of requiredFields) {
+        if (!formData[field] || !String(formData[field]).trim()) {
+          throw new Error(`${field} is required`);
+        }
+      }
       const payload = {
         ...formData,
         skills: formData.skills ? formData.skills.split(',').map((s: string) => s.trim()) : [],
@@ -48,7 +54,10 @@ export default function AdminJobsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to create');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to create');
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -61,6 +70,12 @@ export default function AdminJobsPage() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data: formData }: { id: string; data: any }) => {
+      const requiredFields = ['title', 'department', 'type', 'location', 'description'];
+      for (const field of requiredFields) {
+        if (!formData[field] || !String(formData[field]).trim()) {
+          throw new Error(`${field} is required`);
+        }
+      }
       const payload = {
         ...formData,
         skills: formData.skills ? formData.skills.split(',').map((s: string) => s.trim()) : [],
@@ -72,7 +87,10 @@ export default function AdminJobsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to update');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to update');
+      }
       return res.json();
     },
     onSuccess: () => {

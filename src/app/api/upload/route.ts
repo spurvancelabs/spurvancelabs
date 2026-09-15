@@ -53,13 +53,17 @@ async function ensureBucket(
   }
 
   const needsPublic = !bucket.public
-  // The dedicated image bucket is controlled by this application, so its
-  // 5MB limit can safely be repaired if an older configuration is present.
-  // Do not rewrite limits on the legacy media bucket: its existing project-
-  // level/global limit may legitimately be lower than the application's 100MB
-  // maximum and changing it could break existing media workflows.
+  // Keep a bucket's file size limit at least as high as the application's
+  // configured maximum. Raising is non-destructive: it never lowers an
+  // existing limit that other workflows may depend on. Without this, the
+  // video (lms-media) bucket rejects valid uploads with "The object exceeded
+  // the maximum allowed size." even when the file is within the app's 100MB
+  // cap, because the bucket (or the project default it falls back to when its
+  // limit is null) is configured lower than the app allows.
   const currentLimit = bucket.file_size_limit == null ? null : Number(bucket.file_size_limit)
-  const needsLimit = type !== 'video' && Number.isFinite(currentLimit) && currentLimit < config.fileSizeLimit
+  const needsLimit = type === 'video'
+    ? bucket.file_size_limit == null || currentLimit < config.fileSizeLimit
+    : Number.isFinite(currentLimit) && currentLimit < config.fileSizeLimit
   const currentMimeTypes = Array.isArray(bucket.allowed_mime_types) ? bucket.allowed_mime_types.map(String) : null
   const needsMimeTypes = type !== 'video' && currentMimeTypes !== null && (
     currentMimeTypes.length !== config.allowed.size ||

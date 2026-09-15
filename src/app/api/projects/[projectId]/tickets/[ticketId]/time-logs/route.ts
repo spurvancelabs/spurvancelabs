@@ -1,27 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth';
+import { isProjectReadOnlyRole } from '@/lib/lms/permissions';
+import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { logActivity } from '@/lib/projects/utils';
-
-async function getAuthUserId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) return null;
-  const payload = await verifyToken(token);
-  if (!payload?.userId) return null;
-  return payload.userId;
-}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string; ticketId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const { projectId, ticketId } = await params;
 
@@ -65,10 +57,14 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string; ticketId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+    const userId = access.userId;
 
     const { projectId, ticketId } = await params;
 

@@ -1,27 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifyToken } from '@/lib/auth';
+import { isProjectReadOnlyRole } from '@/lib/lms/permissions';
+import { getProjectAccess } from '@/lib/projects/access';
 import prisma from '@/lib/prisma';
 import { canProject, isValidProjectRole } from '@/lib/projects/permissions';
-
-async function getAuthUserId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) return null;
-  const payload = await verifyToken(token);
-  if (!payload?.userId) return null;
-  return payload.userId;
-}
+import type { ProjectRole } from '@prisma/client';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    const userId = access.userId;
 
     const { projectId } = await params;
 
@@ -56,10 +49,14 @@ export async function POST(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+    const userId = access.userId;
 
     const { projectId } = await params;
 
@@ -84,7 +81,7 @@ export async function POST(
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
-    const finalRole = newRole && isValidProjectRole(newRole) ? newRole : 'DEVELOPER';
+    const finalRole = (newRole && isValidProjectRole(newRole) ? newRole : 'DEVELOPER') as ProjectRole;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -120,10 +117,14 @@ export async function DELETE(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+    const userId = access.userId;
 
     const { projectId } = await params;
     const body = await req.json();
@@ -173,10 +174,14 @@ export async function PATCH(
   { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
-    const userId = await getAuthUserId();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+const access = await getProjectAccess();
+    if (access.ok === false) {
+      return NextResponse.json({ error: 'Access denied' }, { status: access.status });
     }
+    if (isProjectReadOnlyRole(access.role)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+    const userId = access.userId;
 
     const { projectId } = await params;
     const body = await req.json();
@@ -222,7 +227,7 @@ export async function PATCH(
 
     const member = await prisma.projectMember.update({
       where: { projectId_userId: { projectId, userId: targetUserId } },
-      data: { role: newRole },
+      data: { role: newRole as ProjectRole },
       include: {
         user: { select: { id: true, name: true, email: true, image: true } },
       },

@@ -4,6 +4,7 @@ export const ROLES = {
   EDITOR: 'EDITOR',
   NANO_EDITOR: 'NANO_EDITOR',
   VIEWER: 'VIEWER',
+  MEMBER: 'MEMBER',
   USER: 'USER',
 } as const;
 
@@ -17,6 +18,7 @@ export const ROLE_HIERARCHY: Record<string, number> = {
   EDITOR: 60,
   NANO_EDITOR: 40,
   VIEWER: 20,
+  MEMBER: 15,
   USER: 10,
 };
 
@@ -35,6 +37,7 @@ export const ROLE_COLORS: Record<string, string> = {
   EDITOR: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   NANO_EDITOR: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   VIEWER: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+  MEMBER: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
   USER: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
 };
 
@@ -44,6 +47,7 @@ export const ROLE_LABELS: Record<string, string> = {
   EDITOR: 'Editor',
   NANO_EDITOR: 'Nano Editor',
   VIEWER: 'Viewer',
+  MEMBER: 'Member',
   USER: 'Student',
 };
 
@@ -64,4 +68,8 @@ export function isValidRole(role: string): role is Role {
 export function isAdminRole(role: string | null | undefined): boolean {
   if (!role) return false;
   return hasMinRole(role, ROLES.VIEWER);
+}
+
+export function isStudentRole(role: string | null | undefined): boolean {
+  return role === ROLES.USER || role === ROLES.MEMBER;
 }

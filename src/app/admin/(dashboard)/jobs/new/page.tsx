@@ -22,6 +22,13 @@ export default function NewJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const requiredFields = ['title', 'department', 'type', 'location', 'description'];
+    for (const field of requiredFields) {
+      if (!(form as any)[field] || !(form as any)[field].trim()) {
+        toast.error(`"${field}" is required`);
+        return;
+      }
+    }
     setLoading(true);
     try {
       const payload = {
@@ -35,7 +42,10 @@ export default function NewJobPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to create');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to create');
+      }
       toast.success('Job created successfully');
       router.push('/admin/jobs');
     } catch (err: any) {

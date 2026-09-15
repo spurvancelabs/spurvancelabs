@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useInfiniteAdminNotifications, useAdminMarkAsRead, useAdminMarkAllAsRead, useAdminDeleteNotification } from '@/hooks/useAdminNotificationQueries';
+import { useInfiniteAdminNotifications, useAdminMarkAsRead, useAdminMarkAllAsRead, useAdminDeleteNotification, useAdminDeleteAllNotifications } from '@/hooks/useAdminNotificationQueries';
 import { AdminNotification } from '@/lib/admin-notifications/types';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -30,6 +30,7 @@ export default function AdminNotificationsPage() {
   const markAsReadMutation = useAdminMarkAsRead();
   const markAllAsReadMutation = useAdminMarkAllAsRead();
   const deleteNotificationMutation = useAdminDeleteNotification();
+  const deleteAllNotificationsMutation = useAdminDeleteAllNotifications();
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -63,6 +64,16 @@ export default function AdminNotificationsPage() {
       await markAllAsReadMutation.mutateAsync();
     } catch {
       toast.error('Failed to mark all notifications as read');
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm('Are you sure you want to clear all notifications?')) return;
+    try {
+      await deleteAllNotificationsMutation.mutateAsync();
+      toast.success('All notifications cleared');
+    } catch {
+      toast.error('Failed to clear notifications');
     }
   };
 
@@ -111,11 +122,18 @@ export default function AdminNotificationsPage() {
           {total > 0 && <span className="text-xs text-gray-500">({total})</span>}
         </div>
 
-        {notifications.some((n) => !n.read) && (
-          <button onClick={handleMarkAllAsRead} className="text-sm text-blue-400 hover:text-blue-300">
-            Mark all read
-          </button>
-        )}
+        <div className="flex items-center gap-4">
+          {notifications.some((n) => !n.read) && (
+            <button onClick={handleMarkAllAsRead} className="text-sm text-blue-400 hover:text-blue-300">
+              Mark all read
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button onClick={handleDeleteAll} className="text-sm text-red-400 hover:text-red-300">
+              Clear all
+            </button>
+          )}
+        </div>
       </div>
 
       {notifications.length === 0 ? (

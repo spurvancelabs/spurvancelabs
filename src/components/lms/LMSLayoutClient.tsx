@@ -17,13 +17,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/lms', label: 'Courses', roles: ['guest', ROLES.USER, ROLES.ADMIN] },
-  { href: '/lms/my-courses', label: 'My Learning', roles: [ROLES.USER, ROLES.ADMIN] },
-  { href: '/lms/wishlist', label: 'Wishlist', roles: [ROLES.USER, ROLES.ADMIN] },
-  { href: '/lms/certificates', label: 'Certificates', roles: [ROLES.USER, ROLES.ADMIN] },
-  { href: '/dashboard', label: 'Dashboard', roles: [ROLES.USER, ROLES.ADMIN] },
+  { href: '/lms', label: 'Courses', roles: ['guest', ROLES.USER, ROLES.MEMBER, ROLES.ADMIN] },
+  { href: '/lms/my-courses', label: 'My Learning', roles: [ROLES.USER, ROLES.MEMBER, ROLES.ADMIN] },
+  { href: '/lms/wishlist', label: 'Wishlist', roles: [ROLES.USER, ROLES.MEMBER, ROLES.ADMIN] },
+  { href: '/lms/certificates', label: 'Certificates', roles: [ROLES.USER, ROLES.MEMBER, ROLES.ADMIN] },
+  { href: '/dashboard', label: 'Dashboard', roles: [ROLES.USER, ROLES.MEMBER, ROLES.ADMIN] },
   { href: '/lms/instructor/dashboard', label: 'Instructor', roles: [ROLES.ADMIN] },
-  { href: '/lms/profile', label: 'Profile', roles: [ROLES.USER, ROLES.ADMIN] },
+  { href: '/lms/profile', label: 'Profile', roles: [ROLES.USER, ROLES.MEMBER, ROLES.ADMIN] },
 ]
 
 export default function LMSLayoutClient({
