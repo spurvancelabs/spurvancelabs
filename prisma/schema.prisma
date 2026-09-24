@@ -229,6 +229,39 @@ model Interviewer {
   @@map("interviewers")
 }
 
+// ─── Internship Certificate Models ───────────────────────────
+
+model InternshipCertificate {
+  id              String    @id @default(uuid()) @db.Uuid
+  certificateId   String    @unique @map("certificate_id") @db.VarChar(30)
+  name            String    @db.VarChar(200)
+  email           String    @db.VarChar(320)
+  internshipField String    @map("internship_field") @db.VarChar(200)
+  performance     String    @db.VarChar(200)
+  startDate       DateTime  @map("start_date") @db.Date
+  endDate         DateTime  @map("end_date") @db.Date
+  fileUrl         String    @map("file_url") @db.VarChar(500)
+  publicId        String    @map("public_id") @db.VarChar(300)
+  fileType        String    @map("file_type") @db.VarChar(20)
+  issuedBy        String    @map("issued_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([name])
+  @@index([createdAt(sort: Desc)])
+  @@map("internship_certificates")
+  @@schema("public")
+}
+
+model CertificateCounter {
+  id    Int @id @default(1)
+  value Int @default(0)
+
+  @@map("certificate_counters")
+  @@schema("public")
+}
+
 // ─── LMS Models ──────────────────────────────────────────────
 
 model Category {

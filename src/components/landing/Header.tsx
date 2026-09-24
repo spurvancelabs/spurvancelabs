@@ -12,6 +12,7 @@ const navItems = [
   { href: '/landing/internships', label: 'Internships' },
   { href: '/landing/jobs', label: 'Jobs' },
   { href: '/landing/products', label: 'Products' },
+  { href: '/verify-certificate', label: 'Verify Certificate' },
 ];
 
 export default function Header() {

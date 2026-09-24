@@ -49,6 +49,7 @@ export default function Footer() {
     { href: '/blog', label: 'Blog' },
     { href: '/landing', label: 'Testimonials' },
     { href: '/landing/contact', label: 'Contact' },
+    { href: '/verify-certificate', label: 'Certificate Verification' },
   ];
 
   return (
