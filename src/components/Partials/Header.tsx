@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/lms/my-courses', label: 'My Learning' },
   { href: '/lms/wishlist', label: 'Wishlist' },
   { href: '/lms/certificates', label: 'Certificates' },
+  { href: '/verify-certificate', label: 'Verify Certificate' },
   { href: '/lms/profile', label: 'Profile' },
   { href: '/projects', label: 'Projects' },
 ]
